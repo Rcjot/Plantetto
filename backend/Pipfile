@@ -10,6 +10,7 @@ python-dotenv = "*"
 psycopg2 = "*"
 flask-login = "*"
 flask-wtf = "*"
+colorama = "*"
 
 [dev-packages]
 
