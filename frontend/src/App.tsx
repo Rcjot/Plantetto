@@ -6,7 +6,6 @@ function App() {
 
     return (
         <>
-            <h1>Plantetto !</h1>
             <RouterProvider router={router} />
         </>
     );
