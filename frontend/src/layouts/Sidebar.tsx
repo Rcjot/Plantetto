@@ -20,8 +20,8 @@ function Sidebar({children}: { children: React.ReactNode }) {
         drawerRef.current!.checked = false;
     }
 
-  const custom_hover_button = "flex items-center gap-3 p-2 rounded-xl transition text-xl hover:bg-[#92D49C] hover:text-black active:bg-[#7fc18b] active:text-black";
-  const sidebar_style = "menu bg-[#ffffff] text-black min-h-full border-r border-gray-200 -5 flex flex-col w-[18rem] max-w-[22vw] min-w-[12rem] overflow-y-auto transition-all duration-300";
+  const custom_hover_button = "flex items-center gap-3 p-2 rounded-xl transition text-xl hover:bg-base-300 active:bg-base-300";
+  const sidebar_style = "menu bg-base-100 min-h-full border-r border-gray-200 -5 flex flex-col w-[18rem] max-w-[22vw] min-w-[12rem] overflow-y-auto transition-all duration-300";
 
   return (
     <div className="drawer lg:drawer-open flex-1 overflow-hidden">
@@ -40,7 +40,7 @@ function Sidebar({children}: { children: React.ReactNode }) {
         <ul className={`${sidebar_style} flex flex-col gap-y-1`}>
             <li>
                 <NavLink to="/home" onClick={drawToggle} 
-                    className={({ isActive }) => `${custom_hover_button} ${isActive ? "bg-[#92D49C] text-black font-semibold" : ""}`}>
+                    className={({ isActive }) => `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`}>
                     <img src={home_icon} alt="Home" className="w-5 h-5" />
                     <span>Home</span>
             </NavLink>
@@ -76,7 +76,7 @@ function Sidebar({children}: { children: React.ReactNode }) {
 
             <li>
                 <NavLink to="/mygarden" onClick={drawToggle}
-                    className={({ isActive }) => `${custom_hover_button} ${ isActive ? "bg-[#92D49C] text-black font-semibold" : ""}`}>
+                    className={({ isActive }) => `${custom_hover_button} ${ isActive ? "bg-base-300 font-semibold" : ""}`}>
                     <img src={garden_icon} alt="My Garden" className="w-5 h-5" />
                     <span>My Garden</span>
                 </NavLink>

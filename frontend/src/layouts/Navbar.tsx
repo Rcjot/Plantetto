@@ -12,7 +12,7 @@ export default function Navbar() {
     }, []);
 
 
-  const navbar_style = "navbar bg-[#ffffff] px-4 py-2 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200";
+  const navbar_style = "navbar bg-base-100 px-4 py-2 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200";
 
   return (
     <div className={navbar_style}>
@@ -29,7 +29,7 @@ export default function Navbar() {
         {/* logo n title */}
         <div className="flex items-center gap-2">
           <img src={garden_icon} alt="LogoPlaceholder" className="w-8 h-8" />
-          <h1 className="text-xl lg:text-2xl font-bold text-black hidden sm:block">
+          <h1 className="text-xl lg:text-2xl font-bold hidden sm:block">
             Plantetto
           </h1>
         </div>
@@ -41,7 +41,7 @@ export default function Navbar() {
         <input
           type="text"
           placeholder="Search"
-          className="input input-bordered w-full max-w-xs sm:max-w-sm md:max-w-md bg-white text-black border-gray-200"
+          className="input input-bordered w-full max-w-xs sm:max-w-sm md:max-w-md bg-white border-gray-200"
         />
       </div>
 
