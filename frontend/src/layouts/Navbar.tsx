@@ -31,7 +31,7 @@ export default function Navbar() {
                     <img
                         src={garden_icon}
                         alt="LogoPlaceholder"
-                        className="w-8 h-8"
+                        className="w-7 h-7"
                     />
                     <h1 className="text-xl lg:text-2xl font-bold hidden sm:block">
                         Plantetto
