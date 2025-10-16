@@ -3,15 +3,14 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
 function MasterLayout() {
-  return (
-    <div className="flex flex-col h-screen bg-base-200">
-      <Navbar />
-        <Sidebar>
-            <Outlet/>
-        </Sidebar>
-
-      </div>
-  );
+    return (
+        <div className="flex flex-col h-screen bg-base-200">
+            <Navbar />
+            <Sidebar>
+                <Outlet />
+            </Sidebar>
+        </div>
+    );
 }
 
 export default MasterLayout;
