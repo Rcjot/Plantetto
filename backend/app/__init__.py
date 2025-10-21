@@ -2,6 +2,7 @@ from flask import Flask,jsonify
 from config import SECRET_KEY, DATABASE_URL
 from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from . import database
 
 def create_app() :
     app = Flask(__name__, instance_relative_config=True)
@@ -17,10 +18,15 @@ def create_app() :
                 )
 
     CSRFProtect(app)
+
+    database.init_app(app)
     
     @app.route("/") 
     def check_route():
         return jsonify(success=True)
+    
+    from .features.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix="")
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
