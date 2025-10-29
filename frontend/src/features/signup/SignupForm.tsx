@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import authApi from "@/api/authApi";
 
 const schema = z.object({
     username: z.string().nonempty("required"),
@@ -11,12 +12,13 @@ const schema = z.object({
 });
 
 export type SignupFields = z.infer<typeof schema>;
+type SignupFieldNames = keyof SignupFields;
 
 function SignupForm() {
     const {
         register,
         handleSubmit,
-        // setError,
+        setError,
         formState: { errors, isSubmitting },
     } = useForm<SignupFields>({
         // defaultValues: { username: "user0" },
@@ -24,8 +26,15 @@ function SignupForm() {
     });
 
     const onSubmit: SubmitHandler<SignupFields> = async (data) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log(data);
+        await authApi.fetchMe();
+        const res = await authApi.signupUser(data);
+        if (!res.ok) {
+            (
+                Object.entries(res.errors) as [SignupFieldNames, string[]][]
+            ).forEach(([field, messages]) => {
+                setError(field, { message: messages[0] });
+            });
+        }
     };
 
     return (
