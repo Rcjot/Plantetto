@@ -11,25 +11,25 @@ import Profile from "../pages/profile/Profile";
 function getRoutes() {
     return [
         {
-            element: <MasterLayout />,
+            element: <PublicRoute />,
             children: [
                 {
-                    element: <PublicRoute />,
-                    children: [
-                        {
-                            path: "/login",
-                            element: <Login />,
-                        },
-                        {
-                            path: "/signup",
-                            element: <Signup />,
-                        },
-                        {
-                            path: "/",
-                            element: <LandingPage />,
-                        },
-                    ],
+                    path: "/login",
+                    element: <Login />,
                 },
+                {
+                    path: "/signup",
+                    element: <Signup />,
+                },
+                {
+                    path: "/",
+                    element: <LandingPage />,
+                },
+            ],
+        },
+        {
+            element: <MasterLayout />,
+            children: [
                 {
                     element: <ProtectedRoute />,
                     children: [
@@ -47,11 +47,11 @@ function getRoutes() {
                         },
                     ],
                 },
-                {
-                    path: "*",
-                    element: <div>error</div>,
-                },
             ],
+        },
+        {
+            path: "*",
+            element: <div>error</div>,
         },
     ];
 }
