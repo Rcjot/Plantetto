@@ -11,6 +11,7 @@ psycopg2 = "*"
 flask-login = "*"
 flask-wtf = "*"
 colorama = "*"
+email-validator = "*"
 
 [dev-packages]
 
