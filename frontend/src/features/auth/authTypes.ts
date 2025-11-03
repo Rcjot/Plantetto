@@ -1,6 +1,7 @@
 export interface User {
     id: string;
     username: string;
+    pfp_url: string;
 }
 
 export interface AuthType {
@@ -12,4 +13,5 @@ export interface AuthContextType {
     auth: AuthType;
     signin: (auth: AuthType) => void;
     logout: () => Promise<void>;
+    fetchCredentials: () => Promise<void>;
 }

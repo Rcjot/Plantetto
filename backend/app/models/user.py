@@ -4,12 +4,13 @@ import psycopg2.extras
 import hashlib
 
 class Users(UserMixin) :
-    def __init__(self,  uuid=None, username=None, email=None, password=None, created_at=None):
+    def __init__(self,  uuid=None, username=None, email=None, password=None, created_at=None, pfp_url=None):
         self.uuid = uuid
         self.username = username
         self.email = email
         self.password = password
         self.created_at = created_at
+        self.pfp_url = pfp_url
     
     def add(self) :
         db = get_db()
@@ -41,7 +42,8 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url']
         )
 
     @classmethod
@@ -63,7 +65,8 @@ class Users(UserMixin) :
             username=result['username'],
             email=result['email'],
             password=result['user_password'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url']
         )
 
     @classmethod 
@@ -89,7 +92,8 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url']
         )
 
     @classmethod 
@@ -115,7 +119,8 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url']
         )
 
     def get_id(self) :
@@ -131,3 +136,18 @@ class Users(UserMixin) :
             'username':self.username,
         }
     
+    @classmethod
+    def set_pfp(cls, uuid, pfp_url) :
+        try: 
+            db = get_db()
+            cursor = db.cursor()
+
+            sql="UPDATE users SET pfp_url = %s WHERE uuid = %s"
+            cursor.execute(sql, (pfp_url, uuid))
+            db.commit()
+            cursor.close()
+
+            return True
+        except Exception as e:
+            print(f"error setting pfp: {e}")
+            return False

@@ -6,9 +6,10 @@ import notification_icon from "../assets/icons/notification.svg";
 import garden_icon from "../assets/icons/my_garden.svg";
 import menu_icon from "../assets/icons/menu.svg";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import ProfilePicture from "@/components/ProfilePicture";
 
 export default function Navbar() {
-    const { logout } = useAuthContext()!;
+    const { auth, logout } = useAuthContext()!;
     useEffect(() => {
         console.log("Width:", window.innerWidth);
     }, []);
@@ -68,11 +69,15 @@ export default function Navbar() {
                     className="w-6 h-6 sm:w-7 sm:h-7 cursor-pointer"
                 />
                 <div className="dropdown dropdown-end">
-                    <div
-                        tabIndex={0}
-                        role="button"
-                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-base-300 cursor-pointer flex items-center justify-center"
-                    ></div>
+                    <div tabIndex={0} role="button" className="cursor-pointer">
+                        {auth?.user ? (
+                            <ProfilePicture src={auth.user.pfp_url} />
+                        ) : (
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-base-300 flex items-center justify-center">
+                                ?
+                            </div>
+                        )}
+                    </div>
                     <ul
                         tabIndex={-1}
                         className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 mt-2"
@@ -80,7 +85,7 @@ export default function Navbar() {
                         <li>
                             {/* change later to use uuid */}
                             <Link
-                                to="/profile"
+                                to={`/profile/${auth.user?.username}`}
                                 className="text-base-content hover:bg-base-content/70 hover:text-accent-content"
                             >
                                 Check your profile
