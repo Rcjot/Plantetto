@@ -1,7 +1,10 @@
 import { useParams } from "react-router-dom";
+import { DialogDemo } from "@/features/profile/EditProfileCard";
 
 function Profile() {
     const { id } = useParams();
+    const currentUserId = "123";
+    const isOwnProfile = id === currentUserId;
     return (
         <div className="bg-base-200 h-screen overflow-y-auto">
             <div className="bg-base-100">
@@ -28,9 +31,13 @@ function Profile() {
                         </div>
 
                         {/* no function yet for changing into edit profile cuz backend broken */}
-                        <button className="btn btn-sm btn-neutral">
-                            follow
-                        </button>
+                        {isOwnProfile ? (
+                            <DialogDemo />
+                        ) : (
+                            <button className="btn btn-sm btn-neutral">
+                                Follow
+                            </button>
+                        )}
                     </div>
 
                     {/* circle thing container */}
