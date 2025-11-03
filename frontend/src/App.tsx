@@ -1,12 +1,15 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import getRoutes from "./routes/router";
+import AuthProvider from "./features/auth/AuthProvider";
 
 function App() {
     const router = createBrowserRouter(getRoutes());
 
     return (
         <>
-            <RouterProvider router={router} />
+            <AuthProvider>
+                <RouterProvider router={router} />
+            </AuthProvider>
         </>
     );
 }

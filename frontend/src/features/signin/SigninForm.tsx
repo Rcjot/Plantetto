@@ -2,6 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import authApi from "@/api/authApi";
+import { useAuthContext } from "../auth/AuthContext";
 
 const schema = z.object({
     username: z.string().nonempty("required"),
@@ -9,21 +11,32 @@ const schema = z.object({
 });
 
 export type SigninFields = z.infer<typeof schema>;
+type SigninFieldNames = keyof SigninFields;
 
 function SiginForm() {
     const {
         register,
         handleSubmit,
-        // setError,
+        setError,
         formState: { errors, isSubmitting },
     } = useForm<SigninFields>({
         // defaultValues: { username: "user0" },
         resolver: zodResolver(schema),
     });
+    const { signin } = useAuthContext()!;
 
     const onSubmit: SubmitHandler<SigninFields> = async (data) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log(data);
+        await authApi.fetchMe();
+        const res = await authApi.signinUser(data);
+        if (!res.ok) {
+            (
+                Object.entries(res.errors) as [SigninFieldNames, string[]][]
+            ).forEach(([field, messages]) => {
+                setError(field, { message: messages[0] });
+            });
+        } else {
+            signin(res.auth);
+        }
     };
 
     return (
