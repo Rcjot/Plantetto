@@ -1,6 +1,6 @@
-import SigninForm from "./SigninForm";
+import SignupForm from "./SignupForm";
 import { Link } from "react-router-dom";
-function SigninCard() {
+function SignupCard() {
     return (
         <>
             <fieldset
@@ -9,20 +9,16 @@ function SigninCard() {
                 <h1 className="text-2xl font-bold text-center">
                     Welcome to Plantetto!
                 </h1>
-                <SigninForm />
+                <SignupForm />
                 <p className="self-center">
-                    New to the garden? &nbsp;
-                    <Link className="font-extrabold underline " to={"/signup"}>
-                        Create an Account
+                    Already got an account? &nbsp;
+                    <Link className="font-extrabold underline " to={"/signin"}>
+                        Sign in
                     </Link>
-                </p>
-                <p className="self-center italic">
-                    because <span className="font-extrabold">every plant</span>{" "}
-                    deserves a <span className="font-extrabold">story</span>
                 </p>
             </fieldset>
         </>
     );
 }
 
-export default SigninCard;
+export default SignupCard;
