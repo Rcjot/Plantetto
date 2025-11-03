@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, validators, ValidationError
+from wtforms import StringField, PasswordField, validators, ValidationError, BooleanField
 from ...models.user import Users
 
 def username_not_ditto(form, field) :
@@ -26,3 +26,8 @@ class SignupForm(FlaskForm) :
     password = PasswordField(validators=[validators.DataRequired()])
     confirm = PasswordField(validators=[validators.DataRequired(), 
                                         validators.EqualTo("password")])
+
+class LoginForm(FlaskForm) :
+    username = StringField(validators=[validators.DataRequired()])
+    password = PasswordField(validators=[validators.DataRequired()])
+    remember = BooleanField()
