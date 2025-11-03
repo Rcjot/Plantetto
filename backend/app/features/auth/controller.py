@@ -1,13 +1,23 @@
 from . import auth_bp
-from flask import request, jsonify, session, redirect
-from .forms import SignupForm
+from flask import request, jsonify
+from .forms import SignupForm, LoginForm
 from ...models.user import Users
 from flask_wtf.csrf import generate_csrf
-from os import getenv
+from flask_login import login_user, login_required, current_user, logout_user
 
 @auth_bp.route("/me")
 def get_me() :
-    response = jsonify(success=True, detail="get me status success")
+    if current_user.is_authenticated: 
+        status = "authenticated"
+        user = current_user.get_json()
+    else : 
+        status = "unauthenticated"
+        user = None
+
+    response = jsonify(success=True, 
+                        detail="get me status success", 
+                        status=status,
+                        user=user)
     
     response.set_cookie(
         "XSRF-TOKEN",
@@ -45,47 +55,36 @@ def signup_user() :
                    error=error
                    ), 400
 
+@auth_bp.route("/signin", methods=["POST"])
+def signin_user() :
+    data = request.get_json()
 
-@auth_bp.route("/logout", methods=["GET", "POST"])
-def logout_user():
-    """Logout route.
+    form = LoginForm(data=data)
+    validated = form.validate()
+    error = {
+        "username" : form.username.errors,
+        "password" : form.password.errors,
+        "root" : [],
+    }
 
-    Clears the Flask session. If the request includes an `atlassian` flag
-    (query param or JSON body) the endpoint will redirect the user to
-    Atlassian's logout URL so their Atlassian identity session is also
-    terminated.
+    if validated :
+        user = Users.get_for_auth(form.username.data)
 
-    Clients can call `/api/auth/logout?atlassian=1&continue=<url>` to clear
-    server session and redirect to Atlassian logout which then continues to
-    the provided URL (if supported).
-    """
-    # Clear server-side session/cookies
-    session.clear()
+        if user and user.check_password(form.password.data) :
+            login_user(user, remember=form.remember.data)
+            print("hi successful", user.get_json())
+            return jsonify(success=True, message="signin success", user=user.get_json())
+        
+        error["root"] = ["invalid username or password"]
 
-    # Check for an Atlassian logout request
-    atlassian_flag = None
-    continue_url = None
-    if request.method == "GET":
-        atlassian_flag = request.args.get("atlassian")
-        continue_url = request.args.get("continue")
-    else:
-        # POST - try JSON body safely
-        try:
-            body = request.get_json(silent=True) or {}
-        except Exception:
-            body = {}
-        atlassian_flag = body.get("atlassian")
-        continue_url = body.get("continue")
+    return jsonify(success=False,message="invalid credentials", error=error), 400
 
-    # Normalize truthy values
-    if isinstance(atlassian_flag, str):
-        atlassian_flag = atlassian_flag.lower() in ("1", "true", "yes")
+@auth_bp.route("/protected")
+@login_required
+def get_protected() :
+    return jsonify(success=True, message="accessed protected", user=current_user.get_json())
 
-    if atlassian_flag:
-        atlas_logout = getenv("ATLASSIAN_LOGOUT_URL") or "https://id.atlassian.com/logout"
-        if continue_url:
-            # Redirect to Atlassian logout with continue param
-            return redirect(f"{atlas_logout}?continue={continue_url}")
-        return redirect(atlas_logout)
-
-    return jsonify(success=True, message="logged out")
+@auth_bp.route("/logout")
+def logout() :
+    logout_user()
+    return jsonify(success=True, message="logout successful")
