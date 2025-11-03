@@ -5,8 +5,10 @@ import chat_icon from "../assets/icons/chat.svg";
 import notification_icon from "../assets/icons/notification.svg";
 import garden_icon from "../assets/icons/my_garden.svg";
 import menu_icon from "../assets/icons/menu.svg";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 export default function Navbar() {
+    const { logout } = useAuthContext()!;
     useEffect(() => {
         console.log("Width:", window.innerWidth);
     }, []);
@@ -65,10 +67,35 @@ export default function Navbar() {
                     alt="Notifications"
                     className="w-6 h-6 sm:w-7 sm:h-7 cursor-pointer"
                 />
-                <Link
-                    to="/profile"
-                    className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-base-300 cursor-pointer"
-                ></Link>
+                <div className="dropdown dropdown-end">
+                    <div
+                        tabIndex={0}
+                        role="button"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-base-300 cursor-pointer flex items-center justify-center"
+                    ></div>
+                    <ul
+                        tabIndex={-1}
+                        className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 mt-2"
+                    >
+                        <li>
+                            {/* change later to use uuid */}
+                            <Link
+                                to="/profile"
+                                className="text-base-content hover:bg-base-content/70 hover:text-accent-content"
+                            >
+                                Check your profile
+                            </Link>
+                        </li>
+                        <li>
+                            <button
+                                onClick={logout}
+                                className="text-error hover:bg-error hover:text-accent-content"
+                            >
+                                Logout
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     );
