@@ -2,28 +2,39 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import authApi from "@/api/authApi";
 
 const schema = z.object({
     username: z.string().nonempty("required"),
-    password: z.string().nonempty("required"),
+    email: z.email("invalid email!").nonempty("required"),
+    password: z.string().min(8, "too short!").nonempty("required"),
+    confirm: z.string().nonempty("required"),
 });
 
-export type SigninFields = z.infer<typeof schema>;
+export type SignupFields = z.infer<typeof schema>;
+type SignupFieldNames = keyof SignupFields;
 
-function SiginForm() {
+function SignupForm() {
     const {
         register,
         handleSubmit,
-        // setError,
+        setError,
         formState: { errors, isSubmitting },
-    } = useForm<SigninFields>({
+    } = useForm<SignupFields>({
         // defaultValues: { username: "user0" },
         resolver: zodResolver(schema),
     });
 
-    const onSubmit: SubmitHandler<SigninFields> = async (data) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log(data);
+    const onSubmit: SubmitHandler<SignupFields> = async (data) => {
+        await authApi.fetchMe();
+        const res = await authApi.signupUser(data);
+        if (!res.ok) {
+            (
+                Object.entries(res.errors) as [SignupFieldNames, string[]][]
+            ).forEach(([field, messages]) => {
+                setError(field, { message: messages[0] });
+            });
+        }
     };
 
     return (
@@ -39,7 +50,21 @@ function SiginForm() {
                     name="username"
                     placeholder="Username"
                     className="input"
-                    autoComplete="username"
+                />
+            </div>
+
+            <label htmlFor="email" className="label">
+                Email
+            </label>
+            <div>
+                <span className="text-warning">{errors.email?.message}</span>
+                <input
+                    {...register("email")}
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    className="input"
+                    autoComplete="email"
                 />
             </div>
 
@@ -54,16 +79,31 @@ function SiginForm() {
                     name="password"
                     placeholder="Password"
                     className="input"
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                 />
             </div>
-            <span className="text-warning">{errors.root?.message}</span>
+
+            <label htmlFor="confirm" className="label">
+                Confirm Password
+            </label>
+            <div>
+                <span className="text-warning">{errors.confirm?.message}</span>
+                <input
+                    {...register("confirm")}
+                    type="password"
+                    name="confirm"
+                    placeholder="Confirm Password"
+                    className="input"
+                    autoComplete="new-password"
+                />
+            </div>
 
             <button className="btn btn-neutral mt-4 self-center px-10">
-                {isSubmitting ? "signing in.." : "sign in"}
+                {isSubmitting ? "signing up.." : "sign up"}
             </button>
+            <span className="text-warning">{errors.root?.message}</span>
         </form>
     );
 }
 
-export default SiginForm;
+export default SignupForm;
