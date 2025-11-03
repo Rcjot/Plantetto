@@ -28,10 +28,10 @@ function getRoutes() {
             ],
         },
         {
-            element: <MasterLayout />,
+            element: <ProtectedRoute />,
             children: [
                 {
-                    element: <ProtectedRoute />,
+                    element: <MasterLayout />,
                     children: [
                         {
                             path: "/home",
