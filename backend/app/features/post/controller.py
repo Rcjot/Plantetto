@@ -63,3 +63,21 @@ def create_post() :
     return jsonify(success=False,
                     message="form fields might be invalid",
                     error=error), 400
+
+@post_bp.route("/<post_uuid>", methods=["DELETE"])
+@login_required
+def delete_post(post_uuid) :
+    to_delete_post = Posts.get_post(post_uuid)
+    if (to_delete_post == None) :
+        return jsonify(success=False, message="no such post"), 404
+    print(str(to_delete_post["author"]["id"]), current_user.get_id())
+    if (str(to_delete_post["author"]["id"]) != current_user.get_uuid()) :
+        return jsonify(success=False, message="not permitted"), 403
+    
+    if (Posts.delete(post_uuid)) :
+        if (len(to_delete_post["media"]) > 0) :
+            cloudinary.delete_post(post_uuid)
+        return jsonify(success=True, message="delete post successful")        
+    else :
+        return jsonify(success=False, message="delete post failed!"), 500
+

@@ -4,6 +4,7 @@ load_dotenv()
 import cloudinary
 from cloudinary import CloudinaryImage
 import cloudinary.uploader
+import cloudinary.api
 
 config = cloudinary.config(secure=True)
 
@@ -55,5 +56,7 @@ def upload_pfp(imageFile, id) :
     print("****2. Upload an image****\nDelivery URL: ", srcURL, "\n")
     return srcURL
 
-def get_asset(id) :
-    pass
+def delete_post(folder) :
+    cloudinary.api.delete_resources_by_prefix(f"posts/{folder}")
+    cloudinary.api.delete_folder(f"posts/{folder}")
+    return True
