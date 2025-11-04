@@ -54,11 +54,21 @@ export default function GardenCard_Details({
 
                     <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] h-full relative">
                         {/* image side */}
-                        <div className="w-full h-full bg-gray-100 overflow-hidden">
+                        <div className="relative w-full h-full bg-gray-200 overflow-hidden">
+                            {/* background blur */}
+                            <div
+                                className="absolute inset-0 bg-center bg-cover blur-lg scale-110 brightness-50"
+                                style={{
+                                    backgroundImage: `url(${plant.picture_url})`,
+                                }}
+                            />
+                            <div className="absolute inset-0 bg-black/20" />
+
+                            {/* main image */}
                             <img
                                 src={plant.picture_url}
                                 alt={plant.nickname}
-                                className="object-cover w-full h-full"
+                                className="relative z-10 object-contain w-full h-full"
                             />
                         </div>
 

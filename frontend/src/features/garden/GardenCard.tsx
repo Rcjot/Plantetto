@@ -8,12 +8,11 @@ export default function GardenCard({ image, title, onClick }: GardenCardProps) {
     return (
         <div onClick={onClick} className="max-w-xs w-full cursor-pointer group">
             <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-all">
-                <div className="w-full overflow-hidden rounded-xl shadow-sm group-hover:shadow-md">
+                <div className="w-[300px] h-[300px] overflow-hidden rounded-xl shadow-sm group-hover:shadow-md">
                     <img
                         src={image}
                         alt={title}
-                        className="w-full h-auto block group-hover:scale-105 transition-transform duration-300"
-                        style={{ maxHeight: "300px", objectFit: "cover" }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                 </div>
             </div>

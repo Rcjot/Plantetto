@@ -44,9 +44,9 @@ def upload_plantpic(imageFile, plant_uuid) :
                                 folder="plantpic/",
                                 transformation=[{"quality" : "auto:eco",
                                                     "fetch_format":"auto",
-                                                    "width": 150,
-                                                    "height" : 150,
-                                                    "crop": "fill"}])
+                                                    "width": 1080,
+                                                    "height" : 1080,
+                                                    "crop": "limit"}])
         srcURL = upload_res["secure_url"]    
 
         print("****Uploaded plant picture****\nDelivery URL: ", srcURL, "\n")
