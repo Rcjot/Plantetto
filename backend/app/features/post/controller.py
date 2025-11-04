@@ -64,20 +64,35 @@ def create_post() :
                     message="form fields might be invalid",
                     error=error), 400
 
-@post_bp.route("/<post_uuid>", methods=["DELETE"])
+@post_bp.route("/<uuid:post_uuid>", methods=["DELETE"])
 @login_required
 def delete_post(post_uuid) :
-    to_delete_post = Posts.get_post(post_uuid)
-    if (to_delete_post == None) :
-        return jsonify(success=False, message="no such post"), 404
-    print(str(to_delete_post["author"]["id"]), current_user.get_id())
-    if (str(to_delete_post["author"]["id"]) != current_user.get_uuid()) :
-        return jsonify(success=False, message="not permitted"), 403
+    post_uuid = str(post_uuid)
+    current_user_id = current_user.get_id()
+    to_delete_post_with_media = Posts.get_post(post_uuid)
+    to_delete_post = Posts.delete(post_uuid, current_user_id)    
     
-    if (Posts.delete(post_uuid)) :
-        if (len(to_delete_post["media"]) > 0) :
-            cloudinary.delete_post(post_uuid)
+    if (to_delete_post) :
+        if (len(to_delete_post_with_media["media"]) > 0) :
+            try :
+                cloudinary.delete_post(post_uuid)
+            except : 
+                return jsonify(success=False, message="delete post failed!"), 500
         return jsonify(success=True, message="delete post successful")        
     else :
-        return jsonify(success=False, message="delete post failed!"), 500
+        return jsonify(success=False, message="delete post failed!"), 404
+
+@post_bp.route("/<uuid:post_uuid>", methods=["PUT"])
+@login_required
+def update_post(post_uuid) :
+    post_uuid = str(post_uuid)
+    # no need to validate since its only caption
+    current_user_id = current_user.get_id()
+    caption = request.form.get("caption")
+    to_update_post = Posts.update(post_uuid, caption, current_user_id)
+    if (to_update_post) :
+        return jsonify(success=True, message="edit post successful", post_uuid=post_uuid)        
+    else :
+        return jsonify(success=False, message="edit post failed!"), 404
+
 

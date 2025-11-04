@@ -120,32 +120,30 @@ class Posts() :
         return result
     
     @classmethod
-    def delete(cls, post_uuid) :
-        try : 
-            db = get_db()
-            cursor = db.cursor()
-            sql = "DELETE FROM posts WHERE uuid = %s"
-            cursor.execute(sql, (post_uuid,))
-            db.commit()
-            cursor.close()
+    def delete(cls, post_uuid, current_user_id) :
+        db = get_db()
+        cursor = db.cursor()
+        sql = "DELETE FROM posts WHERE uuid = %s AND user_id = %s RETURNING *"
+        cursor.execute(sql, (post_uuid, current_user_id))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
 
-            return True
+        if result is None:
+            return None
+        return result
 
-        except Exception as e :
-            print(f"error deleting post: {e}")
-            return False
     
     @classmethod
-    def update(cls, post_uuid, caption) :
-        try :
-            db = get_db()
-            cursor = db.cursor()
-            sql = "UPDATE posts SET caption = %s WHERE uuid = %s"
-            cursor.execute(sql, (caption, post_uuid))
-            db.commit()
-            cursor.close()
+    def update(cls, post_uuid, caption, current_user_id) :
+        db = get_db()
+        cursor = db.cursor()
+        sql = "UPDATE posts SET caption = %s WHERE uuid = %s AND user_id =%s RETURNING *"
+        cursor.execute(sql, (caption, post_uuid, current_user_id))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
 
-            return True            
-        except Exception as e:
-            print(f"error updating post: {e}")
-            return False
+        if result is None:
+            return None
+        return result
