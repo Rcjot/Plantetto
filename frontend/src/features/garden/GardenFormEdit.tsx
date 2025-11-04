@@ -232,17 +232,22 @@ export default function GardenFormEdit({
                 {/* buttons */}
                 <div className="flex justify-end gap-3">
                     <DialogClose asChild>
-                        <Button
-                            variant="outline"
+                        <button
                             type="button"
+                            className="btn btn-warning"
                             onClick={onClose}
+                            disabled={isSubmitting}
                         >
                             Cancel
-                        </Button>
+                        </button>
                     </DialogClose>
-                    <Button type="submit" disabled={isSubmitting}>
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isSubmitting}
+                    >
                         {isSubmitting ? "Updating..." : "Update Plant"}
-                    </Button>
+                    </button>
                 </div>
             </form>
         </>

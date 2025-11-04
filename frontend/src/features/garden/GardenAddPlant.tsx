@@ -22,9 +22,7 @@ export default function GardenAddPlant({ onAdded }: { onAdded?: () => void }) {
     return (
         <Dialog open={open} onOpenChange={handleDialogOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="default" className="w-[200px]">
-                    Add plant
-                </Button>
+                <button className="btn btn-primary">Add Plant</button>
             </DialogTrigger>
 
             <DialogContent

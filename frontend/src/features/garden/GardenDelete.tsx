@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -7,8 +7,6 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
 import plantsApi from "@/api/plantsApi";
 
 interface GardenDeleteProps {
@@ -16,8 +14,9 @@ interface GardenDeleteProps {
     plant_nickname?: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onDeleted?: () => void; // refresh
+    onDeleted?: () => void;
 }
+
 export default function GardenDelete({
     plant_uuid,
     plant_nickname,
@@ -35,7 +34,7 @@ export default function GardenDelete({
         try {
             const res = await plantsApi.deletePlant(plant_uuid);
             if (res.ok) {
-                onDeleted?.(); // refresh
+                onDeleted?.();
                 onOpenChange(false);
             } else {
                 setError("Failed to delete plant. Try again.");
@@ -48,12 +47,18 @@ export default function GardenDelete({
         }
     };
 
+    useEffect(() => {
+        if (!open) {
+            setError(null);
+            setIsDeleting(false);
+        }
+    }, [open]);
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md bg-base-100">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <Trash className="w-5 h-5 text-red-600" />
+                    <DialogTitle className="flex items-center gap-2 text-warning">
                         Delete Plant
                     </DialogTitle>
                     <DialogDescription>
@@ -66,26 +71,29 @@ export default function GardenDelete({
                 </DialogHeader>
 
                 {error && (
-                    <div className="p-3 mt-4 bg-red-50 text-red-700 rounded-md text-sm">
+                    <div className="p-3 mt-4 bg-red-50 text-error rounded-md text-sm">
                         {error}
                     </div>
                 )}
 
                 <DialogFooter className="mt-6 flex justify-end gap-3">
-                    <Button
-                        variant="outline"
+                    <button
+                        className={`btn ${isDeleting ? "btn-disabled opacity-50" : ""}`}
                         onClick={() => onOpenChange(false)}
                         disabled={isDeleting}
                     >
                         Cancel
-                    </Button>
-                    <Button
-                        variant="outline"
+                    </button>
+
+                    <button
+                        className={`btn btn-warning ${
+                            isDeleting ? "opacity-70 cursor-not-allowed" : ""
+                        }`}
                         onClick={handleDelete}
                         disabled={isDeleting}
                     >
                         {isDeleting ? "Deleting..." : "Delete"}
-                    </Button>
+                    </button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

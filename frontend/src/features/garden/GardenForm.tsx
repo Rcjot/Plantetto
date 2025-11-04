@@ -15,7 +15,6 @@ import {
     SelectContent,
     SelectItem,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DialogClose } from "@/components/ui/dialog";
 
@@ -218,17 +217,21 @@ export default function GardenForm({
                 {/* submit & cancel */}
                 <div className="flex justify-end gap-3">
                     <DialogClose asChild>
-                        <Button
-                            variant="outline"
+                        <button
                             type="button"
+                            className="btn btn-warning"
                             disabled={isSubmitting}
                         >
                             Cancel
-                        </Button>
+                        </button>
                     </DialogClose>
-                    <Button type="submit" disabled={isSubmitting}>
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isSubmitting}
+                    >
                         {isSubmitting ? "Adding..." : "Add Plant"}
-                    </Button>
+                    </button>
                 </div>
             </form>
         </>

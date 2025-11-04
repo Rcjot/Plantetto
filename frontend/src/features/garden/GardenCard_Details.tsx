@@ -98,7 +98,7 @@ export default function GardenCard_Details({
                                             Edit
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className="hover:!bg-red-500 hover:!text-white transition-colors duration-200
+                                            className="hover:!bg-yellow-500 hover:!text-white transition-colors duration-200
                                         "
                                             onClick={() => {
                                                 setDeleteOpen(true);
