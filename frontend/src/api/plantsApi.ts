@@ -1,5 +1,5 @@
 import axios from "@/lib/axios";
-import type { PlantType } from "@/features/garden/gardenTypes";
+import type { PlantType, PlanttypeType } from "@/features/garden/gardenTypes";
 
 async function addPlant(formData: FormData) {
     try {
@@ -56,10 +56,22 @@ async function fetchPlant(plant_uuid: string) {
     }
 }
 
+async function fetchPlantTypes() {
+    try {
+        const { data } = await axios.get("/plants/planttypes");
+        const plant_types: PlanttypeType[] = data["plant_types"];
+        return { ok: true, plant_types: plant_types };
+    } catch (error) {
+        console.error(error);
+        return { ok: false };
+    }
+}
+
 export default {
     addPlant,
     editPlant,
     deletePlant,
     fetchPlantsOfUser,
     fetchPlant,
+    fetchPlantTypes,
 };

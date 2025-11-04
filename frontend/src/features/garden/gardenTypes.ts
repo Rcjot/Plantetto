@@ -8,3 +8,8 @@ export interface PlantType {
     picture_url: string;
     plant_type: string;
 }
+
+export interface PlanttypeType {
+    id: number;
+    name: string;
+}
