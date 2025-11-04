@@ -79,15 +79,15 @@ function Profile() {
             {/* nav tab*/}
             <div className="bg-base-100">
                 <div className="max-w-4xl mx-auto px-4">
-                    <div className="bg-success text-success-content rounded-lg overflow-hidden">
+                    <div className="bg-primary text-neutral-100 rounded-lg overflow-hidden">
                         <div className="grid grid-cols-3">
-                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral">
+                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral/30">
                                 Posts
                             </button>
-                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral">
+                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral/30">
                                 Plants
                             </button>
-                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral">
+                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral/30">
                                 Guides
                             </button>
                         </div>
