@@ -38,7 +38,6 @@ export default function GardenForm({
     const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
     const [preview, setPreview] = useState<string | null>(null);
 
-    // canvas ref for high-quality image processing
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const {
@@ -80,19 +79,21 @@ export default function GardenForm({
         });
     };
 
-    // submit handler
     const onSubmit: SubmitHandler<GardenFormFields> = async (data) => {
+        const file = (data.image as FileList)?.[0];
+        if (!file) {
+            setError("image", { type: "manual", message: "Image is required" });
+            return;
+        }
+
         const formData = new FormData();
         formData.append("nickname", data.nickname);
         if (data.plant_description)
             formData.append("description", data.plant_description);
         formData.append("plant_type", data.plant_type_id);
 
-        const file = (data.image as FileList)?.[0];
-        if (file) {
-            const blob = await processFile(file);
-            if (blob) formData.append("plantpic", blob, file.name);
-        }
+        const blob = await processFile(file);
+        if (blob) formData.append("plantpic", blob, file.name);
 
         const res = await plantsApi.addPlant(formData);
 
@@ -138,11 +139,6 @@ export default function GardenForm({
                         placeholder="Optional description"
                         {...register("plant_description")}
                     />
-                    {errors.plant_description && (
-                        <p className="text-sm text-red-500">
-                            {errors.plant_description.message}
-                        </p>
-                    )}
                 </div>
 
                 {/* plant type */}
@@ -180,20 +176,29 @@ export default function GardenForm({
                     )}
                 </div>
 
-                {/* image upload */}
+                {/* image upload with React Hook Form custom validate */}
                 <div className="space-y-1">
                     <Label htmlFor="image">Image</Label>
                     <Input
                         id="image"
                         type="file"
                         accept="image/*"
-                        {...register("image")}
+                        {...register("image", {
+                            validate: (files: FileList) =>
+                                (files && files.length > 0) ||
+                                "Image is required",
+                        })}
                         onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) setPreview(URL.createObjectURL(file));
                             else setPreview(null);
                         }}
                     />
+                    {errors.image && (
+                        <p className="text-sm text-red-500">
+                            {errors.image.message as string}
+                        </p>
+                    )}
                     {preview && (
                         <img
                             src={preview}
@@ -203,14 +208,14 @@ export default function GardenForm({
                     )}
                 </div>
 
-                {/* error message */}
+                {/* root error */}
                 {errors.root && (
                     <p className="text-sm text-red-500 text-center">
                         {errors.root.message}
                     </p>
                 )}
 
-                {/* submit button */}
+                {/* submit & cancel */}
                 <div className="flex justify-end gap-3">
                     <DialogClose asChild>
                         <Button
