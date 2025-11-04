@@ -9,15 +9,15 @@ function Home() {
             <div className="flex-1 flex flex-col items-center p-4 gap-4 overflow-y-auto">
                 <div className="w-full max-w-2xl space-y-4">
                     {/* create post */}
-                    <div className="bg-base-100 rounded-lg shadow border border-base-300 p-4">
-                        <p className="text-base-content">
-                            <CreatePost />
-                        </p>
-                    </div>
+
+                    <CreatePost>
+                        <div className="self-center w-full flex justify-center ">
+                            <div className="flex justify-center">diaries</div>
+                        </div>
+                    </CreatePost>
+
                     {/* diaries area */}
-                    <div className="mb-4">
-                        <div className="flex justify-center">diaries</div>
-                    </div>
+
                     {/* feed area / posts */}
                     <FeedSection />
                     <Outlet />

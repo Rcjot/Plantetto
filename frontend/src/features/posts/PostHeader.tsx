@@ -80,7 +80,7 @@ function PostHeader({
                         className="h-fit w-fit"
                     >
                         <span className="font-[1000] h-fit hover:underline cursor-pointer">
-                            {user.username}
+                            {user.display_name ?? user.username}
                         </span>
                     </Link>
                     <Link

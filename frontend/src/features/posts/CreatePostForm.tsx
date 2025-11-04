@@ -3,30 +3,51 @@ import { useRef, useState } from "react";
 import PostCarousel from "./PostCarousel";
 import type { MediaType } from "./postTypes";
 import postsApi from "@/api/postsApi";
+import { useCreatePostContext } from "./context/PostContext";
 
-function CreatePostForm() {
+function CreatePostForm({
+    setOpen,
+}: {
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     const mediaInputRef = useRef<HTMLInputElement>(null);
-    const [media, setMedia] = useState<File[]>([]);
-    const [preview, setPreview] = useState<MediaType[]>([]);
-
-    const [caption, setCaption] = useState<string>("");
+    const {
+        createPostForm,
+        setCreatePostForm,
+        caption,
+        setCaption,
+        appendPost,
+    } = useCreatePostContext()!;
+    // const [preview, setPreview] = useState<MediaType[]>([]);
 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [errors, setErrors] = useState<{
+        caption: string;
+        media: string;
+        root: string;
+    }>({
+        caption: "",
+        media: "",
+        root: "",
+    });
 
     function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
         console.log(e.target.files);
         if (!e.target.files) return;
         if (e.target.files.length === 0) return;
         const files = Array.from(e.target.files);
-        const mediaUrlList: MediaType[] = files.map((file, i) => {
+        const mediaUrlList: MediaType[] = files.map((file, index) => {
             return {
                 url: URL.createObjectURL(file),
                 type: file.type.startsWith("image") ? "image" : "video",
-                order: i,
+                order: index,
             };
         });
-        setMedia((prev) => [...prev, ...files]);
-        setPreview((prev) => [...prev, ...mediaUrlList]);
+        setCreatePostForm((prev) => ({
+            ...prev,
+            media: [...prev.media, ...files],
+            preview: [...prev.preview, ...mediaUrlList],
+        }));
     }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -34,9 +55,27 @@ function CreatePostForm() {
         setIsSubmitting(true);
         const formData = new FormData();
         formData.append("caption", caption);
-        media.forEach((file) => formData.append("media", file));
-        await postsApi.createPost(formData);
+        createPostForm.media.forEach((file) => formData.append("media", file));
+        const { ok, newPost, resErrors } = await postsApi.createPost(formData);
         setIsSubmitting(false);
+        if (!ok || !newPost) {
+            console.error("failed to create post");
+            const constructedErrors = {
+                caption: resErrors.caption[0],
+                media: resErrors.media[0],
+                root: resErrors.root[0],
+            };
+            setErrors(constructedErrors);
+            return;
+        }
+        setCreatePostForm((prev) => ({
+            ...prev,
+            media: [],
+            preview: [],
+        }));
+        setCaption("");
+        setOpen(false);
+        appendPost(newPost);
     }
 
     return (
@@ -52,30 +91,39 @@ function CreatePostForm() {
                         onChange={handleImage}
                         multiple
                     />
-                    <textarea
-                        className="textarea w-full outline-none max-h-[350px] overflow-y-auto"
-                        placeholder="What's growing today?"
-                        value={caption}
-                        onChange={(e) => {
-                            setCaption(e.target.value);
-                        }}
-                    ></textarea>
-                    {media.length > 0 && (
+                    <div>
+                        <textarea
+                            className="textarea w-full outline-none max-h-[350px] overflow-y-auto"
+                            placeholder="What's growing today?"
+                            value={caption}
+                            onChange={(e) => {
+                                setCaption(e.target.value);
+                            }}
+                        ></textarea>
+                        <span className="text-warning">{errors.caption}</span>
+                    </div>
+                    {createPostForm.media.length > 0 && (
                         <>
                             <button
                                 className="btn btn-warning w-fit h-fit self-end ml-auto"
                                 onClick={() => {
-                                    setMedia([]);
-                                    setPreview([]);
+                                    setCreatePostForm((prev) => ({
+                                        ...prev,
+                                        media: [],
+                                        preview: [],
+                                    }));
                                 }}
                             >
                                 clear
                             </button>
                             <div className="px-7">
-                                <PostCarousel mediaList={preview} />
+                                <PostCarousel
+                                    mediaList={createPostForm.preview}
+                                />
                             </div>
                         </>
                     )}
+                    <span className="text-warning">{errors.media}</span>
                 </div>
                 <div className="card w-full card-md border p-1 flex-row justify-between ">
                     <button
@@ -102,6 +150,8 @@ function CreatePostForm() {
                         />
                     </button>
                 </div>
+                <span className="text-warning">{errors.root}</span>
+
                 <button
                     className="btn btn-primary w-fit px-10 self-center"
                     disabled={isSubmitting}

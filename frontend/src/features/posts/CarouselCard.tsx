@@ -37,7 +37,7 @@ function CarouselCard({
                     <div className="absolute inset-0 backdrop-blur-lg"></div>
                     <img
                         src={src}
-                        className="w-full object-fill z-1 select-none"
+                        className="w-full object-contain z-1 select-none"
                         alt="image"
                     />
                 </>

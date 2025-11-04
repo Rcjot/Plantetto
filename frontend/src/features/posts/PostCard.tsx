@@ -1,11 +1,18 @@
-import type { PostType } from "./postTypes";
-import PostHeader from "./PostHeader";
+import PostHeader from "@/features/posts/PostHeader";
 import PostCarousel from "./PostCarousel";
 import { useNavigate, useLocation } from "react-router-dom";
+import PostOptionsButton from "./PostOptionsButon";
+import { useState } from "react";
+import { usePostContext } from "./context/PostContext";
+import { useAuthContext } from "../auth/AuthContext";
 
-function PostCard({ post }: { post: PostType }) {
+function PostCard() {
+    const { post } = usePostContext()!;
+    const { auth } = useAuthContext()!;
     const navigate = useNavigate();
     const location = useLocation();
+
+    const [deleted, setDeleted] = useState(false);
 
     function openPost(
         e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>,
@@ -20,10 +27,22 @@ function PostCard({ post }: { post: PostType }) {
                 return;
             }
         }
+        if (e.target instanceof HTMLElement) {
+            if (e.target.closest(".no-propagate")) return;
+            console.log("clicked");
+        }
 
         navigate(`/home/${post.author.username}/${post.post_uuid}`, {
             state: { background: location, post: post },
         });
+    }
+
+    if (deleted) {
+        return (
+            <div className="bg-base-300 p-2 text-neutral rounded-lg">
+                post deleted
+            </div>
+        );
     }
 
     return (
@@ -38,31 +57,9 @@ function PostCard({ post }: { post: PostType }) {
                         createdAt={post.created_at}
                         postCaption={post.caption}
                     />
-                    <div
-                        className="ml-auto dropdown dropdown-start"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                    >
-                        <div
-                            tabIndex={0}
-                            role="button"
-                            className="cursor-pointer"
-                        >
-                            options
-                        </div>
-                        <ul
-                            tabIndex={-1}
-                            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 mt-2"
-                        >
-                            <li>
-                                <button>edit</button>
-                            </li>
-                            <li>
-                                <button>delete</button>
-                            </li>
-                        </ul>
-                    </div>
+                    {auth.user?.id === post.author.id && (
+                        <PostOptionsButton setDeleted={setDeleted} />
+                    )}
                 </div>
 
                 {post.media.length > 0 && (

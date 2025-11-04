@@ -10,26 +10,27 @@ import { useAuthContext } from "../auth/AuthContext";
 import globeIcon from "@/assets/icons/globe.svg";
 import lockIcon from "@/assets/icons/lock.svg";
 import { useState } from "react";
-import CreatePostForm from "./CreatePostForm";
+import EditPostForm from "./EditPostForm";
 
-function CreatePostDialog({
+function EditPostDialog({
     open,
     setOpen,
 }: {
     open: boolean;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setOpen: (open: boolean) => void;
 }) {
     const { auth } = useAuthContext()!;
     const [selectValue, setSelectValue] = useState<string>("everyone");
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[550px] bg-base-100">
+            <DialogContent className="sm:max-w-[550px] bg-base-100 no-propagate">
                 <DialogHeader>
                     <DialogTitle className="text-center">
-                        Create new post
+                        Edit your post
                     </DialogTitle>
-                    <DialogDescription className="text-center">
-                        Sprout a new post, greenify the feed!
+                    <DialogDescription className="text-center hidden">
+                        edit your post
                     </DialogDescription>
                     <div className="flex gap-3">
                         <ProfilePicture />
@@ -61,11 +62,11 @@ function CreatePostDialog({
                         </div>
                     </div>
 
-                    <CreatePostForm setOpen={setOpen} />
+                    <EditPostForm />
                 </DialogHeader>
             </DialogContent>
         </Dialog>
     );
 }
 
-export default CreatePostDialog;
+export default EditPostDialog;

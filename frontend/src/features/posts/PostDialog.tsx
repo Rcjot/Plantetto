@@ -13,7 +13,7 @@ import postsApi from "@/api/postsApi";
 import type { PostType } from "./postTypes";
 
 function PostDialog() {
-    // const [open, setOpen] = useState(true); not needed?
+    // const [open, setOpen] = useState(true); //not needed?
     const { post_uuid } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -32,7 +32,6 @@ function PostDialog() {
             setPost(location.state.post);
         }
     }, [post_uuid, location]);
-    console.log(post?.highlight_height, post?.highlight_width);
 
     return (
         <>
@@ -40,7 +39,7 @@ function PostDialog() {
                 <Dialog
                     open={true} // always sets to true, because on visit dialog always is open?
                     onOpenChange={(open) => {
-                        // setOpen(open); ????
+                        // setOpen(open); // ????
                         if (!open) {
                             navigate("/home");
                         }

@@ -1,34 +1,70 @@
 import ProfilePicture from "@/components/ProfilePicture";
 import CreatePostDialog from "./CreatePostDialog";
-import { useRef } from "react";
-import { DialogTrigger } from "@/components/ui/dialog";
+import React, { useCallback, useMemo, useState } from "react";
+import type { CreatePostFormType, PostType } from "./postTypes";
+import { CreatePostContext } from "./context/PostContext";
+import PostCardProvider from "./context/PostProvider";
 
-function CreatePost() {
-    const dialogTriggerRef = useRef<HTMLButtonElement>(null);
+function CreatePost({ children }: { children: React.ReactNode }) {
+    const [open, setOpen] = useState(false);
+    const [addedPosts, setAddedPosts] = useState<PostType[]>([]);
+    const [createPostForm, setCreatePostForm] = useState<CreatePostFormType>({
+        media: [],
+        preview: [],
+    });
+    const [caption, setCaption] = useState("");
+
+    const appendPost = useCallback((newPost: PostType) => {
+        setAddedPosts((prev) => [newPost, ...prev]);
+    }, []);
+
+    const contextValue = useMemo(
+        () => ({
+            createPostForm,
+            setCreatePostForm,
+            caption,
+            setCaption,
+            appendPost,
+        }),
+        [createPostForm, setCreatePostForm, caption, setCaption, appendPost]
+    );
+
     return (
         <>
-            <div className="card w-70 sm:w-96 bg-base-100 card-md shadow-lg p-4 flex flex-col gap-2">
-                <div className="flex gap-1">
-                    <ProfilePicture />
+            <CreatePostContext.Provider value={contextValue}>
+                <div className="card sm:w-full max-w-[600px] bg-base-100 card-md shadow-lg p-4 flex flex-col gap-5">
+                    <div className="flex gap-1">
+                        <ProfilePicture />
+                        <button
+                            className="border-b border-base-300 cursor-pointer flex-1 text-start"
+                            onClick={() => setOpen(true)}
+                        >
+                            <p className="hover:bg-base-300 p-1 rounded-full px-3">
+                                What's growing today?
+                            </p>
+                        </button>
+                    </div>
                     <button
-                        className="border-b border-base-300 cursor-pointer flex-1 text-start"
-                        onClick={() => dialogTriggerRef.current?.click()}
+                        className="btn btn-primary w-fit h-fit px-4 py-1 self-end"
+                        onClick={() => setOpen(true)}
                     >
-                        <p className="hover:bg-base-300 p-1 rounded-full px-3">
-                            What's growing today?
-                        </p>
+                        Post
                     </button>
                 </div>
-                <button
-                    className="btn btn-primary w-fit h-fit px-4 py-1 self-end"
-                    onClick={() => dialogTriggerRef.current?.click()}
-                >
-                    Post
-                </button>
+                <CreatePostDialog open={open} setOpen={setOpen} />
+            </CreatePostContext.Provider>
+            {children}
+            <div className="flex flex-col gap-10 w-full">
+                {addedPosts.length > 0 &&
+                    addedPosts.map((post) => {
+                        return (
+                            <PostCardProvider
+                                key={post.post_uuid}
+                                passedPost={post}
+                            />
+                        );
+                    })}
             </div>
-            <CreatePostDialog>
-                <DialogTrigger ref={dialogTriggerRef}></DialogTrigger>
-            </CreatePostDialog>
         </>
     );
 }

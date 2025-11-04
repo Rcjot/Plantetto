@@ -1,7 +1,7 @@
 import postsApi from "@/api/postsApi";
 import { useEffect, useState } from "react";
 import type { PostType } from "./postTypes";
-import PostCard from "./PostCard";
+import PostCardProvider from "./context/PostProvider";
 
 function FeedSection() {
     const [posts, setPosts] = useState<PostType[]>([]);
@@ -16,10 +16,15 @@ function FeedSection() {
     }, []);
 
     return (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-10 w-full">
             {posts.length > 0 &&
                 posts.map((post) => {
-                    return <PostCard key={post.post_uuid} post={post} />;
+                    return (
+                        <PostCardProvider
+                            key={post.post_uuid}
+                            passedPost={post}
+                        />
+                    );
                 })}
         </div>
     );
