@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import profileApi from "@/api/profileApi";
-import type { User } from "@/features/auth/authTypes";
+import type { UserType } from "@/features/auth/authTypes";
 import { DialogDemo } from "@/features/profile/EditProfileCard";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import ProfilePicture from "@/components/ProfilePicture";
 
 function Profile() {
-    const [user, setUser] = useState<User | "loading" | null>("loading");
+    const [user, setUser] = useState<UserType | "loading" | null>("loading");
     const { username } = useParams<string>();
     const { auth } = useAuthContext()!;
 
