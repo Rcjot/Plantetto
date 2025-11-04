@@ -30,6 +30,25 @@ function MyGarden() {
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
 
+    //horizontal scroll usingm mouse wheel
+    useEffect(() => {
+        const container = filterScrollRef.current;
+        if (!container) return;
+
+        const handleWheel = (e: WheelEvent) => {
+            if (
+                e.deltaY !== 0 &&
+                container.scrollWidth > container.clientWidth
+            ) {
+                e.preventDefault();
+                container.scrollLeft += e.deltaY;
+            }
+        };
+
+        container.addEventListener("wheel", handleWheel, { passive: false });
+        return () => container.removeEventListener("wheel", handleWheel);
+    }, []);
+
     // mouse drag handlers
     const handleMouseDown = (e: React.MouseEvent) => {
         const container = filterScrollRef.current;
@@ -48,7 +67,7 @@ function MyGarden() {
 
         e.preventDefault();
         const x = e.pageX - container.offsetLeft;
-        const walk = (x - startX) * 2; // drag speed
+        const walk = x - startX;
         container.scrollLeft = scrollLeft - walk;
     };
 
