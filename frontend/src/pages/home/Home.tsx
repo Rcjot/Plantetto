@@ -1,3 +1,5 @@
+import CreatePost from "@/features/posts/CreatePost";
+
 function Home() {
     return (
         <div className="w-full h-full flex bg-base-100">
@@ -7,7 +9,7 @@ function Home() {
                     {/* create post */}
                     <div className="bg-base-100 rounded-lg shadow border border-base-300 p-4">
                         <p className="text-base-content">
-                            create post something
+                            <CreatePost />
                         </p>
                     </div>
 
