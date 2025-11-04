@@ -5,9 +5,16 @@ from .forms import PlantForm
 from ...models.plant import Plants
 from ...services import cloudinary
 
-@plant_bp.route("/<plant_uuid>")
+@plant_bp.route("/planttypes")
+@login_required
+def get_plant_types() :
+    plant_types = Plants.get_plant_types()
+    return jsonify(plant_types=plant_types)
+
+@plant_bp.route("/<uuid:plant_uuid>")
 @login_required
 def get_plant(plant_uuid) :
+    plant_uuid = str(plant_uuid)
     plant = Plants.get_plant(plant_uuid)
     return jsonify(
         plant=plant
@@ -46,9 +53,10 @@ def add_plant() :
                     message="form fields might be invalid",
                     error=error), 400
 
-@plant_bp.route("/<plant_uuid>", methods=["PUT"])
+@plant_bp.route("/<uuid:plant_uuid>", methods=["PUT"])
 @login_required
 def edit_plant(plant_uuid) :
+    plant_uuid = str(plant_uuid)
     form = PlantForm()
     current_user_id = current_user.get_id()
     validated = form.validate()
@@ -81,8 +89,9 @@ def edit_plant(plant_uuid) :
                     message="form fields might be invalid",
                     error=error), 400
 
-@plant_bp.route("/<plant_uuid>", methods=["DELETE"])
+@plant_bp.route("/<uuid:plant_uuid>", methods=["DELETE"])
 def delete_plant(plant_uuid) :
+    plant_uuid = str(plant_uuid)
     to_delete_plant = Plants.delete_plant(plant_uuid, current_user.get_id())
     if (to_delete_plant):
         if (to_delete_plant["picture_url"] is not None) :

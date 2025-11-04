@@ -154,3 +154,15 @@ class Plants() :
             return False
 
         return True
+    
+    @classmethod 
+    def get_plant_types(cls) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT * FROM plant_types"
+
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        
+        return result
