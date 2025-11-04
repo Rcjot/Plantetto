@@ -22,7 +22,6 @@ function MyGarden() {
     const [page, setPage] = useState(1);
     const [meta, setMeta] = useState<MetaDataType | null>(null);
 
-    // reload, suggested by chatgpt
     const [reload, setReload] = useState(0);
 
     const categoryMap: Record<string, number | undefined> = {};
@@ -44,6 +43,9 @@ function MyGarden() {
             if (!auth.user) return;
 
             setLoading(true);
+            const categoryMap: Record<string, number | undefined> = {};
+            plantTypes.forEach((pt) => (categoryMap[pt.plant_name] = pt.id));
+            categoryMap["All"] = undefined;
 
             const plant_type_id = categoryMap[selectedCategory];
 
@@ -60,18 +62,23 @@ function MyGarden() {
                 let safePage = page;
                 if (page > meta_data.max_page) safePage = meta_data.max_page;
                 if (page < 1) safePage = 1;
-                if (safePage !== page) setPage(safePage);
+                if (res.plants.length > 0 && page !== safePage) {
+                    setPage(safePage);
+                } else if (res.plants.length > 0 && page === safePage) {
+                    setPlants(res.plants);
+                }
 
                 setMeta(meta_data);
             } else {
                 setPlants([]);
                 setMeta(null);
+                if (page !== 1) setPage(1);
             }
 
             setLoading(false);
         }
         loadPlants();
-    }, [auth.user, selectedCategory, search, page, plantTypes, reload]);
+    }, [auth.user, selectedCategory, search, page, reload, plantTypes]);
 
     const handleCardClick = (plant: PlantType) => {
         setSelectedPlant(plant);
@@ -102,7 +109,6 @@ function MyGarden() {
             <div className="bg-base-100 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
                     <div className="w-full sm:w-auto">
-                        {/* reload trigger (this is 100% bonafide chatgpt im losing it) */}
                         <GardenAddPlant
                             onAdded={() => setReload((r) => r + 1)}
                         />

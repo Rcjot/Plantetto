@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import GardenFormEdit from "./GardenFormEdit";
 import type { PlantType } from "@/features/garden/gardenTypes";
+import GardenDelete from "./GardenDelete";
 
 interface GardenCardDetailsProps {
     open: boolean;
@@ -30,6 +31,7 @@ export default function GardenCard_Details({
     plant,
     onUpdated,
 }: GardenCardDetailsProps) {
+    const [deleteOpen, setDeleteOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
 
     return (
@@ -85,7 +87,14 @@ export default function GardenCard_Details({
                                         >
                                             Edit
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="hover:!bg-red-500 hover:!text-white transition-colors duration-200">
+                                        <DropdownMenuItem
+                                            className="hover:!bg-red-500 hover:!text-white transition-colors duration-200
+                                        "
+                                            onClick={() => {
+                                                setDeleteOpen(true);
+                                                onOpenChange(false);
+                                            }}
+                                        >
                                             Delete
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -137,6 +146,10 @@ export default function GardenCard_Details({
             {/* edit dialog */}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
                 <DialogContent className="sm:max-w-md bg-base-100">
+                    <DialogTitle>Edit Plant</DialogTitle>
+                    <DialogDescription>
+                        Edit the details of your plant
+                    </DialogDescription>
                     <GardenFormEdit
                         plant={plant}
                         onSuccess={() => {
@@ -147,6 +160,16 @@ export default function GardenCard_Details({
                     />
                 </DialogContent>
             </Dialog>
+            <GardenDelete
+                plant_uuid={plant.plant_uuid}
+                plant_nickname={plant.nickname}
+                open={deleteOpen}
+                onOpenChange={setDeleteOpen}
+                onDeleted={() => {
+                    setDeleteOpen(false);
+                    onUpdated?.();
+                }}
+            />
         </>
     );
 }

@@ -87,11 +87,21 @@ export default function GardenFormEdit({
     };
 
     const onSubmit: SubmitHandler<GardenFormEditFields> = async (data) => {
+        const selectedPlantType = plantTypes.find(
+            (type) => type.plant_name === data.plant_type
+        );
+
+        if (!selectedPlantType || !selectedPlantType.id) {
+            setError("plant_type", {
+                message: "Invalid plant type selected",
+            });
+            return;
+        }
         const formData = new FormData();
         formData.append("nickname", data.nickname);
         if (data.plant_description)
             formData.append("description", data.plant_description);
-        formData.append("plant_type", data.plant_type);
+        formData.append("plant_type", selectedPlantType.id.toString());
 
         const file = (data.image as FileList)?.[0];
         if (file) {
@@ -123,7 +133,7 @@ export default function GardenFormEdit({
 
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="space-y-5 sm:min-w-[400px]"
+                className="space-y-5 sm:min-w-[400px] max-h-[70vh] overflow-y-auto pr-2"
             >
                 {/* nickname */}
                 <div className="space-y-1">

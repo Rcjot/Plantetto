@@ -14,18 +14,20 @@ async function addPlant(formData: FormData) {
 
 async function editPlant(plant_uuid: string, formData: FormData) {
     try {
-        const { data } = await axios.put(`/plants/${plant_uuid}`, formData);
+        const { data } = await axios.put(`/plants/${plant_uuid}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
 
         return { ok: true, plant: data };
-    } catch (error) {
-        console.error(error);
+    } catch (error: any) {
+        console.error("Edit plant error:", error.response?.data || error);
         return { ok: false };
     }
 }
 
 async function deletePlant(plant_uuid: string) {
     try {
-        await axios.put(`/plants/${plant_uuid}`);
+        await axios.delete(`/plants/${plant_uuid}`);
 
         return { ok: true };
     } catch (error) {

@@ -40,6 +40,7 @@ class Plants() :
 
         plant_query = """
         SELECT 
+            plants.uuid AS plant_uuid,
             plants.nickname,
             plants.plant_description AS description,
             plants.picture_url,
@@ -98,6 +99,7 @@ class Plants() :
 
         sql = """
         SELECT 
+            plants.uuid AS plant_uuid,
             plants.nickname,
             plants.plant_description,
             plants.picture_url,
