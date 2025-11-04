@@ -55,7 +55,10 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
                 formData.append("display_name", displayName);
             }
 
-            if (Array.from(formData.entries()).length > 0) {
+            const entries = Array.from(formData.entries());
+            if (entries.length === 0) {
+                setOpen(false);
+            } else {
                 const result = await profileApi.setProfile(formData);
                 if (result.ok) {
                     await fetchCredentials();
@@ -78,7 +81,7 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">Edit Profile</Button>
+                <button className="btn btn-primary">Edit Profile</button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[600px] bg-base-100 max-h-[90vh] overflow-y-auto">
@@ -122,16 +125,21 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
 
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button variant="outline" type="button">
+                            <button
+                                type="button"
+                                className="btn hover:bg-neutral-200 text-base-content"
+                            >
                                 Cancel
-                            </Button>
+                            </button>
                         </DialogClose>
-                        <Button
+
+                        <button
                             type="submit"
+                            className={`btn btn-primary ${isSubmitting ? "opacity-70 pointer-events-none" : ""}`}
                             disabled={isSubmitting || !!error}
                         >
                             {isSubmitting ? "Saving..." : "Save changes"}
-                        </Button>
+                        </button>
                     </DialogFooter>
                 </form>
             </DialogContent>
