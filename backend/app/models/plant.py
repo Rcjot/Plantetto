@@ -34,11 +34,11 @@ class Plants() :
 
         return uuid_res
 
-    def all(cls, username) :
+    def all(cls, username, search, plant_type_id, limit, offset) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        sql = """
+        plant_query = """
         SELECT 
             plants.nickname,
             plants.plant_description AS description,
@@ -51,17 +51,45 @@ class Plants() :
                 'username', users.username,
                 'display_name', users.display_name
             ) AS owner
+            """
+
+        meta_data_query = """
+        SELECT COUNT(*) OVER() AS result_count,
+            (SELECT COUNT(*) FROM plants) AS total_count 
+        """    
+    
+        sql = """
         FROM plants
         JOIN users ON plants.user_id = users.id
         JOIN plant_types ON plants.plant_type_id = plant_types.id
         WHERE users.username = %s
+        AND plants.nickname ILIKE %s
         """
+        search = "%" + search + "%"
+        params = [username, search]
+        if (plant_type_id is not None) :
+            sql += " AND plants.plant_type_id =%s"
+            params.extend([plant_type_id])
+        sql+= " LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
 
-        cursor.execute(sql, (username,))
-        result = cursor.fetchall()
+        cursor.execute(plant_query + sql, params)
+        user_plants = cursor.fetchall()
+        cursor.execute(meta_data_query + sql, params)
+        meta_data = cursor.fetchone()
+
         cursor.close()
 
-        return result
+        if (meta_data is None) :
+            meta_data = {
+                "total_count" : 0,
+                "result_count" : 0
+            }
+
+        return ({
+            "user_plants" : user_plants,
+            "meta_data" : meta_data
+        })
 
     @classmethod 
     def get_plant(cls, plant_uuid) :

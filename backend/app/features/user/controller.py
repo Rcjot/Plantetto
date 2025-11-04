@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from ...services import cloudinary
 from ...models.user import Users
 from ...models.plant import Plants
+import math
 
 @user_bp.route("/upload", methods=["POST"])
 @login_required
@@ -55,7 +56,29 @@ def update_profile():
 
 @user_bp.route("/<username>/plants")
 def get_user_plants(username) :
-    plants = Plants.all(username)
+    search = request.args.get("search", default="", type=str)
+    plant_type_id = request.args.get("plant_type_id", default=None, type=int)
+    page = request.args.get("page", default=1, type=int)
+    limit = request.args.get("limit", default = 12, type=int)
+
+    offset = (page - 1) * limit
+
+
+    result = Plants.all(username, search, plant_type_id, limit, offset)
+    plants = result["user_plants"]
+    total_count = result["meta_data"]["total_count"]
+    result_count = result["meta_data"]["result_count"]
+    max_page = math.ceil(result_count / limit)
+    meta_data = {
+        "page" : page,
+        "total_count" : total_count,
+        "limit" : limit,
+        "max_page" : max_page,
+        "has_next" : page < max_page,
+        "has_prev" : page > 1,
+    }
+
     return jsonify(
-        plants=plants
+        plants=plants,
+        meta_data=meta_data,
     )
