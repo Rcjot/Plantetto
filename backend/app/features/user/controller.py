@@ -3,6 +3,7 @@ from flask import request, jsonify
 from flask_login import login_required, current_user
 from ...services import cloudinary
 from ...models.user import Users
+from ...models.plant import Plants
 
 @user_bp.route("/upload", methods=["POST"])
 @login_required
@@ -51,3 +52,10 @@ def update_profile():
         return jsonify(success=True, message="profile updated")
     
     return jsonify(success=False, message="failed to update profile"), 400
+
+@user_bp.route("/<username>/plants")
+def get_user_plants(username) :
+    plants = Plants.all(username)
+    return jsonify(
+        plants=plants
+    )

@@ -34,9 +34,34 @@ class Plants() :
 
         return uuid_res
 
-    @classmethod
-    def all(cls) :
-        pass
+    def all(cls, username) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT 
+            plants.nickname,
+            plants.plant_description,
+            plants.picture_url,
+            plants.created_at,
+            plant_types.plant_name,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS owner
+        FROM plants
+        JOIN users ON plants.user_id = users.id
+        JOIN plant_types ON plants.plant_type_id = plant_types.id
+        WHERE users.username = %s
+        """
+
+        cursor.execute(sql, (username,))
+        result = cursor.fetchall()
+        cursor.close()
+
+        return result
 
     @classmethod 
     def get_plant(cls, plant_uuid) :
