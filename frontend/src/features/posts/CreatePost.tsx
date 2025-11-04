@@ -7,7 +7,7 @@ function CreatePost() {
     const dialogTriggerRef = useRef<HTMLButtonElement>(null);
     return (
         <>
-            <div className="card w-96 bg-base-100 card-md shadow-lg p-4 flex flex-col gap-2">
+            <div className="card w-70 sm:w-96 bg-base-100 card-md shadow-lg p-4 flex flex-col gap-2">
                 <div className="flex gap-1">
                     <ProfilePicture />
                     <button

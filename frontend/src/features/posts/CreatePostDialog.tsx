@@ -10,6 +10,7 @@ import { useAuthContext } from "../auth/AuthContext";
 import globeIcon from "@/assets/icons/globe.svg";
 import lockIcon from "@/assets/icons/lock.svg";
 import { useState } from "react";
+import CreatePostForm from "./CreatePostForm";
 
 function CreatePostDialog({ children }: { children: React.ReactNode }) {
     const { auth } = useAuthContext()!;
@@ -51,6 +52,7 @@ function CreatePostDialog({ children }: { children: React.ReactNode }) {
                             </div>
                         </div>
                     </div>
+                    <CreatePostForm />
 
                     <DialogDescription>
                         This action cannot be undone. This will permanently
