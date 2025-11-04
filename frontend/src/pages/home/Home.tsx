@@ -21,32 +21,7 @@ function Home() {
                     {/* feed area / posts */}
                     <FeedSection />
                     <Outlet />
-                    <div className="space-y-4">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                            <div
-                                key={i}
-                                className="bg-base-400 rounded-lg shadow-sm border border-base-300 p-4"
-                            >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="avatar placeholder">
-                                        <div className="bg-base-300 text-neutral-content rounded-full w-10"></div>
-                                    </div>
-                                    <div>
-                                        <p>user{i}</p>
-                                        <p className="text-xs text-base-content">
-                                            3 billion years ago
-                                        </p>
-                                    </div>
-                                </div>
-                                {/*style for this shouldnt matter for now cuz placeholder*/}
-                                <div className="bg-white h-32 rounded-lg border border-base-300 flex items-center justify-center mb-3">
-                                    <span className="text-base-content">
-                                        placeholder content
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+
                     {/* feed area can be empty for the ticket, homepage:feed should handle this */}
                 </div>
             </div>
