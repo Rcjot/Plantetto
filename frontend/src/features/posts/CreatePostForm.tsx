@@ -2,6 +2,7 @@ import mediaIcon from "@/assets/icons/mediaIcon.svg";
 import { useRef, useState } from "react";
 import PostCarousel from "./PostCarousel";
 import type { MediaType } from "./postTypes";
+import postsApi from "@/api/postsApi";
 
 function CreatePostForm() {
     const mediaInputRef = useRef<HTMLInputElement>(null);
@@ -9,6 +10,8 @@ function CreatePostForm() {
     const [preview, setPreview] = useState<MediaType[]>([]);
 
     const [caption, setCaption] = useState<string>("");
+
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
         console.log(e.target.files);
@@ -26,9 +29,19 @@ function CreatePostForm() {
         setPreview((prev) => [...prev, ...mediaUrlList]);
     }
 
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        setIsSubmitting(true);
+        const formData = new FormData();
+        formData.append("caption", caption);
+        media.forEach((file) => formData.append("media", file));
+        await postsApi.createPost(formData);
+        setIsSubmitting(false);
+    }
+
     return (
         <>
-            <form className="flex flex-col gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <div className=" max-h-[700px] overflow-y-auto grid gap-y-3">
                     <input
                         ref={mediaInputRef}
@@ -89,8 +102,11 @@ function CreatePostForm() {
                         />
                     </button>
                 </div>
-                <button className="btn btn-primary w-fit px-10 self-center">
-                    Post
+                <button
+                    className="btn btn-primary w-fit px-10 self-center"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? "Posting..." : "Post"}
                 </button>
             </form>
         </>
