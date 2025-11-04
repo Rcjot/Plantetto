@@ -34,9 +34,16 @@ async function deletePlant(plant_uuid: string) {
     }
 }
 
-async function fetchPlantsOfUser(username: string) {
+async function fetchPlantsOfUser(
+    username: string,
+    search: string,
+    plant_type_id: number,
+    page: number
+) {
     try {
-        const { data } = await axios.get(`/user/${username}/plants/`);
+        const { data } = await axios.get(
+            `/user/${username}/plants?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
+        );
         const plants: PlantType[] = data["plants"];
         return { ok: true, plants: plants };
     } catch (error) {
@@ -56,11 +63,21 @@ async function fetchPlant(plant_uuid: string) {
     }
 }
 
+export interface MetaDataType {
+    page: number;
+    total_count: number;
+    limit: number;
+    max_page: number;
+    has_next: boolean;
+    has_prev: boolean;
+}
+
 async function fetchPlantTypes() {
     try {
         const { data } = await axios.get("/plants/planttypes");
         const plant_types: PlanttypeType[] = data["plant_types"];
-        return { ok: true, plant_types: plant_types };
+        const meta_data: MetaDataType = data["meta_data"];
+        return { ok: true, plant_types: plant_types, meta_data: meta_data };
     } catch (error) {
         console.error(error);
         return { ok: false };
