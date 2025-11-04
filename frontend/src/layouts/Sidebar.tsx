@@ -8,11 +8,8 @@ import plant_diary_icon from "../assets/icons/plant_diary.svg";
 import garden_icon from "../assets/icons/my_garden.svg";
 import settings_icon from "../assets/icons/settings.svg";
 import bookmark_icon from "../assets/icons/bookmark.svg";
-import { useAuthContext } from "@/features/auth/AuthContext";
 
 function Sidebar({ children }: { children: React.ReactNode }) {
-    const { logout } = useAuthContext()!;
-
     useEffect(() => {
         console.log("Width:", window.innerWidth);
     }, []);
@@ -148,11 +145,6 @@ function Sidebar({ children }: { children: React.ReactNode }) {
                                 className="w-5 h-5"
                             />
                             <span>Settings</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button className="btn btn-neutral" onClick={logout}>
-                            Logout
                         </button>
                     </li>
                 </ul>
