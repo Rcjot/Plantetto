@@ -41,10 +41,10 @@ class Plants() :
         sql = """
         SELECT 
             plants.nickname,
-            plants.plant_description,
+            plants.plant_description AS description,
             plants.picture_url,
             plants.created_at,
-            plant_types.plant_name,
+            plant_types.plant_name AS plant_type,
             JSON_BUILD_OBJECT(
                 'id', users.uuid,
                 'pfp_url', users.pfp_url,
