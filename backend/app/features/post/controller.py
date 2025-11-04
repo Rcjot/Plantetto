@@ -6,6 +6,22 @@ from ...models.post import Posts
 from ...models.media import Media
 from .forms import PostForm
 
+@post_bp.route("", strict_slashes=False) 
+@login_required
+def get_posts() :
+    feed = Posts.all()
+    return jsonify(
+        feed=feed
+    )
+    
+@post_bp.route("/<post_uuid>")
+@login_required
+def get_post(post_uuid) :
+    post = Posts.get_post(post_uuid)
+    return jsonify(
+        post=post
+    )
+
 @post_bp.route("/", methods=["POST"])
 @login_required
 def create_post() :
