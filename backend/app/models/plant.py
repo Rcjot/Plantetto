@@ -46,3 +46,16 @@ class Plants() :
 
         db.commit()
         cursor.close()
+
+    @classmethod 
+    def check_plant_type_exists(cls, plant_type_id) :
+        db = get_db()
+        cursor = db.cursor()
+
+        sql = "SELECT * FROM plant_types WHERE id = %s"
+        cursor.execute(sql, (plant_type_id,))
+        result = cursor.fetchone()
+        if not result :
+            return False
+
+        return True

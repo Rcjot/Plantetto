@@ -35,7 +35,7 @@ def add_plant() :
 
     return jsonify(success=False,
                     message="form fields might be invalid",
-                    error=error), 500
+                    error=error), 400
 
 
 
