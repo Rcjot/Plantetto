@@ -18,11 +18,14 @@ function CreatePostDialog({ children }: { children: React.ReactNode }) {
     return (
         <Dialog>
             {children}
-            <DialogContent className="sm:max-w-[425px] bg-base-100">
+            <DialogContent className="sm:max-w-[550px] bg-base-100">
                 <DialogHeader>
                     <DialogTitle className="text-center">
                         Create new post
                     </DialogTitle>
+                    <DialogDescription className="text-center">
+                        Sprout a new post, greenify the feed!
+                    </DialogDescription>
                     <div className="flex gap-3">
                         <ProfilePicture />
                         <div className="flex flex-col">
@@ -52,13 +55,8 @@ function CreatePostDialog({ children }: { children: React.ReactNode }) {
                             </div>
                         </div>
                     </div>
-                    <CreatePostForm />
 
-                    <DialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your account and remove your data from our
-                        servers.
-                    </DialogDescription>
+                    <CreatePostForm />
                 </DialogHeader>
             </DialogContent>
         </Dialog>

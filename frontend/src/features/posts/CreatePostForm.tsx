@@ -1,42 +1,69 @@
 import mediaIcon from "@/assets/icons/mediaIcon.svg";
 import { useRef, useState } from "react";
 import PostCarousel from "./PostCarousel";
+import type { MediaType } from "./postTypes";
 
 function CreatePostForm() {
     const mediaInputRef = useRef<HTMLInputElement>(null);
-    const [media, setMedia] = useState<FileList | string>("");
-    const [preview, setPreview] = useState<string[]>([""]);
+    const [media, setMedia] = useState<File[]>([]);
+    const [preview, setPreview] = useState<MediaType[]>([]);
+
+    const [caption, setCaption] = useState<string>("");
 
     function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
         console.log(e.target.files);
         if (!e.target.files) return;
         if (e.target.files.length === 0) return;
-        const files = e.target.files;
-        const filesArray = Array.from(e.target.files);
-        const mediaUrlList = filesArray.map((file) =>
-            URL.createObjectURL(file)
-        );
-        setMedia(files);
-        setPreview(mediaUrlList);
+        const files = Array.from(e.target.files);
+        const mediaUrlList: MediaType[] = files.map((file, i) => {
+            return {
+                url: URL.createObjectURL(file),
+                type: file.type.startsWith("image") ? "image" : "video",
+                order: i,
+            };
+        });
+        setMedia((prev) => [...prev, ...files]);
+        setPreview((prev) => [...prev, ...mediaUrlList]);
     }
 
     return (
         <>
             <form className="flex flex-col gap-3">
-                <input
-                    ref={mediaInputRef}
-                    type="file"
-                    name="media"
-                    className="hidden"
-                    onChange={handleImage}
-                    multiple
-                />
-                <textarea
-                    className="textarea w-full  max-h-[350px] overflow-y-auto"
-                    placeholder="What's growing today?"
-                ></textarea>
-                {media && <PostCarousel imageList={preview} />}
-
+                <div className=" max-h-[700px] overflow-y-auto grid gap-y-3">
+                    <input
+                        ref={mediaInputRef}
+                        type="file"
+                        name="media"
+                        accept="image/*,video/*"
+                        className="hidden"
+                        onChange={handleImage}
+                        multiple
+                    />
+                    <textarea
+                        className="textarea w-full outline-none max-h-[350px] overflow-y-auto"
+                        placeholder="What's growing today?"
+                        value={caption}
+                        onChange={(e) => {
+                            setCaption(e.target.value);
+                        }}
+                    ></textarea>
+                    {media.length > 0 && (
+                        <>
+                            <button
+                                className="btn btn-warning w-fit h-fit self-end ml-auto"
+                                onClick={() => {
+                                    setMedia([]);
+                                    setPreview([]);
+                                }}
+                            >
+                                clear
+                            </button>
+                            <div className="px-7">
+                                <PostCarousel mediaList={preview} />
+                            </div>
+                        </>
+                    )}
+                </div>
                 <div className="card w-full card-md border p-1 flex-row justify-between ">
                     <button
                         type="button"

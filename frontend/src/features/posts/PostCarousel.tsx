@@ -1,17 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PostCard from "./PostCard";
 import arrowrightIcon from "@/assets/icons/arrowrighticon.svg";
 import arrowleftIcon from "@/assets/icons/arrowlefticon.svg";
+import type { MediaType } from "./postTypes";
 
-function PostCarousel({ imageList }: { imageList: string[] }) {
+function PostCarousel({ mediaList }: { mediaList: MediaType[] }) {
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        if (mediaList.length === 1) {
+            setCurrentIndex(0);
+        }
+    }, [mediaList]);
 
     function handlePrevClick() {
         if (currentIndex == 0) return;
         setCurrentIndex((currentIndex) => currentIndex - 1);
     }
     function handleNextClick() {
-        if (currentIndex == imageList.length - 1) return;
+        if (currentIndex == mediaList.length - 1) return;
         setCurrentIndex((currentIndex) => currentIndex + 1);
     }
 
@@ -37,7 +44,7 @@ function PostCarousel({ imageList }: { imageList: string[] }) {
                 role="button"
                 tabIndex={0}
                 className={`absolute right-[-3%] top-[50%] z-1 cursor-pointer ${
-                    currentIndex == imageList.length - 1 ? "hidden" : ""
+                    currentIndex == mediaList.length - 1 ? "hidden" : ""
                 }`}
                 onClick={handleNextClick}
                 onKeyDown={(e) => {
@@ -57,8 +64,14 @@ function PostCarousel({ imageList }: { imageList: string[] }) {
                         transform: `translateX(-${currentIndex * 100}%)`,
                     }}
                 >
-                    {imageList.map((slide, i) => (
-                        <PostCard key={i} keyId={i} src={slide} />
+                    {mediaList.map((media, i) => (
+                        <PostCard
+                            key={i}
+                            keyId={i}
+                            src={media.url}
+                            mediaType={media.type}
+                            carouselIndex={currentIndex}
+                        />
                     ))}
                 </div>
             </div>
