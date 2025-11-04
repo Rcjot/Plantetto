@@ -1,12 +1,12 @@
 import axios from "@/lib/axios";
 
 async function sendImage(formData: FormData) {
-    await axios.post("/profile/upload", formData);
+    await axios.post("/users/upload", formData);
 }
 
 async function fetchProfileDetails(username: string) {
     try {
-        const { data } = await axios.get(`/profile/${username}`);
+        const { data } = await axios.get(`/users/${username}`);
 
         return { user: data["user"] };
     } catch {
@@ -16,7 +16,7 @@ async function fetchProfileDetails(username: string) {
 
 async function setProfile(formData: FormData) {
     try {
-        const { data } = await axios.post("/profile/update", formData);
+        const { data } = await axios.post("/users/update", formData);
         return { ok: true, data };
     } catch (error) {
         console.error(error);

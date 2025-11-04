@@ -9,4 +9,6 @@ CREATE TABLE users (
     email VARCHAR(50) UNIQUE NOT NULL,
     user_password VARCHAR(50) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    pfp_url TEXT DEFAULT NULL,
+    display_name VARCHAR(100) DEFAULT NULL
 );
