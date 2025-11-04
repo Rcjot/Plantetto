@@ -12,8 +12,10 @@ import GardenForm from "./GardenForm";
 
 export default function GardenAddPlant({ onAdded }: { onAdded?: () => void }) {
     const [open, setOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleDialogOpenChange(nextOpen: boolean) {
+        if (isSubmitting) return;
         setOpen(nextOpen);
     }
 
@@ -25,7 +27,12 @@ export default function GardenAddPlant({ onAdded }: { onAdded?: () => void }) {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md bg-base-100 max-h-[80vh] overflow-y-auto">
+            <DialogContent
+                className="sm:max-w-md bg-base-100 max-h-[80vh] overflow-y-auto"
+                {...(isSubmitting
+                    ? { onClose: () => {}, backdropClickClose: false }
+                    : {})}
+            >
                 <DialogHeader>
                     <DialogTitle>Add New Plant</DialogTitle>
                     <DialogDescription>
@@ -35,6 +42,7 @@ export default function GardenAddPlant({ onAdded }: { onAdded?: () => void }) {
                 </DialogHeader>
 
                 <GardenForm
+                    setSubmitting={setIsSubmitting}
                     onSuccess={() => {
                         setOpen(false);
                         onAdded?.();

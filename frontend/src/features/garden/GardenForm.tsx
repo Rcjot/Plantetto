@@ -28,7 +28,13 @@ const schema = z.object({
 
 export type GardenFormFields = z.infer<typeof schema>;
 
-export default function GardenForm({ onSuccess }: { onSuccess?: () => void }) {
+export default function GardenForm({
+    onSuccess,
+    setSubmitting,
+}: {
+    onSuccess?: () => void;
+    setSubmitting?: (val: boolean) => void;
+}) {
     const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
     const [preview, setPreview] = useState<string | null>(null);
 
@@ -47,6 +53,10 @@ export default function GardenForm({ onSuccess }: { onSuccess?: () => void }) {
     });
 
     useEffect(() => {
+        setSubmitting?.(isSubmitting);
+    }, [isSubmitting, setSubmitting]);
+
+    useEffect(() => {
         async function loadPlantTypes() {
             const res = await plantsApi.fetchPlantTypes();
             if (res.ok && res.plant_types) setPlantTypes(res.plant_types);
@@ -55,7 +65,6 @@ export default function GardenForm({ onSuccess }: { onSuccess?: () => void }) {
         loadPlantTypes();
     }, []);
 
-    // helper: draw uploaded file to canvas (literally chatgpt)
     const processFile = (file: File) => {
         return new Promise<Blob | null>((resolve) => {
             const img = new Image();
@@ -66,13 +75,7 @@ export default function GardenForm({ onSuccess }: { onSuccess?: () => void }) {
                 canvas.height = img.height;
                 const ctx = canvas.getContext("2d")!;
                 ctx.drawImage(img, 0, 0);
-                canvas.toBlob(
-                    (blob) => {
-                        resolve(blob);
-                    },
-                    "image/jpeg",
-                    0.9
-                );
+                canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.9);
             };
         });
     };
@@ -210,7 +213,11 @@ export default function GardenForm({ onSuccess }: { onSuccess?: () => void }) {
                 {/* submit button */}
                 <div className="flex justify-end gap-3">
                     <DialogClose asChild>
-                        <Button variant="outline" type="button">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            disabled={isSubmitting}
+                        >
                             Cancel
                         </Button>
                     </DialogClose>
