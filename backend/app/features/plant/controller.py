@@ -82,3 +82,17 @@ def edit_plant(plant_uuid) :
     return jsonify(success=False,
                     message="form fields might be invalid",
                     error=error), 400
+
+@plant_bp.route("/<plant_uuid>", methods=["DELETE"])
+def delete_plant(plant_uuid) :
+    to_delete_plant = Plants.delete_plant(plant_uuid, current_user.get_id())
+    if (to_delete_plant):
+        if (to_delete_plant["picture_url"] is not None) :
+            try : 
+                print('deleting cloudinary file')
+                cloudinary.delete_plantpic(plant_uuid)
+            except Exception as e :
+                return jsonify(success=False, message="delete cloudinary resource failed"), 500
+        return jsonify(success=True, message="delete plant successful")
+    else :
+        return jsonify(success=False, message="delete plant failed"), 404

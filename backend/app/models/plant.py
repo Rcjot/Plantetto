@@ -97,6 +97,20 @@ class Plants() :
         db.commit()
         cursor.close()
 
+    @classmethod
+    def delete_plant(cls, plant_uuid, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "DELETE FROM plants WHERE uuid = %s AND user_id = %s RETURNING *"
+        cursor.execute(sql, (plant_uuid, current_user_id))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None :
+            return None
+        return result
+
     @classmethod 
     def check_plant_type_exists(cls, plant_type_id) :
         db = get_db()

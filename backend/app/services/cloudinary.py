@@ -37,7 +37,6 @@ def upload_pfp(imageFile, id) :
     return srcURL
 
 def upload_plantpic(imageFile, plant_uuid) :
-    print(imageFile)
     try :
         upload_res = cloudinary.uploader.upload(imageFile,
                                 public_id=f"plantpic_{plant_uuid}",
@@ -55,3 +54,13 @@ def upload_plantpic(imageFile, plant_uuid) :
     except Exception as e :
         print(f"something erorr in cloudinary upload: {e}")
         raise Exception("cloudinary upload failed")
+    
+
+def delete_plantpic(plant_uuid) :
+    try :
+        res = cloudinary.uploader.destroy(f"plantpic/plantpic_{plant_uuid}", resource_type="image")
+        if (res['result'] != 'ok') :
+            raise Exception("cloudinary delete failed : result not found")
+    except Exception as e:
+        print(f"something erorr in cloudinary deletion: {e}")
+        raise 
