@@ -1,5 +1,5 @@
-import axios from "@/lib/axios";
 import type { PlantType, PlanttypeType } from "@/features/garden/gardenTypes";
+import axios from "@/lib/axios";
 
 async function addPlant(formData: FormData) {
     try {
@@ -43,10 +43,21 @@ async function fetchPlantsOfUser(
     page: number
 ) {
     try {
+        console.log(
+            "Fetching plants for:",
+            username,
+            search,
+            plant_type_id,
+            page
+        );
+
         const { data } = await axios.get(
             `/users/${username}/plants?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
         );
+
+        console.log("API response for fetchPlantsOfUser:", data);
         const meta_data = data["meta_data"];
+
         const plants: PlantType[] = data["plants"];
         return { ok: true, plants: plants, meta_data };
     } catch (error) {

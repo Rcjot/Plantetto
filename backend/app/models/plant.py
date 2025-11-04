@@ -12,7 +12,7 @@ class Plants() :
         self.plant_type=plant_type
         self.created_at=created_at
         self.user_id=user_id
-
+    
     def add(self) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -33,7 +33,8 @@ class Plants() :
         cursor.close()
 
         return uuid_res
-
+    
+    @classmethod
     def all(cls, username, search, plant_type_id, limit, offset) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -52,7 +53,7 @@ class Plants() :
                 'username', users.username,
                 'display_name', users.display_name
             ) AS owner
-            """
+        """
 
         meta_data_query = """
         SELECT COUNT(*) OVER() AS result_count,
@@ -146,7 +147,7 @@ class Plants() :
         if result is None :
             return None
         return result
-
+    
     @classmethod
     def update_picture_url(cls, plant_uuid, picture_url) :
         db = get_db()
@@ -157,7 +158,7 @@ class Plants() :
 
         db.commit()
         cursor.close()
-
+    
     @classmethod
     def delete_plant(cls, plant_uuid, current_user_id) :
         db = get_db()
@@ -171,7 +172,7 @@ class Plants() :
         if result is None :
             return None
         return result
-
+    
     @classmethod 
     def check_plant_type_exists(cls, plant_type_id) :
         db = get_db()
@@ -184,7 +185,7 @@ class Plants() :
             return False
 
         return True
-    
+
     @classmethod 
     def get_plant_types(cls) :
         db = get_db()
