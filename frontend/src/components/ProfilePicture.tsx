@@ -1,12 +1,18 @@
 import defaultpfp from "@/assets/defaultpfp.png";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 function ProfilePicture({
-    src,
+    src = "defaultuserpfp",
     size = "small",
 }: {
-    src: string | null;
+    src?: string | null;
     size?: string;
 }) {
+    const { auth } = useAuthContext()!;
+    if (src === "defaultuserpfp" && auth.user) {
+        src = auth.user.pfp_url;
+    }
+
     if (size === "small") {
         return (
             <img

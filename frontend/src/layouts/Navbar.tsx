@@ -71,7 +71,7 @@ export default function Navbar() {
                 <div className="dropdown dropdown-end">
                     <div tabIndex={0} role="button" className="cursor-pointer">
                         {auth?.user ? (
-                            <ProfilePicture src={auth.user.pfp_url} />
+                            <ProfilePicture />
                         ) : (
                             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-base-300 flex items-center justify-center">
                                 ?

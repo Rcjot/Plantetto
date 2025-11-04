@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import profileApi from "@/api/profileApi";
 import type { User } from "@/features/auth/authTypes";
 import { DialogDemo } from "@/features/profile/EditProfileCard";
+import { useAuthContext } from "@/features/auth/AuthContext";
+import ProfilePicture from "@/components/ProfilePicture";
 
 function Profile() {
     const [user, setUser] = useState<User | "loading" | null>("loading");
@@ -25,29 +27,20 @@ function Profile() {
     if (user === "loading") return <div className="p-10">Loading...</div>;
     if (!user) return <div className="p-10">User not found.</div>;
 
-    const currentUserUsername = "tyrone_byrone";
-    const isOwnProfile = user.username === currentUserUsername;
+    const { auth } = useAuthContext()!;
+    const isOwnProfile = auth.user && user.username === auth.user.username;
+
     return (
         <div className="bg-base-200 h-screen overflow-y-auto">
             <div className="bg-base-100">
                 <div className="max-w-4xl mx-auto px-4 py-6">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
-                            {user.pfp_url ? (
-                                <div className="avatar">
-                                    <div className="w-24 h-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                                        <img src={user.pfp_url} alt="pfp" />
-                                    </div>
+                            <div className="avatar">
+                                <div className="w-24 h-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                                    <ProfilePicture />
                                 </div>
-                            ) : (
-                                <div className="avatar placeholder">
-                                    <div className="w-24 h-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 bg-neutral text-neutral-content flex items-center justify-center">
-                                        <span className="text-xl">
-                                            {user.username[0].toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
+                            </div>
 
                             <div>
                                 <h1 className="text-2xl font-bold text-base-content">

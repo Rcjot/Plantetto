@@ -23,10 +23,7 @@ def set_image() :
 @user_bp.route("/<username>")
 @login_required
 def get_profile(username) :
-    print("[DEBUG] Requested username:", username)
     user = Users.get_by_username(username)
-    print("[DEBUG] User fetched:", user)
-    print("[DEBUG] Current logged-in user:", current_user.get_id())
     if user :
         return jsonify(success=True, message="fetched profile", user=user.get_json())
 
