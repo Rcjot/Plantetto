@@ -1,4 +1,4 @@
-export interface User {
+export interface UserType {
     id: string;
     username: string;
     pfp_url: string;
@@ -7,7 +7,7 @@ export interface User {
 
 export interface AuthType {
     status: "loading" | "authenticated" | "unauthenticated";
-    user: User | null;
+    user: UserType | null;
 }
 
 export interface AuthContextType {
