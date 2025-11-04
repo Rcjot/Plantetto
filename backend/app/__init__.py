@@ -36,6 +36,9 @@ def create_app() :
     from .features.user import user_bp
     app.register_blueprint(user_bp, url_prefix="/users")
 
+    from .features.plant import plant_bp
+    app.register_blueprint(plant_bp, url_prefix="/plants")
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
         print(e.description)

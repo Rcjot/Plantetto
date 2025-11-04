@@ -33,8 +33,25 @@ def upload_pfp(imageFile, id) :
 
     srcURL = upload_res["secure_url"]    
 
-    print("****2. Upload an image****\nDelivery URL: ", srcURL, "\n")
+    print("****Uploaded profile picture****\nDelivery URL: ", srcURL, "\n")
     return srcURL
 
-def get_asset(id) :
-    pass
+def upload_plantpic(imageFile, plant_uuid) :
+    print(imageFile)
+    try :
+        upload_res = cloudinary.uploader.upload(imageFile,
+                                public_id=f"plantpic_{plant_uuid}",
+                                unique_filename=False,
+                                folder="plantpic/",
+                                transformation=[{"quality" : "auto:eco",
+                                                    "fetch_format":"auto",
+                                                    "width": 150,
+                                                    "height" : 150,
+                                                    "crop": "fill"}])
+        srcURL = upload_res["secure_url"]    
+
+        print("****Uploaded plant picture****\nDelivery URL: ", srcURL, "\n")
+        return srcURL
+    except Exception as e :
+        print(f"something erorr in cloudinary upload: {e}")
+        raise Exception("cloudinary upload failed")
