@@ -14,6 +14,7 @@ CREATE TABLE plants (
     nickname VARCHAR(50) NOT NULL,
     plant_description VARCHAR(255),
     picture_url TEXT DEFAULT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     plant_type_id BIGSERIAL REFERENCES plant_types(id),
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    user_id BIGSERIAL REFERENCES users(id)
 );
