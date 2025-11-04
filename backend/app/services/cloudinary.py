@@ -24,6 +24,7 @@ def upload_pfp(imageFile, id) :
     upload_res = cloudinary.uploader.upload(imageFile,
                                public_id=f"pfp_{id}",
                                unique_filename=False,
+                               folder="users_pfp/",
                                transformation=[{"quality" : "auto:eco",
                                                 "fetch_format":"auto",
                                                 "width": 150,
