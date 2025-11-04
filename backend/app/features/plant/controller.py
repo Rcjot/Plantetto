@@ -26,8 +26,9 @@ def add_plant() :
                             user_id=current_user_id)
             uuid_res = new_plant.add()
             plant_uuid = uuid_res['uuid']
-            picture_url = cloudinary.upload_plantpic(form.plantpic.data, plant_uuid)
-            Plants.update_picture_url(plant_uuid, picture_url)
+            if (form.plantpic.data) :
+                picture_url = cloudinary.upload_plantpic(form.plaqntpic.data, plant_uuid)
+                Plants.update_picture_url(plant_uuid, picture_url)
         except Exception as e :
             print(e)
             return jsonify(success=False, message="something went wrong trying to add plant"), 500
