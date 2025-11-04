@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import GardenCard from "../../features/garden/GardenCard.tsx";
 import GardenAddPlant from "../../features/garden/GardenAddPlant.tsx";
 import GardenCard_Details from "../../features/garden/GardenCard_Details.tsx";
@@ -9,6 +9,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import loading_gif from "@/assets/loading_gif.gif";
+import styles from "../../features/garden/filter_scroll.module.css";
 
 function MyGarden() {
     const { auth } = useAuthContext()!;
@@ -21,12 +22,49 @@ function MyGarden() {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [meta, setMeta] = useState<MetaDataType | null>(null);
-
     const [reload, setReload] = useState(0);
 
-    const categoryMap: Record<string, number | undefined> = {};
-    plantTypes.forEach((pt) => (categoryMap[pt.plant_name] = pt.id));
-    categoryMap["All"] = undefined;
+    // refs for drag-to-scroll
+    const filterScrollRef = useRef<HTMLDivElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+
+    // mouse drag handlers
+    const handleMouseDown = (e: React.MouseEvent) => {
+        const container = filterScrollRef.current;
+        if (!container) return;
+
+        setIsDragging(true);
+        setStartX(e.pageX - container.offsetLeft);
+        setScrollLeft(container.scrollLeft);
+        container.style.cursor = "grabbing";
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging) return;
+        const container = filterScrollRef.current;
+        if (!container) return;
+
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2; // drag speed
+        container.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+        const container = filterScrollRef.current;
+        if (container) container.style.cursor = "grab";
+    };
+
+    const handleMouseLeave = () => {
+        if (isDragging) {
+            setIsDragging(false);
+            const container = filterScrollRef.current;
+            if (container) container.style.cursor = "grab";
+        }
+    };
 
     // load plant types
     useEffect(() => {
@@ -59,6 +97,7 @@ function MyGarden() {
             if (res.ok && res.plants) {
                 setPlants(res.plants);
                 const meta_data: MetaDataType = res.meta_data;
+
                 let safePage = page;
                 if (page > meta_data.max_page) safePage = meta_data.max_page;
                 if (page < 1) safePage = 1;
@@ -77,6 +116,7 @@ function MyGarden() {
 
             setLoading(false);
         }
+
         loadPlants();
     }, [auth.user, selectedCategory, search, page, reload, plantTypes]);
 
@@ -127,7 +167,18 @@ function MyGarden() {
                         />
                     </div>
 
-                    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                    {/* draggable filter bar */}
+                    <div
+                        ref={filterScrollRef}
+                        className={cn(
+                            "flex gap-2 overflow-x-auto cursor-grab active:cursor-grabbing select-none",
+                            styles.scrollbarhide
+                        )}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseLeave}
+                    >
                         {["All", ...plantTypes.map((pt) => pt.plant_name)].map(
                             (category) => (
                                 <button
