@@ -2,14 +2,18 @@ from flask_login import UserMixin
 from ..database import get_db
 import psycopg2.extras
 import hashlib
+from flask import jsonify
 
 class Users(UserMixin) :
-    def __init__(self,  uuid=None, username=None, email=None, password=None, created_at=None):
+    def __init__(self, id=None, uuid=None, username=None, email=None, password=None, created_at=None, pfp_url=None, display_name=None):
+        self.id = id
         self.uuid = uuid
         self.username = username
         self.email = email
         self.password = password
         self.created_at = created_at
+        self.pfp_url = pfp_url
+        self.display_name = display_name
     
     def add(self) :
         db = get_db()
@@ -41,7 +45,9 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url'],
+            display_name=result['display_name'],
         )
 
     @classmethod
@@ -59,11 +65,15 @@ class Users(UserMixin) :
             return None
 
         return cls(
+            id=result['id'],
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
             password=result['user_password'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url'],
+            display_name=result['display_name'],
+
         )
 
     @classmethod 
@@ -89,7 +99,9 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url'],
+            display_name=result['display_name'],
         )
 
     @classmethod 
@@ -100,10 +112,11 @@ class Users(UserMixin) :
 
     @classmethod
     def get_by_id(cls, user_id) :
+        # used by user_loader
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        sql = "SELECT * FROM users WHERE uuid= %s"
+        sql = "SELECT * FROM users WHERE id= %s"
 
         cursor.execute(sql, (user_id,))
         result = cursor.fetchone()
@@ -112,13 +125,19 @@ class Users(UserMixin) :
             return None
 
         return cls(
+            id=result['id'],
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
-            created_at=result['created_at']
+            created_at=result['created_at'],
+            pfp_url=result['pfp_url'],
+            display_name=result['display_name'],
         )
 
     def get_id(self) :
+        return str(self.id)
+    
+    def get_uuid(self) :
         return str(self.uuid)
 
     def check_password(self, password) : 
@@ -129,5 +148,54 @@ class Users(UserMixin) :
         return {
             'id':str(self.uuid),
             'username':self.username,
+            'pfp_url':self.pfp_url,
+            'display_name':self.display_name
         }
     
+    @classmethod
+    def set_pfp(cls, id, pfp_url) :
+        try: 
+            db = get_db()
+            cursor = db.cursor()
+
+            sql="UPDATE users SET pfp_url = %s WHERE id = %s"
+            cursor.execute(sql, (pfp_url, id))
+            db.commit()
+            cursor.close()
+            
+            return True
+        except Exception as e:
+            print(f"error setting pfp: {e}")
+            return False
+        
+    @classmethod 
+    def update_profile(cls, id, display_name=None, pfp_url=None):
+        try:
+            db = get_db()
+            cursor = db.cursor()
+            
+            updates = []
+            params = []
+            
+            if display_name is not None:
+                updates.append("display_name = %s")
+                params.append(display_name)
+            
+            if pfp_url is not None:
+                updates.append("pfp_url = %s")
+                params.append(pfp_url)
+            
+            if not updates:
+                return True
+            
+            params.append(id)
+            sql = f"UPDATE users SET {', '.join(updates)} WHERE id = %s"
+            
+            cursor.execute(sql, tuple(params))
+            db.commit()
+            cursor.close()
+            
+            return True
+        except Exception as e:
+            print(f"error updating profile: {e}")
+            return False

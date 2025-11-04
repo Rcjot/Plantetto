@@ -42,7 +42,7 @@ function getRoutes() {
                             element: <MyGarden />,
                         },
                         {
-                            path: "/profile/:id",
+                            path: "/:username",
                             element: <Profile />,
                         },
                     ],

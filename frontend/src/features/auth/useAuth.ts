@@ -36,6 +36,7 @@ function useAuth() {
         auth,
         signin,
         logout,
+        fetchCredentials,
     };
 }
 
