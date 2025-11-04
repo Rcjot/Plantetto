@@ -15,7 +15,7 @@ def plant_type_exists(form, field) :
     if (not Plants.check_plant_type_exists(field.data)) :
         raise ValidationError("plant type doesn't exist")
 
-class AddPlantForm(FlaskForm) :
+class PlantForm(FlaskForm) :
     nickname = StringField(validators=[validators.DataRequired()])
     description = StringField()
     plantpic = FileField(validators=[is_image])

@@ -33,8 +33,58 @@ class Plants() :
         cursor.close()
 
         return uuid_res
+    
+    @classmethod
+    def all(cls) :
+        pass
 
+    @classmethod 
+    def get_plant(cls, plant_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
+        sql = """
+        SELECT 
+            plants.nickname,
+            plants.plant_description,
+            plants.picture_url,
+            plants.created_at,
+            plant_types.plant_name,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS owner
+        FROM plants
+        JOIN users ON plants.user_id = users.id
+        JOIN plant_types ON plants.plant_type_id = plant_types.id
+        WHERE plants.uuid = %s
+        """
+
+        cursor.execute(sql, (plant_uuid,))
+        result = cursor.fetchone()
+        cursor.close()
+
+        return result
+
+    @classmethod
+    def update(cls, plant_uuid, nickname, description, plant_type) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql=f"""
+        UPDATE plants
+        SET 
+        nickname = %s,
+        plant_description = %s,
+        plant_type_id = %s
+        WHERE uuid = %s
+        """
+        cursor.execute(sql, (nickname, description, plant_type, plant_uuid))
+
+        db.commit()
+        cursor.close()
     
     @classmethod
     def update_picture_url(cls, plant_uuid, picture_url) :
