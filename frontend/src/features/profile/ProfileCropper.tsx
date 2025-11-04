@@ -14,10 +14,12 @@ function ProfileCropper({
     imgSrc,
     setPfpPreview,
     canvasRef,
+    onCropComplete,
 }: {
     imgSrc: string;
     setPfpPreview: React.Dispatch<React.SetStateAction<string>>;
     canvasRef: React.RefObject<HTMLCanvasElement | null>;
+    onCropComplete?: () => void;
 }) {
     const imgRef = useRef<HTMLImageElement>(null);
     const [crop, setCrop] = useState<PercentCrop>();
@@ -54,6 +56,7 @@ function ProfileCropper({
             const dataUrl = canvasRef.current.toDataURL();
             setPfpPreview(dataUrl);
             console.log(dataUrl);
+            onCropComplete?.();
         }
     }
 

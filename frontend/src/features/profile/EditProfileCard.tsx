@@ -26,6 +26,7 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [open, setOpen] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasUnsavedCrop, setHasUnsavedCrop] = useState(false);
 
     const validateDisplayName = (value: string) => {
         const regex = /^[A-Za-z0-9_]+$/;
@@ -43,6 +44,13 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
 
     async function handleSave(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+
+        const hasUncropped = setProfileRef.current?.hasUnsavedCrop() ?? false;
+        if (hasUncropped) {
+            setHasUnsavedCrop(true);
+            return;
+        }
+
         if (error) return;
         setIsSubmitting(true);
 
@@ -76,7 +84,8 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
     useEffect(() => {
         setDisplayName(auth.user?.display_name ?? "");
         setError(null);
-    }, [auth.user?.display_name]);
+        setHasUnsavedCrop(false);
+    }, [auth.user?.display_name, open]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -97,7 +106,10 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
                     <div className="grid gap-6 py-4">
                         {/* pfp */}
                         <div className="flex justify-center">
-                            <SetProfile ref={setProfileRef} />
+                            <SetProfile
+                                ref={setProfileRef}
+                                onCropStatusChange={setHasUnsavedCrop}
+                            />
                         </div>
 
                         {/* display name w/ inline validation */}
@@ -118,6 +130,12 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
                             {error && (
                                 <p className="text-sm text-warning mt-1">
                                     {error}
+                                </p>
+                            )}
+                            {hasUnsavedCrop && (
+                                <p className="text-sm text-warning mt-1">
+                                    Please crop the selected image before
+                                    saving.
                                 </p>
                             )}
                         </div>
