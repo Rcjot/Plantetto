@@ -1,4 +1,5 @@
 import axios from "@/lib/axios";
+import type { PlantType } from "@/features/garden/gardenTypes";
 
 async function addPlant(formData: FormData) {
     try {
@@ -36,7 +37,7 @@ async function deletePlant(plant_uuid: string) {
 async function fetchPlantsOfUser(username: string) {
     try {
         const { data } = await axios.get(`/user/${username}/plants/`);
-        const plants = data["plants"];
+        const plants: PlantType[] = data["plants"];
         return { ok: true, plants: plants };
     } catch (error) {
         console.error(error);
@@ -47,7 +48,7 @@ async function fetchPlantsOfUser(username: string) {
 async function fetchPlant(plant_uuid: string) {
     try {
         const { data } = await axios.get(`/plants/${plant_uuid}`);
-        const plant = data["plant"];
+        const plant: PlantType = data["plant"];
         return { ok: true, plant: plant };
     } catch (error) {
         console.error(error);

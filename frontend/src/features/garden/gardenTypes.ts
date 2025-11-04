@@ -1,6 +1,6 @@
 import type { UserType } from "../auth/authTypes";
 
-export interface plantType {
+export interface PlantType {
     plant_uuid: string;
     nickname: string;
     plant_description: string;
