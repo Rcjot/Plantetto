@@ -12,6 +12,7 @@ flask-login = "*"
 flask-wtf = "*"
 colorama = "*"
 email-validator = "*"
+cloudinary = "*"
 
 [dev-packages]
 
