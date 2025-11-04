@@ -12,7 +12,7 @@ class Plants() :
         self.plant_type=plant_type
         self.created_at=created_at
         self.user_id=user_id
-    
+
     def add(self) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -33,7 +33,7 @@ class Plants() :
         cursor.close()
 
         return uuid_res
-    
+
     @classmethod
     def all(cls) :
         pass
@@ -69,7 +69,7 @@ class Plants() :
         return result
 
     @classmethod
-    def update(cls, plant_uuid, nickname, description, plant_type) :
+    def update(cls, plant_uuid, nickname, description, plant_type, current_user_id ) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -79,13 +79,19 @@ class Plants() :
         nickname = %s,
         plant_description = %s,
         plant_type_id = %s
-        WHERE uuid = %s
+        WHERE uuid = %s AND user_id = %s 
+        RETURNING *
         """
-        cursor.execute(sql, (nickname, description, plant_type, plant_uuid))
+        cursor.execute(sql, (nickname, description, plant_type, plant_uuid, current_user_id))
 
+        result = cursor.fetchone()
         db.commit()
         cursor.close()
-    
+
+        if result is None :
+            return None
+        return result
+
     @classmethod
     def update_picture_url(cls, plant_uuid, picture_url) :
         db = get_db()

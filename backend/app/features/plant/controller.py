@@ -49,12 +49,6 @@ def add_plant() :
 @plant_bp.route("/<plant_uuid>", methods=["PUT"])
 @login_required
 def edit_plant(plant_uuid) :
-    to_update_plant = Plants.get_plant(plant_uuid)
-    if (to_update_plant == None) :
-        return jsonify(success=False, message="no such plant"), 404
-    if (str(to_update_plant["owner"]["id"])  != current_user.get_uuid()) :
-        return jsonify(success=False, message="plant not yours!"), 403
-
     form = PlantForm()
     current_user_id = current_user.get_id()
     validated = form.validate()
@@ -65,17 +59,21 @@ def edit_plant(plant_uuid) :
         "plant_type" : form.plant_type.errors,
     }
     if validated : 
-        try :
-            Plants.update(plant_uuid=plant_uuid, 
-                          nickname=form.nickname.data,
-                          description=form.description.data,
-                          plant_type=form.plant_type.data)
+        to_update_plant= Plants.update(plant_uuid=plant_uuid, 
+                                        nickname=form.nickname.data,
+                                        description=form.description.data,
+                                        plant_type=form.plant_type.data,
+                                        current_user_id=current_user.get_id())
+        if (to_update_plant) :
             if (form.plantpic.data) :
-                picture_url = cloudinary.upload_plantpic(form.plantpic.data, plant_uuid)
-                Plants.update_picture_url(plant_uuid, picture_url)
-        except Exception as e :
-            print(e)
-            return jsonify(success=False, message="something went wrong trying to update plant"), 500
+                try :
+                    picture_url = cloudinary.upload_plantpic(form.plantpic.data, plant_uuid)
+                    Plants.update_picture_url(plant_uuid, picture_url)
+                except Exception as e :
+                    print(e)
+                    return jsonify(success=False, message="something went wrong trying to update plant"), 500
+        else : 
+            return jsonify(success=False, message="update plant failed"), 404
         return jsonify(success=True, plant_uuid=plant_uuid)
 
     
