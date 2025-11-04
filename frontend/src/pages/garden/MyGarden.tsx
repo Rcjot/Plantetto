@@ -1,170 +1,215 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GardenCard from "../../features/garden/GardenCard.tsx";
 import GardenAddPlant from "../../features/garden/GardenAddPlant.tsx";
 import GardenCard_Details from "../../features/garden/GardenCard_Details.tsx";
-import plant_thing from "@/assets/plant_thing.png";
-import image from "@/assets/image.png";
+import plantsApi from "@/api/plantsApi";
+import type { PlantType, PlanttypeType } from "@/features/garden/gardenTypes";
+import type { MetaDataType } from "@/api/plantsApi";
+import { useAuthContext } from "@/features/auth/AuthContext";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import loading_gif from "@/assets/loading_gif.gif";
 
 function MyGarden() {
-    //change to API fetching later on
-    const plants = [
-        {
-            id: 1,
-            image: plant_thing,
-            title: "Bonsai 3",
-            type: "Bonsai",
-            description: "A small, well-shaped bonsai tree.",
-        },
-        {
-            id: 2,
-            image: image,
-            title: "My Snake Plant",
-            type: "Succulent",
-            description: "Low maintenance plant perfect for indoors.",
-        },
-        {
-            id: 3,
-            image: plant_thing,
-            title: "Ficus Lyrata",
-            type: "Ficus",
-            description: "A large indoor plant with broad leaves.",
-        },
-        {
-            id: 4,
-            image: image,
-            title: "Aloe Vera",
-            type: "Succulent",
-            description: "Medicinal plant, easy to care for.",
-        },
-        {
-            id: 5,
-            image: plant_thing,
-            title: "Mini Cactus",
-            type: "Cacti",
-            description: "Small cactus, perfect for desktops.",
-        },
-        {
-            id: 6,
-            image: image,
-            title: "Herb Garden",
-            type: "Herbs",
-            description: "Various herbs you can grow indoors.",
-        },
-        {
-            id: 7,
-            image: plant_thing,
-            title: "Exotic Fern",
-            type: "Ferns",
-            description: "Tropical fern for humid areas.",
-        },
-        {
-            id: 8,
-            image: image,
-            title: "Flowering Plant",
-            type: "Flowering",
-            description: "Adds color to your garden.",
-        },
-        {
-            id: 9,
-            image: plant_thing,
-            title: "Bonsai 4",
-            type: "Bonsai",
-            description: "Another bonsai example for the collection.",
-        },
-        {
-            id: 10,
-            image: image,
-            title: "Succulent Mix",
-            type: "Succulent",
-            description: "Multiple succulents arranged in a pot.",
-        },
-    ];
-
-    const [selectedPlant, setSelectedPlant] = useState<any>(null);
+    const { auth } = useAuthContext()!;
+    const [plants, setPlants] = useState<PlantType[]>([]);
+    const [selectedPlant, setSelectedPlant] = useState<PlantType | null>(null);
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [meta, setMeta] = useState<MetaDataType | null>(null);
 
-    const handleCardClick = (plant: any) => {
+    // reload, suggested by chatgpt
+    const [reload, setReload] = useState(0);
+
+    const categoryMap: Record<string, number | undefined> = {};
+    plantTypes.forEach((pt) => (categoryMap[pt.plant_name] = pt.id));
+    categoryMap["All"] = undefined;
+
+    // load plant types
+    useEffect(() => {
+        async function loadPlantTypes() {
+            const res = await plantsApi.fetchPlantTypes();
+            if (res.ok && res.plant_types) setPlantTypes(res.plant_types);
+        }
+        loadPlantTypes();
+    }, []);
+
+    // load plants
+    useEffect(() => {
+        async function loadPlants() {
+            if (!auth.user) return;
+
+            setLoading(true);
+
+            const plant_type_id = categoryMap[selectedCategory];
+
+            const res = await plantsApi.fetchPlantsOfUser(
+                auth.user.username,
+                search,
+                plant_type_id ?? undefined,
+                page
+            );
+
+            if (res.ok && res.plants) {
+                setPlants(res.plants);
+                const meta_data: MetaDataType = res.meta_data;
+                let safePage = page;
+                if (page > meta_data.max_page) safePage = meta_data.max_page;
+                if (page < 1) safePage = 1;
+                if (safePage !== page) setPage(safePage);
+
+                setMeta(meta_data);
+            } else {
+                setPlants([]);
+                setMeta(null);
+            }
+
+            setLoading(false);
+        }
+        loadPlants();
+    }, [auth.user, selectedCategory, search, page, plantTypes, reload]);
+
+    const handleCardClick = (plant: PlantType) => {
         setSelectedPlant(plant);
         setOpen(true);
     };
 
-    //change to API stuff later
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const categories = [
-        "All",
-        "Cacti",
-        "Succulent",
-        "Ficus",
-        "Herbs",
-        "Bonsai",
-        "Ferns",
-        "Exotic",
-        "Flowering",
-    ];
+    const renderPageButtons = () => {
+        if (!meta) return null;
+        const pages = [];
+        for (let i = 1; i <= meta.max_page; i++) {
+            pages.push(
+                <Button
+                    key={i}
+                    size="sm"
+                    variant={i === page ? "default" : "outline"}
+                    onClick={() => setPage(i)}
+                >
+                    {i}
+                </Button>
+            );
+        }
+        return pages;
+    };
 
     return (
         <div className="bg-base-200 h-screen overflow-y-auto">
+            {/* top controls */}
             <div className="bg-base-100 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
-                    {/* add plant */}
                     <div className="w-full sm:w-auto">
-                        <GardenAddPlant />
+                        {/* reload trigger (this is 100% bonafide chatgpt im losing it) */}
+                        <GardenAddPlant
+                            onAdded={() => setReload((r) => r + 1)}
+                        />
                     </div>
 
-                    {/* search, no function yet */}
                     <div className="w-full sm:max-w-md">
                         <input
                             type="text"
                             placeholder="Search"
                             className="input input-bordered w-full bg-white border-gray-200"
+                            value={search}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setPage(1);
+                            }}
                         />
                     </div>
 
-                    {/* filter */}
                     <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                        {categories.map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => setSelectedCategory(category)}
-                                className={`btn btn-sm flex-shrink-0 ${
-                                    selectedCategory === category
-                                        ? "btn-success"
-                                        : "btn-ghost bg-gray-200"
-                                }`}
-                            >
-                                {category}
-                            </button>
-                        ))}
+                        {["All", ...plantTypes.map((pt) => pt.plant_name)].map(
+                            (category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => {
+                                        setSelectedCategory(category);
+                                        setPage(1);
+                                    }}
+                                    className={cn(
+                                        "btn btn-sm flex-shrink-0",
+                                        selectedCategory === category
+                                            ? "btn-success"
+                                            : "btn-ghost bg-gray-200"
+                                    )}
+                                >
+                                    {category}
+                                </button>
+                            )
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* garden grid */}
             <div className="max-w-7xl mx-auto px-4 py-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {plants.map((plant) => (
-                        <GardenCard
-                            key={plant.id}
-                            image={plant.image}
-                            title={plant.title}
-                            onClick={() => handleCardClick(plant)}
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <img
+                            src={loading_gif}
+                            alt="Loading..."
+                            className="h-16 w-16"
                         />
-                    ))}
-                </div>
+                    </div>
+                ) : plants.length === 0 ? (
+                    <p className="text-center text-neutral-400">
+                        No plants yet.
+                    </p>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {plants.map((plant) => (
+                            <GardenCard
+                                key={plant.plant_uuid}
+                                image={plant.picture_url}
+                                title={plant.nickname}
+                                onClick={() => handleCardClick(plant)}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* pagination */}
+                {!loading && meta && meta.max_page > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+                        <Button
+                            size="sm"
+                            disabled={page <= 1}
+                            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                        >
+                            Prev
+                        </Button>
+
+                        {renderPageButtons()}
+
+                        <Button
+                            size="sm"
+                            disabled={page >= meta.max_page}
+                            onClick={() =>
+                                setPage((p) => Math.min(p + 1, meta.max_page))
+                            }
+                        >
+                            Next
+                        </Button>
+                    </div>
+                )}
             </div>
 
-            {/* dialog */}
             {selectedPlant && (
                 <GardenCard_Details
                     open={open}
                     onOpenChange={setOpen}
-                    image={selectedPlant.image}
-                    title={selectedPlant.title}
-                    type={selectedPlant.type}
-                    description={selectedPlant.description}
+                    plant={selectedPlant}
+                    onUpdated={() => setReload((r) => r + 1)}
                 />
             )}
+
+            <div className="h-16" />
         </div>
     );
 }
+
 export default MyGarden;

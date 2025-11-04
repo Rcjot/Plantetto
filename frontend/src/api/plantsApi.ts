@@ -3,7 +3,7 @@ import type { PlantType, PlanttypeType } from "@/features/garden/gardenTypes";
 
 async function addPlant(formData: FormData) {
     try {
-        const { data } = await axios.post("/plants", formData);
+        const { data } = await axios.post("/plants/", formData);
 
         return { ok: true, plant: data };
     } catch (error) {
@@ -37,15 +37,16 @@ async function deletePlant(plant_uuid: string) {
 async function fetchPlantsOfUser(
     username: string,
     search: string,
-    plant_type_id: number,
+    plant_type_id: number | undefined,
     page: number
 ) {
     try {
         const { data } = await axios.get(
-            `/user/${username}/plants?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
+            `/users/${username}/plants?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
         );
+        const meta_data = data["meta_data"];
         const plants: PlantType[] = data["plants"];
-        return { ok: true, plants: plants };
+        return { ok: true, plants: plants, meta_data };
     } catch (error) {
         console.error(error);
         return { ok: false };
