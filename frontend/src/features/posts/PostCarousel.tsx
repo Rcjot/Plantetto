@@ -1,10 +1,20 @@
 import { useEffect, useState } from "react";
-import PostCard from "./PostCard";
+import CarouselCard from "./CarouselCard";
 import arrowrightIcon from "@/assets/icons/arrowrighticon.svg";
 import arrowleftIcon from "@/assets/icons/arrowlefticon.svg";
 import type { MediaType } from "./postTypes";
 
-function PostCarousel({ mediaList }: { mediaList: MediaType[] }) {
+function PostCarousel({
+    mediaList,
+    view = "feed",
+    highlight_height = 0,
+    highlight_width = 0,
+}: {
+    mediaList: MediaType[];
+    view?: "feed" | "viewpost";
+    highlight_height?: number;
+    highlight_width?: number;
+}) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
@@ -13,17 +23,29 @@ function PostCarousel({ mediaList }: { mediaList: MediaType[] }) {
         }
     }, [mediaList]);
 
-    function handlePrevClick() {
+    function handlePrevClick(e?: React.MouseEvent<HTMLDivElement>) {
+        if (e) {
+            e.stopPropagation();
+        }
         if (currentIndex == 0) return;
         setCurrentIndex((currentIndex) => currentIndex - 1);
     }
-    function handleNextClick() {
+    function handleNextClick(e?: React.MouseEvent<HTMLDivElement>) {
+        if (e) {
+            e.stopPropagation();
+        }
         if (currentIndex == mediaList.length - 1) return;
         setCurrentIndex((currentIndex) => currentIndex + 1);
     }
-
     return (
-        <div className="w-full max-w-[600px] relative">
+        <div
+            className={` max-w-full max-h-full relative ${
+                view == "feed" ? "" : "sm:min-w-[400px]  lg:min-w-[500px] "
+            }`}
+            style={{
+                aspectRatio: `${highlight_width}/${highlight_height}`,
+            }}
+        >
             <div
                 role="button"
                 tabIndex={0}
@@ -65,12 +87,13 @@ function PostCarousel({ mediaList }: { mediaList: MediaType[] }) {
                     }}
                 >
                     {mediaList.map((media, i) => (
-                        <PostCard
+                        <CarouselCard
                             key={i}
                             keyId={i}
                             src={media.url}
                             mediaType={media.type}
                             carouselIndex={currentIndex}
+                            view={view}
                         />
                     ))}
                 </div>

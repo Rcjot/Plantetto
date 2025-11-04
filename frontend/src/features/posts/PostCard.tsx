@@ -1,47 +1,81 @@
-import { useRef } from "react";
+import type { PostType } from "./postTypes";
+import PostHeader from "./PostHeader";
+import PostCarousel from "./PostCarousel";
+import { useNavigate, useLocation } from "react-router-dom";
 
-function PostCard({
-    keyId,
-    src,
-    mediaType,
-    carouselIndex,
-}: {
-    keyId: number;
-    src: string;
-    mediaType: string;
-    carouselIndex: number;
-}) {
-    const videoRef = useRef<HTMLVideoElement>(null);
+function PostCard({ post }: { post: PostType }) {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    if (mediaType === "video" && videoRef.current && carouselIndex != keyId) {
-        videoRef.current?.pause();
+    function openPost(
+        e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>,
+        section = "card"
+    ) {
+        if (section === "card") {
+            const selection = window.getSelection();
+            const isTextSelected = selection && selection.toString().length > 0;
+            if (isTextSelected) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+        }
+
+        navigate(`/home/${post.author.username}/${post.post_uuid}`, {
+            state: { background: location, post: post },
+        });
     }
 
     return (
         <div
-            key={keyId}
-            // className="card card-xl h-[650px] w-[550px] border bg-200 m-4 flex flex-col p-2 items-center"
-            className="card card-xl border min-w-full bg-base-base-200 flex flex-col justify-center overflow-hidden"
-            style={
-                mediaType === "image"
-                    ? { backgroundImage: `url(${src})` }
-                    : { backgroundColor: "black" }
-            }
+            onClick={openPost}
+            className="flex max-w-[600px] bg-base-200 p-4 rounded-xl cursor-pointer"
         >
-            {mediaType === "image" ? (
-                <>
-                    <div className="absolute inset-0 backdrop-blur-lg"></div>
-                    <img
-                        src={src}
-                        className=" w-full max-h-[550px] object-contain z-1"
-                        alt="image"
+            <div className="flex flex-col gap-2 w-full">
+                <div className="flex">
+                    <PostHeader
+                        user={post.author}
+                        createdAt={post.created_at}
+                        postCaption={post.caption}
                     />
-                </>
-            ) : (
-                <video ref={videoRef} controls>
-                    <source src={src} />
-                </video>
-            )}
+                    <div
+                        className="ml-auto dropdown dropdown-start"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                    >
+                        <div
+                            tabIndex={0}
+                            role="button"
+                            className="cursor-pointer"
+                        >
+                            options
+                        </div>
+                        <ul
+                            tabIndex={-1}
+                            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 mt-2"
+                        >
+                            <li>
+                                <button>edit</button>
+                            </li>
+                            <li>
+                                <button>delete</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                {post.media.length > 0 && (
+                    <button
+                        className="p-1 rounded-lg cursor-pointer hover:bg-base-300"
+                        onClick={(e) => {
+                            openPost(e, "carousel");
+                        }}
+                    >
+                        <PostCarousel mediaList={post.media} />
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

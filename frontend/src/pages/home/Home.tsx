@@ -1,4 +1,6 @@
 import CreatePost from "@/features/posts/CreatePost";
+import FeedSection from "@/features/posts/FeedSection";
+import { Outlet } from "react-router-dom";
 
 function Home() {
     return (
@@ -12,13 +14,13 @@ function Home() {
                             <CreatePost />
                         </p>
                     </div>
-
                     {/* diaries area */}
                     <div className="mb-4">
                         <div className="flex justify-center">diaries</div>
                     </div>
-
                     {/* feed area / posts */}
+                    <FeedSection />
+                    <Outlet />
                     <div className="space-y-4">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                             <div
