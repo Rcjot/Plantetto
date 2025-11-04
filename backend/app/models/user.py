@@ -5,7 +5,8 @@ import hashlib
 from flask import jsonify
 
 class Users(UserMixin) :
-    def __init__(self,  uuid=None, username=None, email=None, password=None, created_at=None, pfp_url=None, display_name=None):
+    def __init__(self, id=None, uuid=None, username=None, email=None, password=None, created_at=None, pfp_url=None, display_name=None):
+        self.id = id
         self.uuid = uuid
         self.username = username
         self.email = email
@@ -64,6 +65,7 @@ class Users(UserMixin) :
             return None
 
         return cls(
+            id=result['id'],
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
@@ -110,10 +112,11 @@ class Users(UserMixin) :
 
     @classmethod
     def get_by_id(cls, user_id) :
+        # used by user_loader
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        sql = "SELECT * FROM users WHERE uuid= %s"
+        sql = "SELECT * FROM users WHERE id= %s"
 
         cursor.execute(sql, (user_id,))
         result = cursor.fetchone()
@@ -122,6 +125,7 @@ class Users(UserMixin) :
             return None
 
         return cls(
+            id=result['id'],
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
@@ -131,6 +135,9 @@ class Users(UserMixin) :
         )
 
     def get_id(self) :
+        return str(self.id)
+    
+    def get_uuid(self) :
         return str(self.uuid)
 
     def check_password(self, password) : 
