@@ -14,4 +14,14 @@ async function fetchProfileDetails(username: string) {
     }
 }
 
-export default { sendImage, fetchProfileDetails };
+async function setProfile(formData: FormData) {
+    try {
+        const { data } = await axios.post("/profile/update", formData);
+        return { ok: true, data };
+    } catch (error) {
+        console.error(error);
+        return { ok: false };
+    }
+}
+
+export default { sendImage, setProfile, fetchProfileDetails };
