@@ -1,5 +1,6 @@
 import plantCard from "@/assets/LandingPage/DiaryImages/DiaryMainCard.svg";
 import { Button } from "@/components/ui/button"
+import { Link } from "react-router-dom";
 
 export function LPDiary2() {
     return (
@@ -15,7 +16,13 @@ export function LPDiary2() {
                         and celebrate milestones.
                     </p>
                     <div className="mt-[8px]">
-                        <Button className="w-[250px] h-[75px] text-[24px] text-[#FFDFB1] rounded-[30px] bg-[#5A3E2F]">Join Plantetto</Button>
+                        <Button asChild className="w-[250px] h-[75px] text-[24px] text-[#FFDFB1] rounded-[30px] bg-[#5A3E2F]"
+                        >
+                            <Link to={"/signup"}
+                            >
+                                Join Plantetto
+                            </Link>
+                        </Button>
                     </div>
                 </div>
 

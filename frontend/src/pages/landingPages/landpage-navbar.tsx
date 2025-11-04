@@ -1,5 +1,6 @@
 import WebsiteName from "@/assets/LandingPage/Plantetto-logo.svg";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 type Section = "hero" | "guides" | "diary" | "market";
 
@@ -37,20 +38,21 @@ export function NavBar({ active }: { active: Section }) {
             About
           </Button>
 
-          <Button
-            className="text-[24px] text-[var(--color2)] bg-[var(--color1)] rounded-[10px] border border-[2px] border-[var(--color1)] px-4 py-5 transition 
+          <Link
+          to={"/signin"}
+          className="text-[24px] text-[var(--color2)] bg-[var(--color1)] rounded-[10px] border border-[2px] border-[var(--color1)] px-4 py-1 h-fit transition 
                        hover:bg-[var(--color2)] hover:text-[var(--color1)] hover:border-[var(--color1)]"
           >
             Log In
-          </Button>
+          </Link>
 
-          <Button
-            className="text-[24px] text-[var(--color1)] bg-[var(--color2)] rounded-[10px] px-4 py-5 transition
-                       border border-[2px] border-[var(--color1)]
-                       hover:bg-[var(--color1)] hover:text-[var(--color2)]"
+          <Link
+          to={"/signup"}
+          className="text-[24px] text-[var(--color1)] bg-[var(--color2)] rounded-[10px] px-4 py-1 h-fit transition
+                      border border-[2px] border-[var(--color1)] hover:bg-[var(--color1)] hover:text-[var(--color2)]"
           >
             Sign Up
-          </Button>
+          </Link>
 
         </div>
       </div>
