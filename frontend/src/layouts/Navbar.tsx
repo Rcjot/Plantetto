@@ -106,7 +106,7 @@ export default function Navbar() {
                                 {/* change later to use uuid */}
                                 <Link
                                     to={`/${auth.user?.username}`}
-                                    className="text-base-content hover:bg-base-content/70 hover:text-accent-content"
+                                    className="text-neutral-800 hover:bg-primary hover:text-neutral-100"
                                 >
                                     Check your profile
                                 </Link>
