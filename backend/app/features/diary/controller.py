@@ -6,6 +6,14 @@ from ...models.diary import Diaries
 from ...services import cloudinary
 from datetime import date, timedelta
 
+@diary_bp.route("/") 
+@login_required
+def get_diaries_today() :
+    on_date = request.args.get("date", "today")
+    result = Diaries.get_all_on_date( on_date)
+    return jsonify(
+        diaries=result
+    )
 
 @diary_bp.route("/", methods=["POST"]) 
 @login_required

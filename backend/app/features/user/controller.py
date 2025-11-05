@@ -4,6 +4,8 @@ from flask_login import login_required, current_user
 from ...services import cloudinary
 from ...models.user import Users
 from ...models.plant import Plants
+from ...models.diary import Diaries
+from datetime import date
 import math
 
 @user_bp.route("/upload", methods=["POST"])
@@ -81,4 +83,26 @@ def get_user_plants(username) :
     return jsonify(
         plants=plants,
         meta_data=meta_data,
+    )
+
+@user_bp.route("/<username>/plants_options") 
+def get_user_plants_options(username) :
+    result = Plants.get_plants_options(username)
+    return jsonify(plant_options=result)
+
+@user_bp.route("/<username>/diaries")
+def get_user_diaries(username) :
+    on_date = request.args.get("date", date.today().isoformat())
+    result = Diaries.get_all_on_date_of_user(username, on_date)
+
+    return jsonify(
+        diaries=result
+    )
+
+@user_bp.route("/<username>/diaries/today")
+def get_user_diaries_today(username) :
+    result = Diaries.get_all_today_of_user(username)
+
+    return jsonify(
+        diaries=result
     )

@@ -209,3 +209,25 @@ class Plants() :
             return False
 
         return True
+
+    @classmethod
+    def get_plants_options(cls, username) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT 
+            plants.nickname,
+            plants.id,
+            plants.uuid
+        FROM plants
+        JOIN users ON plants.user_id = users.id
+        WHERE users.username = %s
+        """
+
+        cursor.execute(sql, (username, ))
+        user_plants = cursor.fetchall()
+
+        cursor.close()
+
+        return user_plants
