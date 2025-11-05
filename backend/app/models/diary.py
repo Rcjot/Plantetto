@@ -1,0 +1,42 @@
+from ..database import get_db
+import psycopg2.extras
+
+class Diaries :
+    def __init__(self, id=None, uuid=None, note=None, media_url=None, media_type=None, created_at=None, plant_id=None, user_id=None):
+        self.id=id
+        self.uuid=uuid
+        self.note=note
+        self.media_url=media_url
+        self.media_type=media_type
+        self.created_at=created_at
+        self.plant_id=plant_id
+        self.user_id=user_id
+    
+    def add(self) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """INSERT INTO diaries 
+        (note, plant_id, user_id) 
+        VALUES (%s, %s, %s)
+        RETURNING uuid
+        """
+        cursor.execute(sql, (self.note, self.plant_id, self.user_id))
+        
+        uuid_res = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+        return uuid_res
+    
+    @classmethod
+    def update_media(cls, diary_uuid, media_url, media_type) :
+        db = get_db()
+        cursor = db.cursor()
+
+        sql = "UPDATE diaries SET media_url = %s, media_type = %s WHERE uuid = %s"
+        cursor.execute(sql, (media_url, media_type, diary_uuid))
+
+        db.commit()
+        cursor.close()
