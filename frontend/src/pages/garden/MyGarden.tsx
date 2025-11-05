@@ -191,6 +191,7 @@ function MyGarden() {
                     size="sm"
                     variant={i === page ? "default" : "outline"}
                     onClick={() => setPage(i)}
+                    className="hover:!bg-primary hover:!border-transparent"
                 >
                     {i}
                 </Button>
@@ -338,7 +339,10 @@ function MyGarden() {
                     open={open}
                     onOpenChange={setOpen}
                     plant={selectedPlant}
-                    onUpdated={() => setReload((r) => r + 1)}
+                    onUpdated={() => {
+                        setPage(1);
+                        setReload((r) => r + 1);
+                    }}
                 />
             )}
 

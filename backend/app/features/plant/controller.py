@@ -42,7 +42,7 @@ def add_plant() :
             uuid_res = new_plant.add()
             plant_uuid = uuid_res['uuid']
             if (form.plantpic.data) :
-                picture_url = cloudinary.upload_plantpic(form.plaqntpic.data, plant_uuid)
+                picture_url = cloudinary.upload_plantpic(form.plantpic.data, plant_uuid)
                 Plants.update_picture_url(plant_uuid, picture_url)
         except Exception as e :
             print(e)
