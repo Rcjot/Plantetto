@@ -17,20 +17,18 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Navbar() {
-    const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
     const { auth, logout } = useAuthContext()!;
+    useEffect(() => {
+        console.log("Width:", window.innerWidth);
+    }, []);
+    const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+    const navbar_style =
+        "navbar bg-base-100 px-4 py-2 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200";
 
     const handleConfirmLogout = () => {
         logout();
         setOpenLogoutDialog(false);
     };
-
-    useEffect(() => {
-        console.log("Width:", window.innerWidth);
-    }, []);
-
-    const navbar_style =
-        "navbar bg-base-100 px-4 py-2 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200";
 
     return (
         <>
@@ -140,7 +138,7 @@ export default function Navbar() {
                             Cancel
                         </button>
                         <button
-                            className="btn btn-warning"
+                            className="btn btn-error"
                             onClick={handleConfirmLogout}
                         >
                             Log Out
