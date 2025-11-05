@@ -7,6 +7,7 @@ import LandingPage from "../pages/landingPages/LandingPage";
 import Home from "../pages/home/Home";
 import MyGarden from "../pages/garden/MyGarden";
 import Profile from "../pages/profile/Profile";
+import PostDialog from "@/features/posts/PostDialog";
 
 function getRoutes() {
     return [
@@ -36,6 +37,12 @@ function getRoutes() {
                         {
                             path: "/home",
                             element: <Home />,
+                            children: [
+                                {
+                                    path: "/home/:username/:post_uuid",
+                                    element: <PostDialog />,
+                                },
+                            ],
                         },
                         {
                             path: "/mygarden",
