@@ -1,9 +1,7 @@
 import CreatePost from "@/features/posts/CreatePost";
 import FeedSection from "@/features/posts/FeedSection";
 import { Outlet } from "react-router-dom";
-import DiaryPopup from "@/features/diary/DiaryPopup";
-import DiaryEditForm from "@/features/diary/DiaryEditForm";
-import DiaryCarousel from "@/features/diary/DiaryCarousel";
+import DiaryCarouselSection from "@/features/diary/DiaryCarouselSection";
 
 function Home() {
     return (
@@ -15,10 +13,7 @@ function Home() {
 
                     <CreatePost>
                         <div className="self-center w-full flex justify-center ">
-                            <div className="flex justify-center">Diaries</div>
-                            <DiaryPopup>click popup open</DiaryPopup>
-                            <DiaryEditForm triggerText="open" />
-                            <DiaryCarousel />
+                            <DiaryCarouselSection />
                         </div>
                     </CreatePost>
 

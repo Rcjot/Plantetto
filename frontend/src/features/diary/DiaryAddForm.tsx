@@ -5,7 +5,7 @@ import { z } from "zod";
 import UserPlantSelect from "./UserPlantSelect";
 import diariesApi from "@/api/diariesApi";
 import { useEffect, useState } from "react";
-import type { DiaryMediaType, PlantDiaryType } from "./diaryTypes";
+import type { DiaryMediaType } from "./diaryTypes";
 import plantPlaceHolder from "@/assets/plant_placeholder.png";
 import dayjs from "dayjs";
 
@@ -17,21 +17,10 @@ const schema = z.object({
 export type DiaryFields = z.infer<typeof schema>;
 type DiaryFieldNames = keyof DiaryFields;
 
-interface DiaryEditFormProps {
-    diaryContent: PlantDiaryType;
-    onEdit: ({
-        editedDiaryContent,
-        type,
-    }: {
-        editedDiaryContent: PlantDiaryType | null;
-        type: "save" | "cancel";
-    }) => void;
-}
-
-function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
+function DiaryAddForm({ onSubmitCallback }: { onSubmitCallback: () => void }) {
     const [preview, setPreview] = useState<DiaryMediaType>({
-        media_url: diaryContent.media_url,
-        media_type: diaryContent.media_type,
+        media_url: null,
+        media_type: null,
     });
 
     const {
@@ -42,10 +31,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
         setError,
         formState: { errors, isSubmitting },
     } = useForm<DiaryFields>({
-        defaultValues: {
-            plant_id: String(diaryContent.plant_id),
-            note: diaryContent.note,
-        },
+        defaultValues: { plant_id: "" },
         resolver: zodResolver(schema),
     });
 
@@ -58,6 +44,11 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
             setPreview({
                 media_url: URL.createObjectURL(file),
                 media_type: file.type.startsWith("image") ? "image" : "video",
+            });
+        } else {
+            setPreview({
+                media_url: null,
+                media_type: null,
             });
         }
     }, [mediaFile]);
@@ -72,28 +63,24 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
             console.log("hii");
         }
         console.log(data);
-        const res = await diariesApi.editDiaryEntry(
-            formData,
-            diaryContent.uuid
-        );
-        if (!res.ok || !res.diary) {
+        const res = await diariesApi.addDiaryEntry(formData);
+        if (!res.ok) {
             (
                 Object.entries(res.errors) as [DiaryFieldNames, string[]][]
             ).forEach(([field, messages]) => {
                 setError(field, { message: messages[0] });
             });
         } else {
-            onEdit({ editedDiaryContent: res.diary, type: "save" });
+            onSubmitCallback();
         }
     };
 
-    console.log(preview);
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col md:flex-row gap-6 p-6 w-full min-w-fit"
+            className="flex flex-col md:flex-row gap-6 w-full min-w-fit"
         >
-            <div className="min-w-[50%]">
+            <div className="w-full md:w-1/2">
                 {/* image upload */}
                 <label className="flex flex-col items-center justify-center w-full md:h-[65vh] cursor-pointer bg-base-200">
                     <div className="flex flex-col items-center justify-center h-full min-h-[400px] min-w-[30%]">
@@ -105,7 +92,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                                         className="w-full h-full md:h-[65vh] object-cover rounded-xl shadow-md"
                                     />
                                 ) : (
-                                    <video key={preview.media_url}>
+                                    <video>
                                         <source src={preview.media_url} />
                                     </video>
                                 )}
@@ -127,11 +114,11 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
 
                 {/* date */}
                 <div className="mt-2 text-neutral-600 font-medium self-start">
-                    {dayjs(diaryContent.created_at).format("YYYY MMMM D")}
+                    {dayjs().format("YYYY MMMM D")}
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col justify-between">
+            <div className="w-full md:w-1/2 flex-1 flex flex-col justify-between">
                 <div>
                     {/* dropdpown*/}
                     <div>
@@ -158,29 +145,17 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                         <textarea
                             {...register("note")}
                             placeholder="whats up mananap"
-                            className="h-[200px] bg-base-100 textarea"
+                            className="w-full h-[25vh] bg-base-100 textarea"
                         />
                     </div>
                 </div>
-                <div className="flex justify-end mt-4 gap-2">
+                <div className="flex justify-end mt-4">
                     {/* hardcoded color for now */}
-                    <button
-                        type="button"
-                        className="btn btn-warning"
-                        onClick={() => {
-                            onEdit({
-                                editedDiaryContent: null,
-                                type: "cancel",
-                            });
-                        }}
-                    >
-                        Cancel
-                    </button>
                     <button
                         type="submit"
                         className="btn btn-neutral hover:bg-primary text-white"
                     >
-                        {isSubmitting ? "Saving..." : "Save"}
+                        {isSubmitting ? "Adding..." : "Add Entry"}
                     </button>
                 </div>
             </div>
@@ -189,4 +164,4 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
     );
 }
 
-export default DiaryEditForm;
+export default DiaryAddForm;

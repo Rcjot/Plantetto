@@ -1,14 +1,29 @@
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import DiaryForm from "./DiaryForm";
+import DiaryEditForm from "./DiaryEditForm";
+import type { PlantDiaryType } from "./diaryTypes";
 
-function DiaryEditDialogContent() {
+interface DiaryEditDialogContentProps {
+    diaryContent: PlantDiaryType;
+    onEdit: ({
+        editedDiaryContent,
+        type,
+    }: {
+        editedDiaryContent: PlantDiaryType | null;
+        type: "save" | "cancel";
+    }) => void;
+}
+
+function DiaryEditDialogContent({
+    diaryContent,
+    onEdit,
+}: DiaryEditDialogContentProps) {
     return (
         <>
-            <DialogTitle className="hidden">Add Diary</DialogTitle>
+            <DialogTitle className="hidden">Edit Diary</DialogTitle>
             <DialogDescription className="hidden">
-                Add new diary entry
+                Edit diary entry
             </DialogDescription>
-            <DiaryForm />
+            <DiaryEditForm diaryContent={diaryContent} onEdit={onEdit} />
         </>
     );
 }
