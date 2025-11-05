@@ -1,4 +1,5 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 
 interface PostCardProps {
     avatar: string;
@@ -32,11 +33,23 @@ export function RecentCard({
             <div className={`flex flex-col gap-1 ${hasImage ? 'w-[65%]' : 'w-full'}`}>
                 {/* Avatar + Username + • + Time */}
                 <div className="flex flex-row items-center gap-2 text-[12px] text-gray-700">
-                    <Avatar className="w-[24px] h-[24px]">
-                        <AvatarImage src={avatar} />
-                    </Avatar>
+                    <Link
+                        to={`/${username}`}
+                        className="h-fit w-fit"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Avatar className="w-[24px] h-[24px] cursor-pointer hover:opacity-80">
+                            <AvatarImage src={avatar} />
+                        </Avatar>
+                    </Link>
 
-                    <span className="font-medium">{username}</span>
+                    <Link
+                        to={`/${username}`}
+                        className="font-medium hover:underline cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {username}
+                    </Link>
                     <span>•</span>
                     <span className="text-gray-500">{timeAgo}</span>
                 </div>
