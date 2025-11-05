@@ -5,12 +5,16 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import postsApi from "@/api/postsApi";
 import { clearRecents, getRecentPostUUIDs, onRecentsUpdated } from "./recentService";
 import type { PostType } from "@/features/posts/postTypes";
+import { useLocation, useNavigate } from "react-router-dom";
+import { addRecentPost } from "./recentService";
 
 export function RecentBlock() {
     const { auth } = useAuthContext()!;
     const userId = auth.user?.id ?? null;
     const [recentPosts, setRecentPosts] = useState<PostType[]>([]);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     function timeAgo(dateString: string) {
         const then = new Date(dateString).getTime();
@@ -110,6 +114,14 @@ export function RecentBlock() {
                             caption={post.caption}
                             postImage={post.media[0]?.url || null}
                             likes={0}
+                            onClick={() => {
+                                if (userId) {
+                                    addRecentPost(userId, post);
+                                }
+                                navigate(`/home/${post.author.username}/${post.post_uuid}`, {
+                                    state: { background: location, post },
+                                });
+                            }}
                         />
                     ))}
                 </div>

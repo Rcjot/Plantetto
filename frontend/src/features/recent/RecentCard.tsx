@@ -7,6 +7,7 @@ interface PostCardProps {
     caption: string;
     postImage: string | null;
     likes: number;
+    onClick?: () => void;
 }
 
 export function RecentCard({
@@ -16,11 +17,17 @@ export function RecentCard({
     caption,
     postImage,
     likes,
+    onClick,
 }: PostCardProps) {
     const hasImage = postImage !== null && postImage !== undefined;
 
     return (
-        <div className={`w-[275px] h-[105px] border border-green rounded-lg flex flex-row justify-between items-start p-2 gap-2 ${!hasImage ? 'justify-start' : ''}`}>
+        <div
+            className={`w-[275px] h-[105px] border border-green rounded-lg flex flex-row justify-between items-start p-2 gap-2 ${!hasImage ? 'justify-start' : ''} cursor-pointer hover:bg-base-200`}
+            onClick={onClick}
+            role="button"
+            tabIndex={0}
+        >
             {/* Left Side (Text content) */}
             <div className={`flex flex-col gap-1 ${hasImage ? 'w-[65%]' : 'w-full'}`}>
                 {/* Avatar + Username + • + Time */}
