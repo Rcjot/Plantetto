@@ -2,6 +2,7 @@ import postsApi from "@/api/postsApi";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PostType } from "./postTypes";
 import PostCardProvider from "./context/PostProvider";
+import loading_gif from "@/assets/loading_gif.gif";
 
 function FeedSection() {
     const [posts, setPosts] = useState<PostType[]>([]);
@@ -66,7 +67,13 @@ function FeedSection() {
                 })}
 
             {hasMore ? (
-                <div ref={infiniteTriggerRef}>loading...</div>
+                <div ref={infiniteTriggerRef} className="self-center">
+                    <img
+                        src={loading_gif}
+                        alt="Loading..."
+                        className="h-10 w-10 "
+                    />
+                </div>
             ) : (
                 <div className="self-center">you have reached the bottom</div>
             )}
