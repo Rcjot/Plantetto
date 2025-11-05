@@ -40,3 +40,28 @@ class Diaries :
 
         db.commit()
         cursor.close()
+
+    @classmethod
+    def update(cls, diary_uuid, note, plant_id, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql=f"""
+        UPDATE diaries
+        SET 
+        note = %s,
+        plant_id = %s
+        FROM plants
+        WHERE diaries.uuid = %s AND diaries.user_id = %s 
+        AND diaries.plant_id = plants.id
+        RETURNING diaries.*, plants.nickname
+        """
+        cursor.execute(sql, (note, plant_id, diary_uuid, current_user_id))
+
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None :
+            return None
+        return result
