@@ -153,13 +153,13 @@ class Users(UserMixin) :
         }
     
     @classmethod
-    def set_pfp(cls, uuid, pfp_url) :
+    def set_pfp(cls, id, pfp_url) :
         try: 
             db = get_db()
             cursor = db.cursor()
 
-            sql="UPDATE users SET pfp_url = %s WHERE uuid = %s"
-            cursor.execute(sql, (pfp_url, uuid))
+            sql="UPDATE users SET pfp_url = %s WHERE id = %s"
+            cursor.execute(sql, (pfp_url, id))
             db.commit()
             cursor.close()
             
@@ -169,7 +169,7 @@ class Users(UserMixin) :
             return False
         
     @classmethod 
-    def update_profile(cls, uuid, display_name=None, pfp_url=None):
+    def update_profile(cls, id, display_name=None, pfp_url=None):
         try:
             db = get_db()
             cursor = db.cursor()
@@ -188,8 +188,8 @@ class Users(UserMixin) :
             if not updates:
                 return True
             
-            params.append(uuid)
-            sql = f"UPDATE users SET {', '.join(updates)} WHERE uuid = %s"
+            params.append(id)
+            sql = f"UPDATE users SET {', '.join(updates)} WHERE id = %s"
             
             cursor.execute(sql, tuple(params))
             db.commit()
