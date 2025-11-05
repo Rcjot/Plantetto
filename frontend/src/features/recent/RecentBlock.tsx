@@ -80,14 +80,14 @@ export function RecentBlock() {
     }, [canUseRecents, userId]);
 
     return (
-        <div className="w-[295px] border flex flex-col items-center">
+        <div className="w-[295px] border border-none flex flex-col items-center">
             <div className="flex flex-col gap-3 w-full items-center">
                 {/* Header */}
                 <div className="flex flex-row justify-between items-center w-[90%]">
-                    <p className="font-semibold text-gray-800">Recently Viewed</p>
+                    <p className="font-semibold text-emerald">Recently Viewed</p>
                     <Button
                         variant="ghost"
-                        className="text-sm text-gray-500 hover:text-black"
+                        className="text-sm text-gray-500 hover:text-white"
                         onClick={() => {
                             if (userId) {
                                 clearRecents(userId);
