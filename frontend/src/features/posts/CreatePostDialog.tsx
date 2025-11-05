@@ -23,7 +23,7 @@ function CreatePostDialog({
     const [selectValue, setSelectValue] = useState<string>("everyone");
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[550px] bg-base-100">
+            <DialogContent className="sm:max-w-[550px] max-h-[95vh] overflow-y-auto bg-base-100">
                 <DialogHeader>
                     <DialogTitle className="text-center">
                         Create new post
@@ -35,7 +35,7 @@ function CreatePostDialog({
                         <ProfilePicture />
                         <div className="flex flex-col">
                             <h1 className="font-bold text-start">
-                                {auth.user?.username}
+                                {auth.user?.display_name ?? auth.user?.username}
                             </h1>
                             <div className="flex items-center gap-1">
                                 <img
