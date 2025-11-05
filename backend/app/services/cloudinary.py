@@ -57,6 +57,7 @@ def upload_pfp(imageFile, id) :
     print("****Uploaded profile picture****\nDelivery URL: ", srcURL, "\n")
     return srcURL
 
+
 def upload_plantpic(imageFile, plant_uuid) :
     try :
         upload_res = cloudinary.uploader.upload(imageFile,
@@ -85,7 +86,7 @@ def delete_plantpic(plant_uuid) :
     except Exception as e:
         print(f"something erorr in cloudinary deletion: {e}")
         raise 
-    
+
 def delete_post(folder) :
     cloudinary.api.delete_resources_by_prefix(f"posts/{folder}")
     cloudinary.api.delete_folder(f"posts/{folder}")
