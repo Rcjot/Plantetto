@@ -25,11 +25,10 @@ class Posts() :
         return id_uuid_res
 
     @classmethod
-    def all(cls) :
+    def all(cls, limit, cursor_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-        sql = """
+        sql =   """
                 WITH max_ratio_media AS (
                     SELECT DISTINCT ON (post_id)
                         post_id,
@@ -39,6 +38,7 @@ class Posts() :
                     ORDER BY post_id, (height::float / width::float) DESC
                 )
                 SELECT 
+                    posts.id AS cursor_id,
                     posts.uuid AS post_uuid,
                     posts.caption,
                     posts.created_at,
@@ -63,13 +63,28 @@ class Posts() :
                 JOIN users ON posts.user_id = users.id
                 LEFT JOIN media ON media.post_id = posts.id
                 LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
-                GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
                 """
-        cursor.execute(sql)
-        result = cursor.fetchall()
+        if cursor_id :
+            sql +=  """
+                    WHERE posts.id < %s
+                    GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
+                    ORDER BY posts.created_at DESC
+                    LIMIT %s
+                    """
+            params = [cursor_id, limit + 1]
+        else : 
+            sql +=  """
+                    GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
+                    ORDER BY posts.created_at DESC
+                    LIMIT %s
+                    """
+            params = [limit + 1]
+        print(sql, params)
+        cursor.execute(sql, params)
+        posts = cursor.fetchall()
         cursor.close()
 
-        return result
+        return posts
 
     @classmethod
     def get_post(cls, post_uuid) :

@@ -26,7 +26,7 @@ function Sidebar({ children }: { children: React.ReactNode }) {
         "menu bg-base-100 min-h-full border-r border-gray-200 -5 flex flex-col w-[18rem] max-w-[22vw] min-w-[12rem] overflow-y-auto transition-all duration-300";
 
     return (
-        <div className="drawer lg:drawer-open flex-1 overflow-hidden">
+        <div className="drawer lg:drawer-open flex-1 ">
             <input
                 id="sidebar-drawer"
                 ref={drawerRef}
@@ -38,7 +38,7 @@ function Sidebar({ children }: { children: React.ReactNode }) {
                     {children}
                 </div>
             </div>
-            <div className="drawer-side z-[60] lg:z-0 transition">
+            <div className="drawer-side z-[60] lg:z-0 transition lg:h-[calc(100dvh-64px)] lg:sticky lg:top-[64px]">
                 <label
                     htmlFor="sidebar-drawer"
                     aria-label="close sidebar"
@@ -47,7 +47,7 @@ function Sidebar({ children }: { children: React.ReactNode }) {
                     {" "}
                 </label>
 
-                <ul className={`${sidebar_style} flex flex-col gap-y-1`}>
+                <ul className={`${sidebar_style}  flex flex-col gap-y-1`}>
                     <li>
                         <NavLink
                             to="/home"

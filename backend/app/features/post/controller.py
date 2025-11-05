@@ -9,9 +9,17 @@ from .forms import PostForm
 @post_bp.route("", strict_slashes=False) 
 @login_required
 def get_posts() :
-    feed = Posts.all()
+    limit = request.args.get("limit", default = 10, type=int)
+    cursor_id = request.args.get("next_cursor", default=None, type=int)
+    result = Posts.all(limit, cursor_id)
+    feed = result
+    has_more = len(feed) > limit
+    feed = feed[:limit]
+
+
     return jsonify(
-        feed=feed
+        feed=feed,
+        next_cursor = feed[-1]['cursor_id'] if has_more else None,
     )
     
 @post_bp.route("/<post_uuid>")

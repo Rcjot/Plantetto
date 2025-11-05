@@ -51,10 +51,11 @@ async function deletePost(post_uuid: string) {
     }
 }
 
-async function fetchPosts() {
-    const { data } = await axios.get("/posts/");
+async function fetchPosts(cursorId: number | null) {
+    const { data } = await axios.get(`/posts?next_cursor=${cursorId}`);
     const posts: PostType[] = data["feed"];
-    return posts;
+    const nextCursor: number | null = data["next_cursor"];
+    return { posts, nextCursor };
 }
 
 async function fetchPostByUUID(post_uuid: string) {
