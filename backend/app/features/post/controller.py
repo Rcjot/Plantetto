@@ -95,4 +95,3 @@ def update_post(post_uuid) :
     else :
         return jsonify(success=False, message="edit post failed!"), 404
 
-

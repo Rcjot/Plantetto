@@ -1,6 +1,7 @@
 import CreatePost from "@/features/posts/CreatePost";
 import FeedSection from "@/features/posts/FeedSection";
 import { Outlet } from "react-router-dom";
+import DiaryCarouselSection from "@/features/diary/DiaryCarouselSection";
 
 function Home() {
     return (
@@ -12,7 +13,7 @@ function Home() {
 
                     <CreatePost>
                         <div className="self-center w-full flex justify-center ">
-                            <div className="flex justify-center">diaries</div>
+                            <DiaryCarouselSection />
                         </div>
                     </CreatePost>
 

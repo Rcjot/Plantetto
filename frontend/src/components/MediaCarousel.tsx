@@ -1,33 +1,39 @@
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import CarouselCard from "./CarouselCard";
-import arrowrightIcon from "@/assets/icons/arrowrighticon.svg";
-import arrowleftIcon from "@/assets/icons/arrowlefticon.svg";
-import type { MediaType } from "./postTypes";
+import { SquareChevronLeft } from 'lucide-react';
+import { SquareChevronRight } from 'lucide-react';
 
-function PostCarousel({
+import type { PlantDiaryType } from "@/features/diary/diaryTypes";
+
+function MediaCarousel({
     mediaList,
     view = "feed",
     highlight_height = 0,
     highlight_width = 0,
+    setContent,
+    currentIndex,
+    setCurrentIndex,
 }: {
-    mediaList: MediaType[];
+    mediaList: PlantDiaryType[];
     view?: "feed" | "viewpost";
     highlight_height?: number;
     highlight_width?: number;
+    setContent: (index: number) => void;
+    currentIndex: number;
+    setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
 }) {
-    const [currentIndex, setCurrentIndex] = useState(0);
-
     useEffect(() => {
         if (mediaList.length === 1) {
             setCurrentIndex(0);
         }
-    }, [mediaList]);
+    }, [mediaList, setCurrentIndex]);
 
     function handlePrevClick(e?: React.MouseEvent<HTMLDivElement>) {
         if (e) {
             e.stopPropagation();
         }
         if (currentIndex == 0) return;
+        setContent(currentIndex - 1);
         setCurrentIndex((currentIndex) => currentIndex - 1);
     }
     function handleNextClick(e?: React.MouseEvent<HTMLDivElement>) {
@@ -35,6 +41,7 @@ function PostCarousel({
             e.stopPropagation();
         }
         if (currentIndex == mediaList.length - 1) return;
+        setContent(currentIndex + 1);
         setCurrentIndex((currentIndex) => currentIndex + 1);
     }
     return (
@@ -60,7 +67,7 @@ function PostCarousel({
                     }
                 }}
             >
-                <img src={arrowleftIcon} className="w-7 h-7" alt="" />
+                <SquareChevronLeft className="w-10 h-10 text-zinc-700" />
             </div>
             <div
                 role="button"
@@ -76,7 +83,7 @@ function PostCarousel({
                     }
                 }}
             >
-                <img src={arrowrightIcon} className="w-7 h-7" alt="" />
+                <SquareChevronRight className="w-10 h-10 text-zinc-700" />
             </div>
 
             <div className="overflow-hidden">
@@ -90,8 +97,8 @@ function PostCarousel({
                         <CarouselCard
                             key={i}
                             keyId={i}
-                            src={media.url}
-                            mediaType={media.type}
+                            src={media.media_url}
+                            mediaType={media.media_type}
                             carouselIndex={currentIndex}
                             view={view}
                         />
@@ -102,4 +109,4 @@ function PostCarousel({
     );
 }
 
-export default PostCarousel;
+export default MediaCarousel;

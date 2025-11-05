@@ -13,3 +13,9 @@ export interface PlanttypeType {
     id: number | undefined;
     plant_name: string;
 }
+
+export interface PlantOptionType {
+    id: string;
+    uuid: string;
+    nickname: string;
+}
