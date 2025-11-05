@@ -29,7 +29,7 @@ function Home() {
             </div>
 
             {/* recent feed*/}
-            <div className="hidden lg:flex w-80 p-4 bg-base-100 border-l border-base-300 fixed right-0">
+            <div className="hidden lg:flex w-80 p-4 bg-base-100 border-base-300 fixed right-0">
                 <div className="w-full">
                     <RecentBlock/>
                 </div>

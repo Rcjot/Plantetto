@@ -80,7 +80,7 @@ export function RecentBlock() {
     }, [canUseRecents, userId]);
 
     return (
-        <div className="w-[295px] border border-none flex flex-col items-center">
+        <div className="w-[295px] rounded-md shadow-sm shadow-teal-500 flex flex-col items-center py-2">
             <div className="flex flex-col gap-3 w-full items-center">
                 {/* Header */}
                 <div className="flex flex-row justify-between items-center w-[90%]">

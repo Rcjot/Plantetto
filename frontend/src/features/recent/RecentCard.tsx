@@ -24,7 +24,7 @@ export function RecentCard({
 
     return (
         <div
-            className={`w-[275px] h-[105px] border border-teal-500 rounded-lg flex flex-row justify-between items-start p-2 gap-2 ${!hasImage ? 'justify-start' : ''} cursor-pointer hover:bg-base-200`}
+            className={`w-[275px] h-[105px] shadow-sm shadow-teal-400 rounded-lg flex flex-row justify-between items-start p-2 gap-2 my-1 ${!hasImage ? 'justify-start' : ''} cursor-pointer hover:bg-base-200`}
             onClick={onClick}
             role="button"
             tabIndex={0}
