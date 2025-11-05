@@ -4,6 +4,8 @@ import postsApi from "@/api/postsApi";
 import EditPostDialog from "./EditPostDialog";
 import { usePostContext } from "./context/PostContext";
 import moreHorizontalIcon from "@/assets/icons/more_horiz.svg";
+import { useAuthContext } from "../auth/AuthContext";
+import { notifyRecentsUpdated, removeRecentPost } from "@/features/recent/recentService";
 
 function PostOptionsButton({
     setDeleted,
@@ -11,12 +13,16 @@ function PostOptionsButton({
     setDeleted: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const { post, openEdit, setOpenEditCallback } = usePostContext()!;
+    const { auth } = useAuthContext()!;
     const [openConfirm, setOpenConfirm] = useState(false);
 
     async function handleDeletePost() {
         const { ok } = await postsApi.deletePost(post.post_uuid);
         if (ok) {
             setDeleted(true);
+            if (auth.user?.id) {
+                removeRecentPost(auth.user.id, post.post_uuid);
+            }
         }
     }
 
@@ -40,6 +46,10 @@ function PostOptionsButton({
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenEditCallback(true);
+                                if (auth.user?.id) {
+                                    // trigger recent block refresh after potential edit
+                                    notifyRecentsUpdated(auth.user.id);
+                                }
                             }}
                         >
                             edit

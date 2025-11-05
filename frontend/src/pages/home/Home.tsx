@@ -2,6 +2,7 @@ import CreatePost from "@/features/posts/CreatePost";
 import FeedSection from "@/features/posts/FeedSection";
 import { Outlet } from "react-router-dom";
 import DiaryCarouselSection from "@/features/diary/DiaryCarouselSection";
+import { RecentBlock } from "@/features/recent/RecentBlock";
 
 function Home() {
     return (
@@ -30,7 +31,7 @@ function Home() {
             {/* recent feed*/}
             <div className="hidden lg:flex w-80 p-4 bg-base-100 border-l border-base-300 overflow-y-auto">
                 <div className="w-full">
-                    {/* call the class here or something idk, homepage:recent handles this*/}
+                    <RecentBlock/>
                 </div>
             </div>
         </div>

@@ -1,0 +1,64 @@
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+
+interface PostCardProps {
+    avatar: string;
+    username: string;
+    timeAgo: string;
+    caption: string;
+    postImage: string | null;
+    likes: number;
+}
+
+export function RecentCard({
+    avatar,
+    username,
+    timeAgo,
+    caption,
+    postImage,
+    likes,
+}: PostCardProps) {
+    const hasImage = postImage !== null && postImage !== undefined;
+
+    return (
+        <div className={`w-[275px] h-[105px] border border-green rounded-lg flex flex-row justify-between items-start p-2 gap-2 ${!hasImage ? 'justify-start' : ''}`}>
+            {/* Left Side (Text content) */}
+            <div className={`flex flex-col gap-1 ${hasImage ? 'w-[65%]' : 'w-full'}`}>
+                {/* Avatar + Username + • + Time */}
+                <div className="flex flex-row items-center gap-2 text-[12px] text-gray-700">
+                    <Avatar className="w-[24px] h-[24px]">
+                        <AvatarImage src={avatar} />
+                    </Avatar>
+
+                    <span className="font-medium">{username}</span>
+                    <span>•</span>
+                    <span className="text-gray-500">{timeAgo}</span>
+                </div>
+
+                {/* Caption */}
+                <p className={`text-[14px] font-semibold leading-tight ${hasImage ? 'line-clamp-2' : 'line-clamp-4'}`}>
+                    {caption || "No caption"}
+                </p>
+
+                {/* Likes - only show if likes > 0 */}
+                {likes > 0 && (
+                    <p className="text-[12px] text-gray-500">
+                        {likes.toLocaleString()} likes
+                    </p>
+                )}
+            </div>
+
+            {/* Post Image - only show if image exists */}
+            {hasImage && (
+                <img
+                    src={postImage}
+                    alt={caption || "Post image"}
+                    className="w-[90px] h-[90px] rounded-md object-cover flex-shrink-0"
+                    onError={(e) => {
+                        // Hide image if it fails to load
+                        (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                />
+            )}
+        </div>
+    );
+}

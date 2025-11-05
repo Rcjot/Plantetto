@@ -5,6 +5,7 @@ import PostOptionsButton from "./PostOptionsButon";
 import { useState } from "react";
 import { usePostContext } from "./context/PostContext";
 import { useAuthContext } from "../auth/AuthContext";
+import { addRecentPost } from "@/features/recent/recentService";
 
 function PostCard() {
     const { post } = usePostContext()!;
@@ -30,6 +31,10 @@ function PostCard() {
         if (e.target instanceof HTMLElement) {
             if (e.target.closest(".no-propagate")) return;
             console.log("clicked");
+        }
+
+        if (auth.user?.id) {
+            addRecentPost(auth.user.id, post);
         }
 
         navigate(`/home/${post.author.username}/${post.post_uuid}`, {
