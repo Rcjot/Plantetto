@@ -7,7 +7,6 @@ import type { PlantType, PlanttypeType } from "@/features/garden/gardenTypes";
 import type { MetaDataType } from "@/api/plantsApi";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import loading_gif from "@/assets/loading_gif.gif";
 import styles from "../../features/garden/filter_scroll.module.css";
@@ -203,7 +202,7 @@ function MyGarden() {
     };
 
     return (
-        <div className="bg-base-200 h-screen overflow-y-auto">
+        <div className="bg-base-200 pr-1">
             {/* top controls */}
             <div className="bg-base-100 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
