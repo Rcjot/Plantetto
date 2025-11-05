@@ -96,3 +96,18 @@ def edit_diary(diary_uuid) :
     return jsonify(success=False,
                     message="form fields might be invalid",
                     error=error), 400
+
+@diary_bp.route("/<uuid:diary_uuid>", methods=["DELETE"])
+def delete_diary(diary_uuid) :
+    diary_uuid = str(diary_uuid)
+    to_delete_diary = Diaries.delete_diary(diary_uuid, current_user.get_id())
+    if (to_delete_diary):
+        if (to_delete_diary["media_url"] is not None) :
+            try : 
+                print('deleting cloudinary file')
+                cloudinary.delete_diarypic(diary_uuid)
+            except Exception as e :
+                return jsonify(success=False, message="delete cloudinary resource failed"), 500
+        return jsonify(success=True, message="delete diary successful")
+    else :
+        return jsonify(success=False, message="delete diary failed"), 404

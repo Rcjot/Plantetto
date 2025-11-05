@@ -91,3 +91,12 @@ def delete_post(folder) :
     cloudinary.api.delete_resources_by_prefix(f"posts/{folder}")
     cloudinary.api.delete_folder(f"posts/{folder}")
     return True
+
+def delete_diarypic(plant_uuid) :
+    try :
+        res = cloudinary.uploader.destroy(f"diaries/diary_{plant_uuid}", resource_type="image")
+        if (res['result'] != 'ok') :
+            raise Exception("cloudinary delete failed : result not found")
+    except Exception as e:
+        print(f"something erorr in cloudinary deletion: {e}")
+        raise 
