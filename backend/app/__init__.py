@@ -36,6 +36,9 @@ def create_app() :
     from .features.user import user_bp
     app.register_blueprint(user_bp, url_prefix="/users")
 
+    from .features.post import post_bp
+    app.register_blueprint(post_bp, url_prefix="/posts")
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
         print(e.description)
