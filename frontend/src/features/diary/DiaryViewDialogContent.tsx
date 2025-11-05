@@ -48,7 +48,7 @@ function DiaryViewDialogContent({
 
                 {/* text + el titulo */}
                 <div className="flex-[2] flex flex-col justify-start p-4 min-w-0 break-words whitespace-pre-wrap">
-                    <h2 className="text-2xl font-bold text-primary mb-4">
+                    <h2 className="text-2xl font-bold text-primary mb-4 text-[#4B2E22]">
                         {diaryContent.plant}
                     </h2>
                     <p className="text-gray-700 text-sm leading-relaxed">

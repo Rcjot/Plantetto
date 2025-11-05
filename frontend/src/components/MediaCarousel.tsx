@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import CarouselCard from "./CarouselCard";
-import arrowrightIcon from "@/assets/icons/arrowrighticon.svg";
-import arrowleftIcon from "@/assets/icons/arrowlefticon.svg";
+import { SquareChevronLeft } from 'lucide-react';
+import { SquareChevronRight } from 'lucide-react';
+
 import type { PlantDiaryType } from "@/features/diary/diaryTypes";
 
 function MediaCarousel({
@@ -66,7 +67,7 @@ function MediaCarousel({
                     }
                 }}
             >
-                <img src={arrowleftIcon} className="w-7 h-7" alt="" />
+                <SquareChevronLeft className="w-10 h-10 text-zinc-700" />
             </div>
             <div
                 role="button"
@@ -82,7 +83,7 @@ function MediaCarousel({
                     }
                 }}
             >
-                <img src={arrowrightIcon} className="w-7 h-7" alt="" />
+                <SquareChevronRight className="w-10 h-10 text-zinc-700" />
             </div>
 
             <div className="overflow-hidden">
