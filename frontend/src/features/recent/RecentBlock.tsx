@@ -80,7 +80,7 @@ export function RecentBlock() {
     }, [canUseRecents, userId]);
 
     return (
-        <div className="w-[295px] rounded-md shadow-sm shadow-teal-500 flex flex-col items-center py-2">
+        <div className="w-[300px] rounded-md shadow-sm shadow-teal-500 flex flex-col items-center py-2 pl-[5px]">
             <div className="flex flex-col gap-3 w-full items-center">
                 {/* Header */}
                 <div className="flex flex-row justify-between items-center w-[90%]">
@@ -101,7 +101,7 @@ export function RecentBlock() {
                 </div>
 
                 {/* List of Recent Cards */}
-                <div className="flex flex-col gap-2 items-center overflow-y-auto max-h-[400px] w-full">
+                <div className="flex flex-col gap-2 items-center overflow-y-auto max-h-[550px] w-full">
                     {userId && recentPosts.length === 0 && !loading && (
                         <p className="text-sm text-gray-500">No recent views</p>
                     )}
