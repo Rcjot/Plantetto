@@ -185,14 +185,17 @@ function MyGarden() {
         const pages = [];
         for (let i = 1; i <= meta.max_page; i++) {
             pages.push(
-                <Button
+                <button
                     key={i}
-                    size="sm"
-                    variant={i === page ? "default" : "outline"}
                     onClick={() => setPage(i)}
+                    className={`btn btn-sm ${
+                        i === page
+                            ? "bg-primary text-white hover:bg-primary"
+                            : "btn-outline hover:bg-primary hover:text-white hover:border-transparent"
+                    }`}
                 >
                     {i}
-                </Button>
+                </button>
             );
         }
         return pages;
@@ -309,25 +312,25 @@ function MyGarden() {
                 {/* pagination */}
                 {!loading && meta && meta.max_page > 1 && (
                     <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
-                        <Button
-                            size="sm"
+                        <button
+                            className="btn btn-sm btn-primary"
                             disabled={page <= 1}
                             onClick={() => setPage((p) => Math.max(p - 1, 1))}
                         >
                             Prev
-                        </Button>
+                        </button>
 
                         {renderPageButtons()}
 
-                        <Button
-                            size="sm"
+                        <button
+                            className="btn btn-sm btn-primary"
                             disabled={page >= meta.max_page}
                             onClick={() =>
                                 setPage((p) => Math.min(p + 1, meta.max_page))
                             }
                         >
                             Next
-                        </Button>
+                        </button>
                     </div>
                 )}
             </div>
@@ -337,7 +340,10 @@ function MyGarden() {
                     open={open}
                     onOpenChange={setOpen}
                     plant={selectedPlant}
-                    onUpdated={() => setReload((r) => r + 1)}
+                    onUpdated={() => {
+                        setPage(1);
+                        setReload((r) => r + 1);
+                    }}
                 />
             )}
 
