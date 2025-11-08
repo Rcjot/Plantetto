@@ -10,10 +10,12 @@ function ConfirmDialog({
     open,
     setOpen,
     onConfirm,
+    loading,
 }: {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     onConfirm: () => Promise<void>;
+    loading: boolean;
 }) {
     return (
         <>
@@ -35,7 +37,7 @@ function ConfirmDialog({
                                     setOpen(false);
                                 }}
                             >
-                                Yes
+                                {loading ? "loading..." : "Yes"}
                             </button>
                             <button
                                 className="btn btn-neutral"

@@ -51,9 +51,13 @@ function DiaryPopup({
 
     const [confirmOpen, setConfirmOpen] = useState(false);
 
+    const [deleteLoading, setDeleteLoading] = useState(false);
+
     async function onDelete() {
+        setDeleteLoading(true);
         await diariesApi.deleteDiaryEntry(diaryContent.uuid);
         fetchDiaries();
+        setDeleteLoading(false);
         setCarouselIndex(0);
         setOpen(false);
     }
@@ -141,6 +145,7 @@ function DiaryPopup({
                 open={confirmOpen}
                 setOpen={setConfirmOpen}
                 onConfirm={onDelete}
+                loading={deleteLoading}
             />
         </>
     );
