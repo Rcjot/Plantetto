@@ -7,6 +7,8 @@ import garden_icon from "../assets/icons/my_garden.svg";
 import menu_icon from "../assets/icons/menu.svg";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import ProfilePicture from "@/components/ProfilePicture";
+import WebsiteName from "@/assets/LandingPage/Plantetto-logo.svg";
+
 import {
     Dialog,
     DialogContent,
@@ -48,9 +50,13 @@ export default function Navbar() {
                             alt="LogoPlaceholder"
                             className="w-7 h-7"
                         />
-                        <h1 className="text-xl lg:text-2xl font-bold hidden sm:block">
+                        <img
+                            className="pl-4 hidden sm:block"
+                            src={WebsiteName}
+                        />
+                        {/* <h1 className="text-xl lg:text-2xl font-bold hidden sm:block">
                             Plantetto
-                        </h1>
+                        </h1> */}
                     </div>
                 </div>
 
