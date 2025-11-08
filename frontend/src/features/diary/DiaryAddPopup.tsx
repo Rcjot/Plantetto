@@ -30,7 +30,7 @@ const DiaryAddPopup: React.FC<DiaryAddFormProps> = ({ fetchDiaries }) => {
                 <div className="card card-xl h-[200px] min-w-[130px] shadow-sm bg-white flex flex-col relative cursor-pointer hover:shadow-md select-none m-1 overflow-hidden">
                     {/* placeholder img */}
                     <div
-                        className="h-full w-full bg-gray-100 flex items-center justify-center bg-cover bg-no-repeat"
+                        className="h-[80%] w-full bg-gray-100 flex items-center justify-center bg-contain bg-no-repeat bg-center scale-120 hover:scale-125 transition-transform duration-300"
                         style={{
                             backgroundImage: `url(${auth.user?.pfp_url})`,
                         }}

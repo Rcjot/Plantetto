@@ -19,7 +19,6 @@ function DiaryCarouselSection() {
         const { ok, plantDiaries } = await diariesApi.fetchDiariesToday();
         if (ok) {
             setDiaries(plantDiaries);
-            console.log("refetch diaries");
         }
     }, []);
 
