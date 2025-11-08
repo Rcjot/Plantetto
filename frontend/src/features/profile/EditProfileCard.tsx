@@ -125,6 +125,7 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
                                         ? "border-warning focus-visible:ring-warning"
                                         : ""
                                 }
+                                maxLength={20}
                             />
                             {error && (
                                 <p className="text-sm text-warning mt-1">
