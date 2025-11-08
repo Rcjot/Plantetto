@@ -1,4 +1,4 @@
-from flask import Flask,jsonify
+from flask import Flask, jsonify, send_from_directory
 from config import SECRET_KEY, DATABASE_URL
 from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect, CSRFError
@@ -8,7 +8,10 @@ from flask_login import LoginManager
 login_manager = LoginManager()
 
 def create_app() :
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, 
+                instance_relative_config=True, 
+                static_folder="../../frontend/dist", 
+                static_url_path="/")
     app.config.from_mapping(
         SECRET_KEY=SECRET_KEY,
         DATABASE_URL=DATABASE_URL
@@ -27,23 +30,28 @@ def create_app() :
     login_manager.init_app(app)
     
     @app.route("/") 
-    def check_route():
-        return jsonify(success=True)
+    def server():
+        return send_from_directory(app.static_folder, "index.html")
+        
+    @app.errorhandler(404)
+    def not_found(e) :
+        return send_from_directory(app.static_folder, "index.html")
+
     
     from .features.auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix="")
+    app.register_blueprint(auth_bp, url_prefix="/api")
 
     from .features.user import user_bp
-    app.register_blueprint(user_bp, url_prefix="/users")
+    app.register_blueprint(user_bp, url_prefix="/api/users")
 
     from .features.plant import plant_bp
-    app.register_blueprint(plant_bp, url_prefix="/plants")
+    app.register_blueprint(plant_bp, url_prefix="/api/plants")
 
     from .features.post import post_bp
-    app.register_blueprint(post_bp, url_prefix="/posts")
+    app.register_blueprint(post_bp, url_prefix="/api/posts")
 
     from .features.diary import diary_bp
-    app.register_blueprint(diary_bp, url_prefix="/diaries")
+    app.register_blueprint(diary_bp, url_prefix="/api/diaries")
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
