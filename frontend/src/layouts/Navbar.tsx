@@ -44,7 +44,7 @@ export default function Navbar() {
                     </label>
 
                     {/* logo n title */}
-                    <div className="flex items-center gap-2">
+                    <Link to={"/home"} className="flex items-center gap-2">
                         <img
                             src={garden_icon}
                             alt="LogoPlaceholder"
@@ -57,7 +57,7 @@ export default function Navbar() {
                         {/* <h1 className="text-xl lg:text-2xl font-bold hidden sm:block">
                             Plantetto
                         </h1> */}
-                    </div>
+                    </Link>
                 </div>
 
                 {/* search barr*/}

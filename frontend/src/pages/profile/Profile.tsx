@@ -95,7 +95,7 @@ function Profile() {
             {/* feed container (not my problem for now), maybe use useState to change content*/}
             <div className="max-w-4xl mx-auto px-4 py-6">
                 <div className="bg-base-100 rounded-lg border border-base-300 p-6 min-h-96 flex items-center justify-center">
-                    <p className="text-base-content/40">Coming Soon...</p>
+                    <p className="text-base-content/40">Coming soon...</p>
                 </div>
             </div>
             {/* temporary scroll fix (if removed, when you scroll down, there is no extra space making it look weird) */}
