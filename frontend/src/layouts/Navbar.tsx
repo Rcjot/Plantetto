@@ -144,7 +144,7 @@ export default function Navbar() {
                             Cancel
                         </button>
                         <button
-                            className="btn btn-error"
+                            className="btn btn-warning "
                             onClick={handleConfirmLogout}
                         >
                             Log Out
