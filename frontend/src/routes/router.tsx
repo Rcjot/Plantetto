@@ -8,6 +8,7 @@ import Home from "../pages/home/Home";
 import MyGarden from "../pages/garden/MyGarden";
 import Profile from "../pages/profile/Profile";
 import PostDialog from "@/features/posts/PostDialog";
+import ComingSoon from "@/pages/dev/ComingSoon";
 
 function getRoutes() {
     return [
@@ -51,6 +52,30 @@ function getRoutes() {
                         {
                             path: "/:username",
                             element: <Profile />,
+                        },
+                        {
+                            path: "/explore",
+                            element: <ComingSoon />,
+                        },
+                        {
+                            path: "/market",
+                            element: <ComingSoon />,
+                        },
+                        {
+                            path: "/guides",
+                            element: <ComingSoon />,
+                        },
+                        {
+                            path: "/plantdiaries",
+                            element: <ComingSoon />,
+                        },
+                        {
+                            path: "/bookmarks",
+                            element: <ComingSoon />,
+                        },
+                        {
+                            path: "/settings",
+                            element: <ComingSoon />,
                         },
                     ],
                 },

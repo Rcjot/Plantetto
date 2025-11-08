@@ -64,7 +64,7 @@ function Profile() {
                         {isOwnProfile ? (
                             <DialogDemo onSaved={fetchProfile} />
                         ) : (
-                            <button className="btn btn-sm btn-neutral">
+                            <button className="btn btn-sm btn-neutral" disabled>
                                 Follow
                             </button>
                         )}

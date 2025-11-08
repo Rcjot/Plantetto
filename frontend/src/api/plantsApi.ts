@@ -55,7 +55,7 @@ async function fetchPlantsOfUser(
             `/users/${username}/plants?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
         );
 
-        console.log("API response for fetchPlantsOfUser:", data);
+        // console.log("API response for fetchPlantsOfUser:", data);
         const meta_data = data["meta_data"];
 
         const plants: PlantType[] = data["plants"];

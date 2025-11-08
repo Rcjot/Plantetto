@@ -36,7 +36,7 @@ function EditPostDialog({
                         <ProfilePicture />
                         <div className="flex flex-col">
                             <h1 className="font-bold text-start">
-                                {auth.user?.username}
+                                {auth.user?.display_name ?? auth.user?.username}
                             </h1>
                             <div className="flex items-center gap-1">
                                 <img

@@ -62,47 +62,71 @@ function Sidebar({ children }: { children: React.ReactNode }) {
                     </li>
 
                     <li>
-                        <button className={custom_hover_button}>
+                        <NavLink
+                            to="/explore"
+                            onClick={drawToggle}
+                            className={({ isActive }) =>
+                                `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`
+                            }
+                        >
                             <img
                                 src={explore_icon}
                                 alt="Explore"
                                 className="w-5 h-5"
                             />
                             <span>Explore</span>
-                        </button>
+                        </NavLink>
                     </li>
 
                     <li>
-                        <button className={custom_hover_button}>
+                        <NavLink
+                            to="/market"
+                            onClick={drawToggle}
+                            className={({ isActive }) =>
+                                `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`
+                            }
+                        >
                             <img
                                 src={marketplace_icon}
                                 alt="Marketplace"
                                 className="w-5 h-5"
                             />
                             <span>Marketplace</span>
-                        </button>
+                        </NavLink>
                     </li>
 
                     <li>
-                        <button className={custom_hover_button}>
+                        <NavLink
+                            to="/guides"
+                            onClick={drawToggle}
+                            className={({ isActive }) =>
+                                `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`
+                            }
+                        >
                             <img
                                 src={guides_icon}
                                 alt="Community Guides"
                                 className="w-5 h-5"
                             />
                             <span>Community Guides</span>
-                        </button>
+                        </NavLink>
                     </li>
 
                     <li>
-                        <button className={custom_hover_button}>
+                        <NavLink
+                            to="/plantdiaries"
+                            onClick={drawToggle}
+                            className={({ isActive }) =>
+                                `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`
+                            }
+                        >
                             <img
                                 src={plant_diary_icon}
                                 alt="Plant Diary"
                                 className="w-5 h-5"
                             />
                             <span>My Plant Diary</span>
-                        </button>
+                        </NavLink>
                     </li>
 
                     <li>
@@ -123,25 +147,37 @@ function Sidebar({ children }: { children: React.ReactNode }) {
                     </li>
 
                     <li>
-                        <button className={custom_hover_button}>
+                        <NavLink
+                            to="/bookmarks"
+                            onClick={drawToggle}
+                            className={({ isActive }) =>
+                                `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`
+                            }
+                        >
                             <img
                                 src={bookmark_icon}
                                 alt="Bookmarks"
                                 className="w-5 h-5"
                             />
                             <span>Bookmarks</span>
-                        </button>
+                        </NavLink>
                     </li>
 
                     <li>
-                        <button className={custom_hover_button}>
+                        <NavLink
+                            to="/settings"
+                            onClick={drawToggle}
+                            className={({ isActive }) =>
+                                `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`
+                            }
+                        >
                             <img
                                 src={settings_icon}
                                 alt="Settings"
                                 className="w-5 h-5"
                             />
                             <span>Settings</span>
-                        </button>
+                        </NavLink>
                     </li>
                 </ul>
             </div>
