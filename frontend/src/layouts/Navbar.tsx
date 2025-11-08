@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import search_icon from "../assets/icons/search.svg";
 import chat_icon from "../assets/icons/chat.svg";
 import notification_icon from "../assets/icons/notification.svg";
@@ -18,9 +18,7 @@ import {
 
 export default function Navbar() {
     const { auth, logout } = useAuthContext()!;
-    useEffect(() => {
-        console.log("Width:", window.innerWidth);
-    }, []);
+
     const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
     const navbar_style =
         "navbar bg-base-100 px-4 py-2 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200";

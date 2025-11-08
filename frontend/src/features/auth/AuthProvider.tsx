@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import useAuth from "./useAuth";
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
-    console.log("auth changed");
     const { auth, signin, logout, fetchCredentials } = useAuth();
     const contextValue = useMemo(
         () => ({

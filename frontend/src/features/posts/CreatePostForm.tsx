@@ -32,7 +32,6 @@ function CreatePostForm({
     });
 
     function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log(e.target.files);
         if (!e.target.files) return;
         if (e.target.files.length === 0) return;
         const files = Array.from(e.target.files);

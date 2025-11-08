@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import home_icon from "../assets/icons/home.svg";
 import explore_icon from "../assets/icons/explore.svg";
 import marketplace_icon from "../assets/icons/marketplace.svg";
@@ -10,10 +10,6 @@ import settings_icon from "../assets/icons/settings.svg";
 import bookmark_icon from "../assets/icons/bookmark.svg";
 
 function Sidebar({ children }: { children: React.ReactNode }) {
-    useEffect(() => {
-        console.log("Width:", window.innerWidth);
-    }, []);
-
     const drawerRef = useRef<HTMLInputElement>(null);
 
     function drawToggle() {

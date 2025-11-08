@@ -24,7 +24,6 @@ async function addDiaryEntry(formData: FormData) {
     } catch (error) {
         console.error(error);
         if (isAxiosError(error) && error.response) {
-            console.log(error.response.data.error);
             return { ok: false, errors: error.response.data.error };
         }
         return { ok: false, errors: { root: "some error occurred" } };
@@ -39,7 +38,6 @@ async function editDiaryEntry(formData: FormData, diary_uuid: string) {
     } catch (error) {
         console.error(error);
         if (isAxiosError(error) && error.response) {
-            console.log(error.response.data.error);
             return { ok: false, errors: error.response.data.error };
         }
         return { ok: false, errors: { root: "some error occurred" } };
@@ -62,7 +60,6 @@ async function fetchDiariesToday() {
     try {
         const { data } = await axios.get(`/diaries/`);
         const plantDiaries: DiaryCardType[] = data["diaries"];
-        console.log(plantDiaries);
         return { ok: true, plantDiaries: plantDiaries };
     } catch {
         return { ok: false, plantDiaries: [] };

@@ -43,13 +43,13 @@ async function fetchPlantsOfUser(
     page: number
 ) {
     try {
-        console.log(
-            "Fetching plants for:",
-            username,
-            search,
-            plant_type_id,
-            page
-        );
+        // console.log(
+        //     "Fetching plants for:",
+        //     username,
+        //     search,
+        //     plant_type_id,
+        //     page
+        // );
 
         const { data } = await axios.get(
             `/users/${username}/plants?page=${page}&search=${search}&plant_type_id=${plant_type_id}`

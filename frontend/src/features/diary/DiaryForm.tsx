@@ -55,12 +55,9 @@ function DiaryForm() {
         const formData = new FormData();
         formData.append("note", data.note);
         formData.append("plant_id", data.plant_id);
-        console.log(data.media, data.media.length);
         if (data.media && data.media.length > 0) {
             formData.append("media", data.media[0]);
-            console.log("hii");
         }
-        console.log(data);
         const res = await diariesApi.addDiaryEntry(formData);
         if (!res.ok) {
             (

@@ -18,10 +18,8 @@ function PostDialog() {
     const navigate = useNavigate();
     const location = useLocation();
     const [post, setPost] = useState<PostType | null>(null);
-    console.log(location);
 
     useEffect(() => {
-        console.log(location.state && post_uuid);
         if (!location.state && post_uuid) {
             const fetchPost = async () => {
                 const post = await postsApi.fetchPostByUUID(post_uuid);

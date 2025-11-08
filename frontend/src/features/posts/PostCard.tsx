@@ -30,7 +30,6 @@ function PostCard() {
         }
         if (e.target instanceof HTMLElement) {
             if (e.target.closest(".no-propagate")) return;
-            console.log("clicked");
         }
 
         if (auth.user?.id) {

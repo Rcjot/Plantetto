@@ -79,7 +79,6 @@ class Posts() :
                     LIMIT %s
                     """
             params = [limit + 1]
-        print(sql, params)
         cursor.execute(sql, params)
         posts = cursor.fetchall()
         cursor.close()
@@ -90,7 +89,6 @@ class Posts() :
     def get_post(cls, post_uuid) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        print(post_uuid)
         sql = """
                 WITH max_ratio_media AS (
                     SELECT DISTINCT ON (post_id)

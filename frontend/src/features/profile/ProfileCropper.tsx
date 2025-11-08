@@ -27,7 +27,6 @@ function ProfileCropper({
     function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
         const { width, height } = e.currentTarget;
         const cropWidthInPercent = (MIN_DIMENSION / width) * 100;
-        console.log(width, height);
         const crop = makeAspectCrop(
             {
                 unit: "%",
@@ -42,7 +41,6 @@ function ProfileCropper({
     }
 
     function onCrop() {
-        console.log(imgRef);
         if (imgRef.current && canvasRef.current && crop) {
             setCanvasPreview(
                 imgRef.current,
@@ -55,7 +53,6 @@ function ProfileCropper({
             );
             const dataUrl = canvasRef.current.toDataURL();
             setPfpPreview(dataUrl);
-            console.log(dataUrl);
             onCropComplete?.();
         }
     }

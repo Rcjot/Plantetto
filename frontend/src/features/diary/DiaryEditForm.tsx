@@ -66,12 +66,9 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
         const formData = new FormData();
         formData.append("note", data.note);
         formData.append("plant_id", data.plant_id);
-        console.log(data.media, data.media.length);
         if (data.media && data.media.length > 0) {
             formData.append("media", data.media[0]);
-            console.log("hii");
         }
-        console.log(data);
         const res = await diariesApi.editDiaryEntry(
             formData,
             diaryContent.uuid
@@ -87,7 +84,6 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
         }
     };
 
-    console.log(preview);
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}

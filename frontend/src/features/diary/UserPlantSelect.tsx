@@ -30,7 +30,6 @@ function UserPlantSelect({
             );
             if (ok) {
                 setPlantOptions(plantOptions);
-                console.log(plantOptions);
             }
         };
         fetchPlantOptions();

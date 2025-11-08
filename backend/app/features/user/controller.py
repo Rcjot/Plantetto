@@ -14,12 +14,9 @@ def set_image() :
     id = current_user.get_id()
     data = request.get_data()
     file = request.files['image']
-    print(file.filename, file.content_type)
-    # file.save(f"./uploads/{file.filename}")
     pfp_url = cloudinary.upload_pfp(file, id)
 
     if Users.set_pfp(id, pfp_url) :
-        print(data)
         return jsonify(success=True, message="uploaded file")
 
     return jsonify(success=False, message="failed to upload file")

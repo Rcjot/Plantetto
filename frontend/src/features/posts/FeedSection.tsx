@@ -17,7 +17,6 @@ function FeedSection() {
         const { posts: resPosts, nextCursor: resNextCursor } =
             await postsApi.fetchPosts(nextCursor);
         // await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log(resPosts, "triggered");
         setPosts((prev) => [...prev, ...resPosts]);
         setHasMore(Boolean(resNextCursor));
         setNextCursor(resNextCursor);
@@ -27,7 +26,6 @@ function FeedSection() {
     useEffect(() => {
         if (initialFetch.current) return;
         initialFetch.current = true;
-        console.log("fetched init", nextCursor);
         fetchPosts();
     }, [fetchPosts, nextCursor]);
 
@@ -39,11 +37,11 @@ function FeedSection() {
             const entry = entries[0];
 
             if (entry.isIntersecting && !loading && hasMore) {
-                console.log("fetching loading was false");
+                // console.log("fetching loading was false");
                 setLoading(true);
                 fetchPosts();
             } else {
-                console.log("not fetching! currently loading");
+                // console.log("not fetching! currently loading");
             }
         });
         observer.observe(infiniteTriggerRef.current);
