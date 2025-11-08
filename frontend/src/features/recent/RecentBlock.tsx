@@ -3,7 +3,11 @@ import { RecentCard } from "./RecentCard";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import postsApi from "@/api/postsApi";
-import { clearRecents, getRecentPostUUIDs, onRecentsUpdated } from "./recentService";
+import {
+    clearRecents,
+    getRecentPostUUIDs,
+    onRecentsUpdated,
+} from "./recentService";
 import type { PostType } from "@/features/posts/postTypes";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addRecentPost } from "./recentService";
@@ -58,7 +62,10 @@ export function RecentBlock() {
         // prune any invalid/deleted entries
         if (stillValid.length !== uuids.length) {
             // update storage silently
-            localStorage.setItem(`recent:${userId}`, JSON.stringify(stillValid));
+            localStorage.setItem(
+                `recent:${userId}`,
+                JSON.stringify(stillValid)
+            );
         }
         setLoading(false);
     };
@@ -80,11 +87,13 @@ export function RecentBlock() {
     }, [canUseRecents, userId]);
 
     return (
-        <div className="w-[300px] rounded-md shadow-sm shadow-teal-500 flex flex-col items-center py-2 pl-[5px]">
+        <div className="w-[300px] rounded-md shadow-sm shadow-secondary flex flex-col items-center py-2 pl-[5px]">
             <div className="flex flex-col gap-3 w-full items-center">
                 {/* Header */}
                 <div className="flex flex-row justify-between items-center w-[90%]">
-                    <p className="font-semibold text-emerald">Recently Viewed</p>
+                    <p className="font-semibold text-emerald">
+                        Recently Viewed
+                    </p>
                     <Button
                         variant="ghost"
                         className="text-sm text-gray-500 hover:text-white"
@@ -109,7 +118,9 @@ export function RecentBlock() {
                         <RecentCard
                             key={post.post_uuid}
                             avatar={post.author.pfp_url}
-                            username={post.author.display_name ?? post.author.username}
+                            username={
+                                post.author.display_name ?? post.author.username
+                            }
                             timeAgo={timeAgo(post.created_at)}
                             caption={post.caption}
                             postImage={post.media[0]?.url || null}
@@ -118,9 +129,12 @@ export function RecentBlock() {
                                 if (userId) {
                                     addRecentPost(userId, post);
                                 }
-                                navigate(`/home/${post.author.username}/${post.post_uuid}`, {
-                                    state: { background: location, post },
-                                });
+                                navigate(
+                                    `/home/${post.author.username}/${post.post_uuid}`,
+                                    {
+                                        state: { background: location, post },
+                                    }
+                                );
                             }}
                         />
                     ))}

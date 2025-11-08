@@ -1,6 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import defaultpfp from "@/assets/defaultpfp.png"
+import defaultpfp from "@/assets/defaultpfp.png";
 
 interface PostCardProps {
     avatar: string;
@@ -25,13 +25,15 @@ export function RecentCard({
 
     return (
         <div
-            className={`w-[275px] h-[105px] shadow-sm shadow-teal-400 rounded-lg flex flex-row justify-between items-start p-2 gap-2 my-1 ${!hasImage ? 'justify-start' : ''} cursor-pointer hover:bg-base-200`}
+            className={`w-[275px] h-[105px] shadow-sm shadow-secondary rounded-lg flex flex-row justify-between items-start p-2 gap-2 my-1 ${!hasImage ? "justify-start" : ""} cursor-pointer hover:bg-base-200`}
             onClick={onClick}
             role="button"
             tabIndex={0}
         >
             {/* Left Side (Text content) */}
-            <div className={`flex flex-col gap-1 ${hasImage ? 'w-[65%]' : 'w-full'}`}>
+            <div
+                className={`flex flex-col gap-1 ${hasImage ? "w-[65%]" : "w-full"}`}
+            >
                 {/* Avatar + Username + • + Time */}
                 <div className="flex flex-row items-center gap-2 text-[12px] text-gray-700">
                     <Link
@@ -56,7 +58,9 @@ export function RecentCard({
                 </div>
 
                 {/* Caption */}
-                <p className={`text-[14px] font-semibold leading-tight ${hasImage ? 'line-clamp-2' : 'line-clamp-4'}`}>
+                <p
+                    className={`text-[14px] font-semibold leading-tight ${hasImage ? "line-clamp-2" : "line-clamp-4"}`}
+                >
                     {caption || "No caption"}
                 </p>
 
@@ -76,7 +80,7 @@ export function RecentCard({
                     className="w-[90px] h-[90px] rounded-md object-cover flex-shrink-0"
                     onError={(e) => {
                         // Hide image if it fails to load
-                        (e.target as HTMLImageElement).style.display = 'none';
+                        (e.target as HTMLImageElement).style.display = "none";
                     }}
                 />
             )}

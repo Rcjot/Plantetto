@@ -28,8 +28,8 @@ function Home() {
                 </div>
             </div>
 
-            <div className="hidden lg:block fixed right-0 top-16 bottom-0 w-80 p-4 bg-base-100 border-base-300 border-l overflow-y-auto z-10">
-                <RecentBlock/>
+            <div className="hidden lg:block fixed right-0 top-16 bottom-0 w-84 p-4 bg-base-100 border-base-300 border-l overflow-y-auto z-10">
+                <RecentBlock />
             </div>
         </div>
     );
