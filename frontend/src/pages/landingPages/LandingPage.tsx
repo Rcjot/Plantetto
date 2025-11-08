@@ -8,6 +8,7 @@ import { BottomButton } from "./landpage-bottombutton";
 
 export function LandingPage() {
   const [activeSection, setActiveSection] = useState<"hero" | "guides" | "diary" | "market">("hero");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const guidesRef = useRef<HTMLDivElement>(null);
@@ -30,7 +31,7 @@ export function LandingPage() {
           }
         });
       },
-      { threshold: 0.4 }
+      { threshold: 0.4, root: scrollContainerRef.current ?? undefined }
     );
 
     sections.forEach(({ ref }) => {
@@ -41,9 +42,15 @@ export function LandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col snap-y snap-mandatory h-screen overflow-y-auto">
+    <div
+      ref={scrollContainerRef}
+      className="flex flex-col snap-y snap-mandatory h-screen overflow-y-auto"
+    >
       <NavBar active={activeSection} />
-      <BottomButton activeSection={activeSection} />
+      <BottomButton
+        activeSection={activeSection}
+        scrollContainer={scrollContainerRef}
+      />
 
       <div className="snap-center"><div ref={heroRef} id="hero" className="min-h-screen"><LPHero /></div></div>
       <div className="snap-center"><div ref={guidesRef} id="guides" className="min-h-screen"><LPGuides /></div></div>

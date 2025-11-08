@@ -1,5 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
+import defaultpfp from "@/assets/defaultpfp.png"
 
 interface PostCardProps {
     avatar: string;
@@ -39,7 +40,7 @@ export function RecentCard({
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Avatar className="w-[24px] h-[24px] cursor-pointer hover:opacity-80">
-                            <AvatarImage src={avatar} />
+                            <AvatarImage src={avatar ?? defaultpfp} />
                         </Avatar>
                     </Link>
 

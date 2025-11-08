@@ -101,7 +101,7 @@ export function RecentBlock() {
                 </div>
 
                 {/* List of Recent Cards */}
-                <div className="flex flex-col gap-2 items-center overflow-y-auto max-h-[550px] w-full">
+                <div className="flex flex-col gap-2 items-center overflow-y-auto max-h-[calc(100vh-180px)] w-full">
                     {userId && recentPosts.length === 0 && !loading && (
                         <p className="text-sm text-gray-500">No recent views</p>
                     )}
@@ -109,7 +109,7 @@ export function RecentBlock() {
                         <RecentCard
                             key={post.post_uuid}
                             avatar={post.author.pfp_url}
-                            username={post.author.username}
+                            username={post.author.display_name ?? post.author.username}
                             timeAgo={timeAgo(post.created_at)}
                             caption={post.caption}
                             postImage={post.media[0]?.url || null}

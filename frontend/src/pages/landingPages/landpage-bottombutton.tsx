@@ -1,16 +1,22 @@
+import type { MutableRefObject } from "react";
 import { Button } from "@/components/ui/button";
 import ButtonDown from "@/assets/LandingPage/chevron-down.svg";
 import ButtonUp from "@/assets/LandingPage/chevron-up.svg";
 
 const sections = ["hero", "guides", "diary", "market"];
 
-export function BottomButton({ activeSection }: { activeSection: string }) {
+type BottomButtonProps = {
+  activeSection: string;
+  scrollContainer: MutableRefObject<HTMLDivElement | null>;
+};
+
+export function BottomButton({ activeSection, scrollContainer }: BottomButtonProps) {
   const currentIndex = sections.indexOf(activeSection);
   const isLastSection = currentIndex === sections.length - 1;
 
   const scrollToNextSection = () => {
     if (!isLastSection) {
-      const nextSection = document.getElementById(sections[currentIndex + 1]);
+      const nextSection = scrollContainer.current?.querySelector<HTMLDivElement>(`#${sections[currentIndex + 1]}`) ?? document.getElementById(sections[currentIndex + 1]);
       nextSection?.scrollIntoView({ behavior: "smooth" });
     }
   };
@@ -20,7 +26,7 @@ export function BottomButton({ activeSection }: { activeSection: string }) {
       <Button
         onClick={
           isLastSection
-            ? () => window.scrollTo({ top: 0, behavior: "smooth" })
+            ? () => scrollContainer.current?.scrollTo({ top: 0, behavior: "smooth" })
             : scrollToNextSection
         }
         className="w-[60px] h-[60px] bg-black rounded-[16px]

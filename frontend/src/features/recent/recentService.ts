@@ -41,7 +41,7 @@ export function addRecentPost(userId: string, post: PostType) {
     if (post.author.id === userId) return;
     const existing = getRecentPostUUIDs(userId);
     const without = existing.filter((id) => id !== post.post_uuid);
-    const next = [post.post_uuid, ...without].slice(0, 20);
+    const next = [post.post_uuid, ...without].slice(0, 10);
     setRecentPostUUIDs(userId, next);
 }
 
