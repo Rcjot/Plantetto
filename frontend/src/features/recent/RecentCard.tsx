@@ -6,6 +6,7 @@ import type { MediaType } from "../posts/postTypes";
 interface PostCardProps {
     avatar: string;
     username: string;
+    usernameLink: string;
     timeAgo: string;
     caption: string;
     postMedia: MediaType | null;
@@ -16,6 +17,7 @@ interface PostCardProps {
 export function RecentCard({
     avatar,
     username,
+    usernameLink,
     timeAgo,
     caption,
     postMedia,
@@ -38,7 +40,7 @@ export function RecentCard({
                 {/* Avatar + Username + • + Time */}
                 <div className="flex flex-row items-center gap-2 text-[12px] text-gray-700">
                     <Link
-                        to={`/${username}`}
+                        to={`/${usernameLink}`}
                         className="h-fit w-fit"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -48,7 +50,7 @@ export function RecentCard({
                     </Link>
 
                     <Link
-                        to={`/${username}`}
+                        to={`/${usernameLink}`}
                         className="font-medium hover:underline cursor-pointer"
                         onClick={(e) => e.stopPropagation()}
                     >

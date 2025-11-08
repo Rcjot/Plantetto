@@ -121,6 +121,7 @@ export function RecentBlock() {
                             username={
                                 post.author.display_name ?? post.author.username
                             }
+                            usernameLink={post.author.username}
                             timeAgo={timeAgo(post.created_at)}
                             caption={post.caption}
                             postMedia={post.media[0] || null}
