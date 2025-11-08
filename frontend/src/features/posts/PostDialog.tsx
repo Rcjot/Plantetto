@@ -44,7 +44,7 @@ function PostDialog() {
                     }}
                 >
                     <DialogContent className=" p-0 min-w-[95vw] sm:p-3 sm:min-w-max md:min-h-max bg-base-100 ">
-                        <DialogHeader className="md:max-w-[700px] p-3 lg:max-w-max lg:grid lg:grid-cols-[1fr_250px]">
+                        <DialogHeader className="md:max-w-[700px] p-5 lg:max-w-max lg:grid lg:grid-cols-[1fr_250px]">
                             {post.media.length > 0 &&
                                 post.highlight_height &&
                                 post.highlight_width && (

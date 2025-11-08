@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogClose,
@@ -93,7 +92,7 @@ export function DialogDemo({ onSaved }: { onSaved?: () => void }) {
                 <button className="btn btn-primary">Edit Profile</button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[600px] bg-base-100 max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[650px] bg-base-100 max-h-[90vh] overflow-y-auto">
                 <form onSubmit={handleSave}>
                     <DialogHeader>
                         <DialogTitle>Edit Profile</DialogTitle>

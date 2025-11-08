@@ -32,7 +32,7 @@ function CreatePost({ children }: { children: React.ReactNode }) {
     return (
         <>
             <CreatePostContext.Provider value={contextValue}>
-                <div className="card sm:w-full max-w-[600px] bg-base-100 card-md shadow-lg p-4 flex flex-col gap-5">
+                <div className="card sm:w-full max-w-[650px] bg-base-100 card-md shadow-lg p-4 flex flex-col gap-5">
                     <div className="flex gap-1">
                         <ProfilePicture />
                         <button
