@@ -70,16 +70,14 @@ function Profile() {
                         )}
                     </div>
                     <div className="bg-base-200 border border-base-300 rounded-lg p-4 h-32 flex items-center justify-center">
-                        <p className="text-base-content/40">
-                            circle things container
-                        </p>
+                        <p className="text-base-content/40">Coming soon...</p>
                     </div>
                 </div>
             </div>
             {/* nav tab*/}
             <div className="bg-base-100">
                 <div className="max-w-4xl mx-auto px-4">
-                    <div className="bg-primary text-neutral-100 rounded-lg overflow-hidden">
+                    <div className="bg-base-300 text-neutral-100 rounded-lg overflow-hidden">
                         <div className="grid grid-cols-3">
                             <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral/30">
                                 Posts
@@ -97,9 +95,7 @@ function Profile() {
             {/* feed container (not my problem for now), maybe use useState to change content*/}
             <div className="max-w-4xl mx-auto px-4 py-6">
                 <div className="bg-base-100 rounded-lg border border-base-300 p-6 min-h-96 flex items-center justify-center">
-                    <p className="text-base-content/40">
-                        feed blah blah lbla AAAAA
-                    </p>
+                    <p className="text-base-content/40">Coming Soon...</p>
                 </div>
             </div>
             {/* temporary scroll fix (if removed, when you scroll down, there is no extra space making it look weird) */}
