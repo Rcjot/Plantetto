@@ -58,16 +58,18 @@ export default function Navbar() {
 
                 {/* search barr*/}
                 <div className="flex-1 flex justify-center px-2">
-                    <img
-                        src={search_icon}
-                        alt="Search"
-                        className="w-6 h-6 mr-3 mt-1.5"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Search"
-                        className="input input-bordered w-full max-w-xs sm:max-w-sm md:max-w-md bg-white border-gray-200"
-                    />
+                    <div className="flex items-center gap-2 w-full max-w-xs sm:max-w-sm md:max-w-md">
+                        <img
+                            src={search_icon}
+                            alt="Search"
+                            className="w-6 h-6"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Search"
+                            className="input input-bordered flex-1 bg-white border-gray-200"
+                        />
+                    </div>
                 </div>
 
                 {/* right side of nav*/}

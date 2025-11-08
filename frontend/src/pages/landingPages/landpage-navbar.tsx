@@ -18,24 +18,27 @@ export function NavBar({ active }: { active: Section }) {
     <div
       className="fixed top-0 left-0 w-full z-50 bg-transparent transition duration-500"
       style={{ 
-        // ✅ Only place where styles allowed: setting CSS variables for Tailwind use
         ["--color1" as any]: color1,
         ["--color2" as any]: color2 
       }}
     >
-      <div className="flex flex-row justify-between items-center py-[10px]">
+      <div className="flex flex-row justify-between items-center py-[10px] content-center">
         
         <div className="text-[var(--color1)]">
           <img className="px-[60px]" src={WebsiteName}/>
         </div>
 
-        <div className="flex flex-row gap-[20px] mx-[40px]">
+        <div className="flex flex-row gap-[20px] mx-[40px] content-center">
 
-          <Button
+          <Button 
             variant="link"
             className="text-[24px] text-[var(--color1)] hover:text-[var(--color1)] px-5 py-5 transition"
           >
-            About
+            <Link
+              to={"/"}
+              >
+                About
+            </Link>
           </Button>
 
           <Link

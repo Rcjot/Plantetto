@@ -3,7 +3,7 @@ import { HeroText } from "./lndpg-hero-text";
 
 export function LPHero() {
   return (
-    <section className="relative bg-[#444E36] min-h-[700px] flex justify-center text-center">
+    <section className="relative bg-[#444E36] min-h-screen flex justify-center text-center">
       
       <div className="absolute inset-0 z-0 pointer-events-none">
         <HeroImages />

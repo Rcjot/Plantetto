@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 export function LPDiary2() {
     return (
-        <section className="bg-[#FFDFB1] flex justify-center items-center h-[701px] w-full">
-            <div className="flex flex-row items-center gap-16">
+        <section className="bg-[#FFDFB1] flex justify-center items-center min-h-screen w-full">
+            <div className="flex flex-row items-center gap-80">
 
                 <div className="flex flex-col max-w-[450px] text-center text-[#5A3E2F]">
                     <h1 className="text-[40px] font-bold">

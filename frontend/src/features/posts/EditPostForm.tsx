@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import PostCarousel from "./PostCarousel";
 import postsApi from "@/api/postsApi";
 import { usePostContext } from "./context/PostContext";
+import { notifyRecentsUpdated } from "@/features/recent/recentService";
+import { useAuthContext } from "../auth/AuthContext";
 
 function EditPostForm() {
     const { post, updateCaption, setOpenEditCallback } = usePostContext()!;
+    const { auth } = useAuthContext()!;
     const [caption, setCaption] = useState<string>(post.caption);
 
     useEffect(() => {
@@ -21,6 +24,9 @@ function EditPostForm() {
         const { ok } = await postsApi.editPost(post.post_uuid, formData);
         if (ok) {
             updateCaption(caption);
+            if (auth.user?.id) {
+                notifyRecentsUpdated(auth.user.id);
+            }
         }
         setIsSubmitting(false);
         setOpenEditCallback(false);
