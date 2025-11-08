@@ -68,10 +68,11 @@ export default function Navbar() {
                             alt="Search"
                             className="w-6 h-6"
                         />
+                        {/* search original icon color #1C1B1F */}
                         <input
                             type="text"
-                            placeholder="Search"
-                            className="input input-bordered flex-1 bg-white border-gray-200"
+                            placeholder="Search coming soon..."
+                            className="input input-bordered flex-1 border-gray-200 bg-base-200"
                         />
                     </div>
                 </div>

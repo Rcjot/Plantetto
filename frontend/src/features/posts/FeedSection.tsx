@@ -77,7 +77,9 @@ function FeedSection() {
                     </div>
                 </div>
             ) : (
-                <div className="self-center">you have reached the bottom</div>
+                <div className="self-center">
+                    The roots rest here.. Why not sprout a new post?
+                </div>
             )}
         </div>
     );
