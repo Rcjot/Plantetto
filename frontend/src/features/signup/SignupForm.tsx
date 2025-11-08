@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import authApi from "@/api/authApi";
+import { useNavigate } from "react-router-dom";
 
 const schema = z.object({
     username: z.string().nonempty("required"),
@@ -24,7 +25,7 @@ function SignupForm() {
         // defaultValues: { username: "user0" },
         resolver: zodResolver(schema),
     });
-
+    const navigate = useNavigate();
     const onSubmit: SubmitHandler<SignupFields> = async (data) => {
         await authApi.fetchMe();
         const res = await authApi.signupUser(data);
@@ -34,6 +35,8 @@ function SignupForm() {
             ).forEach(([field, messages]) => {
                 setError(field, { message: messages[0] });
             });
+        } else {
+            navigate("/signin");
         }
     };
 

@@ -118,7 +118,7 @@ export default function Navbar() {
                             <li>
                                 <button
                                     onClick={() => setOpenLogoutDialog(true)}
-                                    className="text-warning-content hover:bg-warning/90 hover:text-neutral-100"
+                                    className="text-warning-content hover:bg-warning/90"
                                 >
                                     Logout
                                 </button>

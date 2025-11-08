@@ -71,7 +71,7 @@ def signin_user() :
         user = Users.get_for_auth(form.username.data)
 
         if user and user.check_password(form.password.data) :
-            login_user(user, remember=form.remember.data)
+            login_user(user, remember=True)
             print("hi successful", user.get_json())
             return jsonify(success=True, message="signin success", user=user.get_json())
         
