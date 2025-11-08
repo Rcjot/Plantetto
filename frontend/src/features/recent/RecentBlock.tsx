@@ -123,7 +123,7 @@ export function RecentBlock() {
                             }
                             timeAgo={timeAgo(post.created_at)}
                             caption={post.caption}
-                            postImage={post.media[0]?.url || null}
+                            postMedia={post.media[0] || null}
                             likes={0}
                             onClick={() => {
                                 if (userId) {
