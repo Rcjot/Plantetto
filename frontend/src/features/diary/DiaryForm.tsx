@@ -95,7 +95,7 @@ function DiaryForm() {
                             </>
                         )}
                     </div>
-                    <span className="text-warning">
+                    <span className="text-warning-content">
                         {errors.plant_id?.message}
                     </span>
                     <input
@@ -116,7 +116,7 @@ function DiaryForm() {
                 <div>
                     {/* dropdpown*/}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.plant_id?.message}
                         </span>
                         <Controller
@@ -133,7 +133,7 @@ function DiaryForm() {
 
                     {/* description */}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.note?.message}
                         </span>
                         <textarea
@@ -153,7 +153,7 @@ function DiaryForm() {
                     </button>
                 </div>
             </div>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
         </form>
     );
 }

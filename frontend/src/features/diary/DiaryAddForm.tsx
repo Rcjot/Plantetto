@@ -101,7 +101,7 @@ function DiaryAddForm({ onSubmitCallback }: { onSubmitCallback: () => void }) {
                             <img src={plantPlaceHolder} alt="plant" />
                         )}
                     </div>
-                    <span className="text-warning">
+                    <span className="text-warning-content">
                         {errors.plant_id?.message}
                     </span>
                     <input
@@ -122,7 +122,7 @@ function DiaryAddForm({ onSubmitCallback }: { onSubmitCallback: () => void }) {
                 <div>
                     {/* dropdpown*/}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.plant_id?.message}
                         </span>
                         <Controller
@@ -139,7 +139,7 @@ function DiaryAddForm({ onSubmitCallback }: { onSubmitCallback: () => void }) {
 
                     {/* description */}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.note?.message}
                         </span>
                         <textarea
@@ -159,7 +159,7 @@ function DiaryAddForm({ onSubmitCallback }: { onSubmitCallback: () => void }) {
                     </button>
                 </div>
             </div>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
         </form>
     );
 }

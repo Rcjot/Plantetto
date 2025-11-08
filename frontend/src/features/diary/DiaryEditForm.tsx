@@ -114,7 +114,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                             <img src={plantPlaceHolder} alt="plant" />
                         )}
                     </div>
-                    <span className="text-warning">
+                    <span className="text-warning-content">
                         {errors.plant_id?.message}
                     </span>
                     <input
@@ -135,7 +135,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                 <div>
                     {/* dropdpown*/}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.plant_id?.message}
                         </span>
                         <Controller
@@ -152,7 +152,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
 
                     {/* description */}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.note?.message}
                         </span>
                         <textarea
@@ -184,7 +184,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                     </button>
                 </div>
             </div>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
         </form>
     );
 }

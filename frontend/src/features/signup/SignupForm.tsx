@@ -43,7 +43,9 @@ function SignupForm() {
                 Username
             </label>
             <div>
-                <span className="text-warning">{errors.username?.message}</span>
+                <span className="text-warning-content">
+                    {errors.username?.message}
+                </span>
                 <input
                     {...register("username")}
                     type="text"
@@ -57,7 +59,9 @@ function SignupForm() {
                 Email
             </label>
             <div>
-                <span className="text-warning">{errors.email?.message}</span>
+                <span className="text-warning-content">
+                    {errors.email?.message}
+                </span>
                 <input
                     {...register("email")}
                     type="email"
@@ -72,7 +76,9 @@ function SignupForm() {
                 Password
             </label>
             <div>
-                <span className="text-warning">{errors.password?.message}</span>
+                <span className="text-warning-content">
+                    {errors.password?.message}
+                </span>
                 <input
                     {...register("password")}
                     type="password"
@@ -87,7 +93,9 @@ function SignupForm() {
                 Confirm Password
             </label>
             <div>
-                <span className="text-warning">{errors.confirm?.message}</span>
+                <span className="text-warning-content">
+                    {errors.confirm?.message}
+                </span>
                 <input
                     {...register("confirm")}
                     type="password"
@@ -101,7 +109,7 @@ function SignupForm() {
             <button className="btn btn-neutral mt-4 self-center px-10">
                 {isSubmitting ? "signing up.." : "sign up"}
             </button>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
         </form>
     );
 }
