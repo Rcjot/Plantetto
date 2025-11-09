@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import authApi from "@/api/authApi";
+import { useNavigate } from "react-router-dom";
 
 const schema = z.object({
     username: z.string().nonempty("required"),
@@ -24,7 +25,7 @@ function SignupForm() {
         // defaultValues: { username: "user0" },
         resolver: zodResolver(schema),
     });
-
+    const navigate = useNavigate();
     const onSubmit: SubmitHandler<SignupFields> = async (data) => {
         await authApi.fetchMe();
         const res = await authApi.signupUser(data);
@@ -34,6 +35,8 @@ function SignupForm() {
             ).forEach(([field, messages]) => {
                 setError(field, { message: messages[0] });
             });
+        } else {
+            navigate("/signin");
         }
     };
 
@@ -43,7 +46,9 @@ function SignupForm() {
                 Username
             </label>
             <div>
-                <span className="text-warning">{errors.username?.message}</span>
+                <span className="text-warning-content">
+                    {errors.username?.message}
+                </span>
                 <input
                     {...register("username")}
                     type="text"
@@ -57,7 +62,9 @@ function SignupForm() {
                 Email
             </label>
             <div>
-                <span className="text-warning">{errors.email?.message}</span>
+                <span className="text-warning-content">
+                    {errors.email?.message}
+                </span>
                 <input
                     {...register("email")}
                     type="email"
@@ -72,7 +79,9 @@ function SignupForm() {
                 Password
             </label>
             <div>
-                <span className="text-warning">{errors.password?.message}</span>
+                <span className="text-warning-content">
+                    {errors.password?.message}
+                </span>
                 <input
                     {...register("password")}
                     type="password"
@@ -87,7 +96,9 @@ function SignupForm() {
                 Confirm Password
             </label>
             <div>
-                <span className="text-warning">{errors.confirm?.message}</span>
+                <span className="text-warning-content">
+                    {errors.confirm?.message}
+                </span>
                 <input
                     {...register("confirm")}
                     type="password"
@@ -101,7 +112,7 @@ function SignupForm() {
             <button className="btn btn-neutral mt-4 self-center px-10">
                 {isSubmitting ? "signing up.." : "sign up"}
             </button>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
         </form>
     );
 }

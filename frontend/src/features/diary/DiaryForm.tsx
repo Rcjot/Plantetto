@@ -55,12 +55,9 @@ function DiaryForm() {
         const formData = new FormData();
         formData.append("note", data.note);
         formData.append("plant_id", data.plant_id);
-        console.log(data.media, data.media.length);
         if (data.media && data.media.length > 0) {
             formData.append("media", data.media[0]);
-            console.log("hii");
         }
-        console.log(data);
         const res = await diariesApi.addDiaryEntry(formData);
         if (!res.ok) {
             (
@@ -95,7 +92,7 @@ function DiaryForm() {
                             </>
                         )}
                     </div>
-                    <span className="text-warning">
+                    <span className="text-warning-content">
                         {errors.plant_id?.message}
                     </span>
                     <input
@@ -116,7 +113,7 @@ function DiaryForm() {
                 <div>
                     {/* dropdpown*/}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.plant_id?.message}
                         </span>
                         <Controller
@@ -133,7 +130,7 @@ function DiaryForm() {
 
                     {/* description */}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.note?.message}
                         </span>
                         <textarea
@@ -153,7 +150,7 @@ function DiaryForm() {
                     </button>
                 </div>
             </div>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
         </form>
     );
 }

@@ -124,7 +124,10 @@ export default function GardenForm({
                         {...register("nickname")}
                     />
                     {errors.nickname && (
-                        <p className="text-sm text-red-500">
+                        <p
+                            className="text-sm text-warning-content
+                        "
+                        >
                             {errors.nickname.message}
                         </p>
                     )}
@@ -169,7 +172,10 @@ export default function GardenForm({
                         </SelectContent>
                     </Select>
                     {errors.plant_type_id && (
-                        <p className="text-sm text-red-500">
+                        <p
+                            className="text-sm text-warning-content
+                        "
+                        >
                             {errors.plant_type_id.message}
                         </p>
                     )}
@@ -194,7 +200,7 @@ export default function GardenForm({
                         }}
                     />
                     {errors.image && (
-                        <p className="text-sm text-red-500">
+                        <p className="text-sm text-warning-content">
                             {errors.image.message as string}
                         </p>
                     )}
@@ -209,7 +215,10 @@ export default function GardenForm({
 
                 {/* root error */}
                 {errors.root && (
-                    <p className="text-sm text-red-500 text-center">
+                    <p
+                        className="text-sm text-warning-content
+                     text-center"
+                    >
                         {errors.root.message}
                     </p>
                 )}

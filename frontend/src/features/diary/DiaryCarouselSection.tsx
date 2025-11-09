@@ -19,7 +19,6 @@ function DiaryCarouselSection() {
         const { ok, plantDiaries } = await diariesApi.fetchDiariesToday();
         if (ok) {
             setDiaries(plantDiaries);
-            console.log("refetch diaries");
         }
     }, []);
 
@@ -37,7 +36,7 @@ function DiaryCarouselSection() {
 
     return (
         <div className="flex gap-3 w-full select-none ">
-            <Carousel className="w-[80vw] sm:w-4/5">
+            <Carousel className="w-[83vw] sm:w-5/6">
                 <CarouselContent>
                     <CarouselItem key={`nooneelsegotthiskey!`}>
                         <DiaryAddPopup fetchDiaries={fetchDiaries} />

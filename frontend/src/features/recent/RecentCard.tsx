@@ -1,13 +1,15 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import defaultpfp from "@/assets/defaultpfp.png"
+import defaultpfp from "@/assets/defaultpfp.png";
+import type { MediaType } from "../posts/postTypes";
 
 interface PostCardProps {
     avatar: string;
     username: string;
+    usernameLink: string;
     timeAgo: string;
     caption: string;
-    postImage: string | null;
+    postMedia: MediaType | null;
     likes: number;
     onClick?: () => void;
 }
@@ -15,27 +17,30 @@ interface PostCardProps {
 export function RecentCard({
     avatar,
     username,
+    usernameLink,
     timeAgo,
     caption,
-    postImage,
+    postMedia,
     likes,
     onClick,
 }: PostCardProps) {
-    const hasImage = postImage !== null && postImage !== undefined;
+    const hasMedia = postMedia !== null && postMedia !== undefined;
 
     return (
         <div
-            className={`w-[275px] h-[105px] shadow-sm shadow-teal-400 rounded-lg flex flex-row justify-between items-start p-2 gap-2 my-1 ${!hasImage ? 'justify-start' : ''} cursor-pointer hover:bg-base-200`}
+            className={`w-[275px] h-[105px] shadow-sm shadow-secondary rounded-lg flex flex-row justify-between items-start p-2 gap-2 my-1 ${!hasMedia ? "justify-start" : ""} cursor-pointer hover:bg-base-200`}
             onClick={onClick}
             role="button"
             tabIndex={0}
         >
             {/* Left Side (Text content) */}
-            <div className={`flex flex-col gap-1 ${hasImage ? 'w-[65%]' : 'w-full'}`}>
+            <div
+                className={`flex flex-col gap-1 ${hasMedia ? "w-[65%]" : "w-full"}`}
+            >
                 {/* Avatar + Username + • + Time */}
                 <div className="flex flex-row items-center gap-2 text-[12px] text-gray-700">
                     <Link
-                        to={`/${username}`}
+                        to={`/${usernameLink}`}
                         className="h-fit w-fit"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -45,7 +50,7 @@ export function RecentCard({
                     </Link>
 
                     <Link
-                        to={`/${username}`}
+                        to={`/${usernameLink}`}
                         className="font-medium hover:underline cursor-pointer"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -56,7 +61,9 @@ export function RecentCard({
                 </div>
 
                 {/* Caption */}
-                <p className={`text-[14px] font-semibold leading-tight ${hasImage ? 'line-clamp-2' : 'line-clamp-4'}`}>
+                <p
+                    className={`text-[14px] font-semibold leading-tight ${hasMedia ? "line-clamp-2" : "line-clamp-4"}`}
+                >
                     {caption || "No caption"}
                 </p>
 
@@ -69,16 +76,30 @@ export function RecentCard({
             </div>
 
             {/* Post Image - only show if image exists */}
-            {hasImage && (
-                <img
-                    src={postImage}
-                    alt={caption || "Post image"}
-                    className="w-[90px] h-[90px] rounded-md object-cover flex-shrink-0"
-                    onError={(e) => {
-                        // Hide image if it fails to load
-                        (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                />
+            {hasMedia && (
+                <>
+                    {postMedia.type === "image" ? (
+                        <img
+                            src={postMedia.url}
+                            alt={caption || "Post image"}
+                            className="w-[90px] h-[90px] rounded-md object-cover flex-shrink-0"
+                            onError={(e) => {
+                                // Hide image if it fails to load
+                                (e.target as HTMLImageElement).style.display =
+                                    "none";
+                            }}
+                        />
+                    ) : (
+                        <video
+                            className="w-[90px] h-[90px] rounded-md object-cover flex-shrink-0"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                            }}
+                        >
+                            <source src={postMedia.url} />
+                        </video>
+                    )}
+                </>
             )}
         </div>
     );

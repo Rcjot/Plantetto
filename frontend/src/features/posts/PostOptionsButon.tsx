@@ -5,7 +5,10 @@ import EditPostDialog from "./EditPostDialog";
 import { usePostContext } from "./context/PostContext";
 import moreHorizontalIcon from "@/assets/icons/more_horiz.svg";
 import { useAuthContext } from "../auth/AuthContext";
-import { notifyRecentsUpdated, removeRecentPost } from "@/features/recent/recentService";
+import {
+    notifyRecentsUpdated,
+    removeRecentPost,
+} from "@/features/recent/recentService";
 
 function PostOptionsButton({
     setDeleted,
@@ -15,8 +18,10 @@ function PostOptionsButton({
     const { post, openEdit, setOpenEditCallback } = usePostContext()!;
     const { auth } = useAuthContext()!;
     const [openConfirm, setOpenConfirm] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     async function handleDeletePost() {
+        setLoading(true);
         const { ok } = await postsApi.deletePost(post.post_uuid);
         if (ok) {
             setDeleted(true);
@@ -24,6 +29,7 @@ function PostOptionsButton({
                 removeRecentPost(auth.user.id, post.post_uuid);
             }
         }
+        setLoading(false);
     }
 
     return (
@@ -51,6 +57,7 @@ function PostOptionsButton({
                                     notifyRecentsUpdated(auth.user.id);
                                 }
                             }}
+                            className="text-neutral-800 hover:bg-primary hover:text-neutral-100"
                         >
                             edit
                         </button>
@@ -61,6 +68,7 @@ function PostOptionsButton({
                                 e.stopPropagation();
                                 setOpenConfirm(true);
                             }}
+                            className="text-warning-content hover:bg-warning/90 hover:text-neutral-100 hover:font-extrabold"
                         >
                             delete
                         </button>
@@ -72,6 +80,7 @@ function PostOptionsButton({
                 open={openConfirm}
                 setOpen={setOpenConfirm}
                 onConfirm={handleDeletePost}
+                loading={loading}
             />
         </>
     );

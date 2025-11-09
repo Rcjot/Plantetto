@@ -45,7 +45,9 @@ function SiginForm() {
                 Username
             </label>
             <div>
-                <span className="text-warning">{errors.username?.message}</span>
+                <span className="text-warning-content">
+                    {errors.username?.message}
+                </span>
                 <input
                     {...register("username")}
                     type="text"
@@ -60,7 +62,9 @@ function SiginForm() {
                 Password
             </label>
             <div>
-                <span className="text-warning">{errors.password?.message}</span>
+                <span className="text-warning-content">
+                    {errors.password?.message}
+                </span>
                 <input
                     {...register("password")}
                     type="password"
@@ -70,7 +74,7 @@ function SiginForm() {
                     autoComplete="current-password"
                 />
             </div>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
 
             <button className="btn btn-neutral mt-4 self-center px-10">
                 {isSubmitting ? "signing in.." : "sign in"}

@@ -24,12 +24,11 @@ async function fetchMe() {
 
 async function signupUser(signupFormData: SignupFields) {
     try {
-        const { data, status } = await axios.post("/signup", signupFormData);
-        console.log(status, data);
+        const { data } = await axios.post("/signup", signupFormData);
         return { ok: true, data };
     } catch (error) {
+        console.error(error);
         if (isAxiosError(error) && error.response) {
-            console.log(error.response.data.error);
             return { ok: false, errors: error.response.data.error };
         }
         return { ok: false, errors: { root: "some error occurred" } };
@@ -38,8 +37,7 @@ async function signupUser(signupFormData: SignupFields) {
 
 async function signinUser(signinFormData: SigninFields) {
     try {
-        const { data, status } = await axios.post("/signin", signinFormData);
-        console.log(status, data);
+        const { data } = await axios.post("/signin", signinFormData);
         const auth: AuthType = {
             status: "authenticated",
             user: data["user"],
@@ -47,12 +45,12 @@ async function signinUser(signinFormData: SigninFields) {
 
         return { ok: true, auth };
     } catch (error) {
+        console.error(error);
         const auth: AuthType = {
             status: "unauthenticated",
             user: null,
         };
         if (isAxiosError(error) && error.response) {
-            console.log(error.response.data.error);
             return { ok: false, auth, errors: error.response.data.error };
         }
 

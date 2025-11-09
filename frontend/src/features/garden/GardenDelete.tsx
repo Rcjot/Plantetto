@@ -58,7 +58,7 @@ export default function GardenDelete({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md bg-base-100">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-warning">
+                    <DialogTitle className="flex items-center gap-2 text-warning-content">
                         Delete Plant
                     </DialogTitle>
                     <DialogDescription>

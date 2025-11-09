@@ -66,12 +66,9 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
         const formData = new FormData();
         formData.append("note", data.note);
         formData.append("plant_id", data.plant_id);
-        console.log(data.media, data.media.length);
         if (data.media && data.media.length > 0) {
             formData.append("media", data.media[0]);
-            console.log("hii");
         }
-        console.log(data);
         const res = await diariesApi.editDiaryEntry(
             formData,
             diaryContent.uuid
@@ -87,7 +84,6 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
         }
     };
 
-    console.log(preview);
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
@@ -114,7 +110,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                             <img src={plantPlaceHolder} alt="plant" />
                         )}
                     </div>
-                    <span className="text-warning">
+                    <span className="text-warning-content">
                         {errors.plant_id?.message}
                     </span>
                     <input
@@ -135,7 +131,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                 <div>
                     {/* dropdpown*/}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.plant_id?.message}
                         </span>
                         <Controller
@@ -152,7 +148,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
 
                     {/* description */}
                     <div>
-                        <span className="text-warning">
+                        <span className="text-warning-content">
                             {errors.note?.message}
                         </span>
                         <textarea
@@ -184,7 +180,7 @@ function DiaryEditForm({ diaryContent, onEdit }: DiaryEditFormProps) {
                     </button>
                 </div>
             </div>
-            <span className="text-warning">{errors.root?.message}</span>
+            <span className="text-warning-content">{errors.root?.message}</span>
         </form>
     );
 }

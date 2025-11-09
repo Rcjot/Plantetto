@@ -9,7 +9,7 @@ function Home() {
         <div className="w-full h-full flex bg-base-100 relative">
             {/* homepage */}
             <div className="flex-1 flex flex-col items-center p-4 gap-4 overflow-y-auto lg:pr-[calc(20rem+1rem)]">
-                <div className="w-full max-w-2xl space-y-4">
+                <div className="w-full max-w-3xl space-y-4">
                     {/* create post */}
 
                     <CreatePost>
@@ -28,8 +28,8 @@ function Home() {
                 </div>
             </div>
 
-            <div className="hidden lg:block fixed right-0 top-16 bottom-0 w-80 p-4 bg-base-100 border-base-300 border-l overflow-y-auto z-10">
-                <RecentBlock/>
+            <div className="hidden lg:block fixed right-0 top-16 bottom-0 w-84 p-4 bg-base-100 border-base-300 border-l overflow-y-auto z-10">
+                <RecentBlock />
             </div>
         </div>
     );

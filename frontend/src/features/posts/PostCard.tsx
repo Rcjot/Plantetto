@@ -30,7 +30,6 @@ function PostCard() {
         }
         if (e.target instanceof HTMLElement) {
             if (e.target.closest(".no-propagate")) return;
-            console.log("clicked");
         }
 
         if (auth.user?.id) {
@@ -53,7 +52,7 @@ function PostCard() {
     return (
         <div
             onClick={openPost}
-            className="flex max-w-[600px] bg-base-200 p-4 rounded-xl cursor-pointer"
+            className="flex max-w-[650px] bg-base-200 p-4 rounded-xl cursor-pointer"
         >
             <div className="flex flex-col gap-2 w-full">
                 <div className="flex">

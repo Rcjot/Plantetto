@@ -34,7 +34,6 @@ def add_plant() :
     }
     if validated : 
         try :
-            print()
             new_plant = Plants(nickname=form.nickname.data,
                             description=form.description.data,
                             plant_type=form.plant_type.data,

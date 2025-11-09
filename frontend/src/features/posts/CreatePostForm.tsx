@@ -32,7 +32,6 @@ function CreatePostForm({
     });
 
     function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log(e.target.files);
         if (!e.target.files) return;
         if (e.target.files.length === 0) return;
         const files = Array.from(e.target.files);
@@ -100,7 +99,9 @@ function CreatePostForm({
                                 setCaption(e.target.value);
                             }}
                         ></textarea>
-                        <span className="text-warning">{errors.caption}</span>
+                        <span className="text-warning-content">
+                            {errors.caption}
+                        </span>
                     </div>
                     {createPostForm.media.length > 0 && (
                         <>
@@ -123,7 +124,7 @@ function CreatePostForm({
                             </div>
                         </>
                     )}
-                    <span className="text-warning">{errors.media}</span>
+                    <span className="text-warning-content">{errors.media}</span>
                 </div>
                 <div className="card w-full card-md border p-1 flex-row justify-between ">
                     <button
@@ -150,7 +151,7 @@ function CreatePostForm({
                         />
                     </button>
                 </div>
-                <span className="text-warning">{errors.root}</span>
+                <span className="text-warning-content">{errors.root}</span>
 
                 <button
                     className="btn btn-primary w-fit px-10 self-center"

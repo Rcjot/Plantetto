@@ -72,8 +72,8 @@ function PostHeader({
             >
                 <ProfilePicture src={user.pfp_url} />
             </Link>
-            <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-1 ">
+                <div className="flex items-center gap-3 flex-wrap gap-x-2 gap-y-1 min-w-0">
                     <Link
                         to={`/${user.username}`}
                         onClick={(e) => e.stopPropagation()}

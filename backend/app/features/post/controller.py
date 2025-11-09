@@ -36,7 +36,6 @@ def create_post() :
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
     mediaList = request.files.getlist('media')
-    print(mediaList)
     form = PostForm()
     validated = form.validate()
     current_user_id = current_user.get_id()

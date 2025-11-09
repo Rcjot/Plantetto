@@ -3,7 +3,7 @@ import { useState } from "react";
 import search_icon from "../assets/icons/search.svg";
 import chat_icon from "../assets/icons/chat.svg";
 import notification_icon from "../assets/icons/notification.svg";
-import plantetto_icon from "@/assets/icons/plantetto.svg";
+import garden_icon from "../assets/icons/my_garden.svg";
 import menu_icon from "../assets/icons/menu.svg";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -46,9 +46,9 @@ export default function Navbar() {
                     {/* logo n title */}
                     <Link to={"/home"} className="flex items-center gap-2">
                         <img
-                            src={plantetto_icon}
+                            src={garden_icon}
                             alt="LogoPlaceholder"
-                            className="w-8 h-8"
+                            className="w-7 h-7"
                         />
                         <img
                             className="pl-4 hidden sm:block"
