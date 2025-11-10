@@ -9,6 +9,7 @@ import MyGarden from "../pages/garden/MyGarden";
 import Profile from "../pages/profile/Profile";
 import PostDialog from "@/features/posts/PostDialog";
 import ComingSoon from "@/pages/dev/ComingSoon";
+import Guides from "@/pages/guides/Guides";
 
 function getRoutes() {
     return [
@@ -63,7 +64,7 @@ function getRoutes() {
                         },
                         {
                             path: "/guides",
-                            element: <ComingSoon />,
+                            element: <Guides />,
                         },
                         {
                             path: "/plantdiaries",
