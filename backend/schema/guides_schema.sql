@@ -10,6 +10,6 @@ CREATE TABLE guides (
     guide_status VARCHAR(10) CHECK (guide_status IN ('draft', 'published')) DEFAULT 'draft',
     last_edit TIMESTAMPTZ NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    plant_id BIGSERIAL REFERENCES plant_types(id) ON DELETE CASCADE,
+    plant_type_id BIGSERIAL REFERENCES plant_types(id) ON DELETE CASCADE,
     user_id BIGSERIAL REFERENCES users(id) ON DELETE CASCADE
 );
