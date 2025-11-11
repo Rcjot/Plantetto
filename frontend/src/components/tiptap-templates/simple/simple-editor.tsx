@@ -259,7 +259,7 @@ export function SimpleEditor({
 
     return (
         <>
-            <form className="w-full flex justify-between items-end ">
+            <div className="w-full flex justify-between items-end ">
                 {children}
                 <button
                     type="button"
@@ -268,7 +268,7 @@ export function SimpleEditor({
                 >
                     save
                 </button>
-            </form>
+            </div>
 
             <div className="relative bg-base-100">
                 {isMobile ? (

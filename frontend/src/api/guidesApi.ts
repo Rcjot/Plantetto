@@ -1,5 +1,6 @@
 import type { GuideType } from "@/features/guides/guideTypes";
 import axios from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 async function getUserBoard(username: string) {
     try {
@@ -36,7 +37,40 @@ async function getGuide(guide_uuid: string) {
     }
 }
 
+async function patchMetaGuide(guide_uuid: string, formData: FormData) {
+    try {
+        const { data } = await axios.patch(
+            `/guides/${guide_uuid}/metadata`,
+            formData
+        );
+        const guide: GuideType = data["guide"];
+        return { ok: true, guide: guide };
+    } catch (error) {
+        console.error(error);
+        if (isAxiosError(error) && error.response) {
+            return { ok: false, errors: error.response.data.error };
+        }
+        return { ok: false, errors: { root: ["some error occurred"] } };
+    }
+}
+
+async function patchContentGuide(guide_uuid: string, content: object) {
+    try {
+        const { data } = await axios.patch(`/guides/${guide_uuid}/metadata`, {
+            content: content,
+        });
+        const guide: GuideType = data["guide"];
+        return { ok: true, guide: guide };
+    } catch (error) {
+        console.error(error);
+
+        return { ok: false, errors: { root: ["some error occurred"] } };
+    }
+}
+
 export default {
     getUserBoard,
     getGuide,
+    patchMetaGuide,
+    patchContentGuide,
 };
