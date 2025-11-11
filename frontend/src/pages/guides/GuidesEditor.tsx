@@ -24,6 +24,9 @@ function GuidesEditor() {
     useEffect(() => {
         if (guide) {
             setTitle(guide.title);
+            if (guide.plant_type.id) {
+                setSelectValue(String(guide.plant_type.id));
+            }
         }
     }, [guide]);
 
@@ -32,12 +35,6 @@ function GuidesEditor() {
             const res = await plantsApi.fetchPlantTypes();
             if (res.ok && res.plant_types) {
                 setPlantTypes(res.plant_types);
-                for (const planttype of res.plant_types) {
-                    if (planttype.plant_name === guide?.plant_type) {
-                        setSelectValue(String(planttype.id));
-                        break;
-                    }
-                }
             } else {
                 setPlantTypes([]);
             }
