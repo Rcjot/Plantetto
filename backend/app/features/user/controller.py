@@ -5,6 +5,7 @@ from ...services import cloudinary
 from ...models.user import Users
 from ...models.plant import Plants
 from ...models.diary import Diaries
+from ...models.guide import Guides
 from datetime import date
 import math
 
@@ -102,4 +103,13 @@ def get_user_diaries_today(username) :
 
     return jsonify(
         diaries=result
+    )
+
+@user_bp.route("/<username>/board")
+def get_user_board(username) :
+    print(username)
+    result = Guides.get_user_board(username)
+
+    return jsonify(
+        board=result
     )
