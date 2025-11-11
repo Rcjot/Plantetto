@@ -25,5 +25,14 @@ def create_guide() :
                     message="form fields might be invalid",
                     error=error), 400
 
+@guide_bp.route("/<uuid:guide_uuid>")
+@login_required
+def get_guide(guide_uuid) :
+    guide_uuid = str(guide_uuid)
+    result = Guides.get_guide(guide_uuid)
 
+
+    return jsonify(
+        guide=result
+    )
 

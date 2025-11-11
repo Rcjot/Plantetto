@@ -107,7 +107,6 @@ def get_user_diaries_today(username) :
 
 @user_bp.route("/<username>/board")
 def get_user_board(username) :
-    print(username)
     result = Guides.get_user_board(username)
 
     return jsonify(

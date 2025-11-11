@@ -75,3 +75,23 @@ class Guides() :
         cursor.close()
 
         return guides
+
+    @classmethod
+    def get_guide(cls, guide_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT guides.uuid, guides.title, guides.content, guides.guide_status, plant_types.plant_name AS plant_type, guides.created_at
+        FROM guides
+        JOIN users ON guides.user_id = users.id
+        JOIN plant_types ON guides.plant_type_id = plant_types.id
+        WHERE guides.uuid = %s
+        """
+
+        cursor.execute(sql, (guide_uuid,))
+        guide = cursor.fetchone()
+
+        cursor.close()
+
+        return guide
