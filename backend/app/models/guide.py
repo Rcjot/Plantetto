@@ -134,3 +134,15 @@ class Guides() :
         cursor.close()
 
         return guide
+    
+    @classmethod 
+    def get_guide_id(cls, guide_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "SELECT id FROM guides WHERE uuid = %s"
+        cursor.execute(sql, (guide_uuid,))
+        guide = cursor.fetchone()
+
+        cursor.close()
+
+        return guide

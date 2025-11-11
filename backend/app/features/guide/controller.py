@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from flask import request, jsonify
 from .forms import GuideForm, PatchMetaGuideForm
 from ...models.guide import Guides
+from ...models.guides_image import GuidesImages
 from ...services import cloudinary
 
 @guide_bp.route("/", methods=["POST"]) 
@@ -74,4 +75,25 @@ def patch_content_guide(guide_uuid) :
         return jsonify(success=True, guide_uuid=guide_uuid)
     return jsonify(success=False, message="update plant failed"), 404
 
-  
+
+@guide_bp.route("/<uuid:guide_uuid>/images", methods=["POST"])
+@login_required
+def upload_image(guide_uuid) :
+    guide_uuid = str(guide_uuid)
+    file = request.files['image']
+    guide = Guides.get_guide_id(guide_uuid)
+
+    new_guides_image = GuidesImages(guide_id=guide['id'])
+    uuid_res = new_guides_image.add()
+    guides_image_uuid = uuid_res["uuid"]
+    try :
+        media_res = cloudinary.upload_asset(asset=file, 
+                                            public_id=f"guides_image_{guides_image_uuid}",
+                                            media_type="image",
+                                            folder=f"guides/{guide_uuid}/"
+                                            )
+        GuidesImages.update_image(guides_image_uuid, media_res["srcURL"])
+        return jsonify(success=True, message="uploaded immage succsesfully", image_url=media_res["srcURL"])
+    except Exception as e :
+        print(e)
+        return jsonify(success=False, message="something went wrong trying to upload image", image_url=None), 500

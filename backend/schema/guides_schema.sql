@@ -13,3 +13,11 @@ CREATE TABLE guides (
     plant_type_id BIGSERIAL REFERENCES plant_types(id) ON DELETE CASCADE,
     user_id BIGSERIAL REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE guides_images (
+    id BIGSERIAL PRIMARY KEY,
+    uuid UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
+    image_url TEXT,
+    guide_id BIGSERIAL REFERENCES guides(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+)
