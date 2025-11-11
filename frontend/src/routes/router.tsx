@@ -10,6 +10,9 @@ import Profile from "../pages/profile/Profile";
 import PostDialog from "@/features/posts/PostDialog";
 import ComingSoon from "@/pages/dev/ComingSoon";
 import Guides from "@/pages/guides/Guides";
+import GuidesEditor from "@/pages/guides/GuidesEditor";
+import GuidesBoard from "@/pages/guides/GuidesBoard";
+import GuidesView from "@/pages/guides/GuidesView";
 
 function getRoutes() {
     return [
@@ -65,6 +68,18 @@ function getRoutes() {
                         {
                             path: "/guides",
                             element: <Guides />,
+                        },
+                        {
+                            path: "/guides/board",
+                            element: <GuidesBoard />,
+                        },
+                        {
+                            path: "/guides/:uuid/edit",
+                            element: <GuidesEditor />,
+                        },
+                        {
+                            path: "/guides/:uuid",
+                            element: <GuidesView />,
                         },
                         {
                             path: "/plantdiaries",

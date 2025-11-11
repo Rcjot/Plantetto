@@ -1,9 +1,18 @@
-import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+import { Link } from "react-router-dom";
 
 function Guides() {
     return (
         <div className="myEditor flex flex-col items-center  p-5">
-            <SimpleEditor />
+            <Link to="/guides/board" className="btn btn-primary">
+                board
+            </Link>
+            <div>
+                <div>show community guides ....</div>
+                <div>show community guides ....</div>
+                <div>show community guides ....</div>
+                <div>show community guides ....</div>
+                <div>show community guides ....</div>
+            </div>
         </div>
     );
 }

@@ -187,7 +187,13 @@ const MobileToolbarContent = ({
     </>
 );
 
-export function SimpleEditor() {
+export function SimpleEditor({
+    passedContent,
+    children,
+}: {
+    passedContent: object | null;
+    children: React.ReactNode;
+}) {
     const isMobile = useIsMobile();
     // const { height } = useWindowSize();
     const [mobileView, setMobileView] = useState<
@@ -233,7 +239,7 @@ export function SimpleEditor() {
                 onError: (error) => console.error("Upload failed:", error),
             }),
         ],
-        content,
+        content: passedContent ?? content,
     });
 
     // const rect = useCursorVisibility({
@@ -253,9 +259,17 @@ export function SimpleEditor() {
 
     return (
         <>
-            <button onClick={handleSubmit} className="btn btn-primary">
-                create guide
-            </button>
+            <form className="w-full flex justify-between items-end ">
+                {children}
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="btn btn-primary"
+                >
+                    save
+                </button>
+            </form>
+
             <div className="relative bg-base-100">
                 {isMobile ? (
                     <div className="absolute bottom-[0px] h-[45px]  w-full bg-base-200 z-1"></div>
