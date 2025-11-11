@@ -68,9 +68,38 @@ async function patchContentGuide(guide_uuid: string, content: object) {
     }
 }
 
+async function uploadImage(
+    guide_uuid: string,
+    formData: FormData,
+    onProgress?: (event: { progress: number }) => void,
+    abortSignal?: AbortSignal
+) {
+    try {
+        const { data } = await axios.post(
+            `/guides/${guide_uuid}/images`,
+            formData,
+            {
+                onUploadProgress: (event) => {
+                    if (abortSignal?.aborted) {
+                        throw new Error("Upload cancelled");
+                    }
+                    const total = event.total ?? 1;
+                    const progress = Math.round((event.loaded * 100) / total);
+                    onProgress?.({ progress });
+                },
+            }
+        );
+        return { ok: true, image_url: data["image_url"] };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, image_url: null };
+    }
+}
+
 export default {
     getUserBoard,
     getGuide,
     patchMetaGuide,
     patchContentGuide,
+    uploadImage,
 };

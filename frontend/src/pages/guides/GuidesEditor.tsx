@@ -74,7 +74,7 @@ function GuidesEditor() {
     return (
         <div className="flex items-center justify-center">
             <div className="myEditor flex flex-col items-center gap-3  p-5 w-fit">
-                <SimpleEditor passedContent={guide.content}>
+                <SimpleEditor passedGuide={guide}>
                     <div className="flex flex-col">
                         <input
                             type="text"

@@ -68,12 +68,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // import { ThemeToggle } from "@/components/tiptap-templates/simple/theme-toggle";
 
 // --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
+import { handleUploadWithUuid, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
 import content from "@/components/tiptap-templates/simple/data/content.json";
+import type { GuideType } from "@/features/guides/guideTypes";
 
 const MainToolbarContent = ({
     onHighlighterClick,
@@ -188,10 +189,10 @@ const MobileToolbarContent = ({
 );
 
 export function SimpleEditor({
-    passedContent,
+    passedGuide,
     children,
 }: {
-    passedContent: object | null;
+    passedGuide: GuideType;
     children: React.ReactNode;
 }) {
     const isMobile = useIsMobile();
@@ -235,11 +236,11 @@ export function SimpleEditor({
                 accept: "image/*",
                 maxSize: MAX_FILE_SIZE,
                 limit: 3,
-                upload: handleImageUpload,
+                upload: handleUploadWithUuid(passedGuide.uuid),
                 onError: (error) => console.error("Upload failed:", error),
             }),
         ],
-        content: passedContent ?? content,
+        content: passedGuide.content ?? content,
     });
 
     // const rect = useCursorVisibility({
