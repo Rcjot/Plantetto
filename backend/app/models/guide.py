@@ -34,7 +34,7 @@ class Guides() :
     
 
     @classmethod
-    def update(cls, guide_uuid, content, plant_type_id, current_user_id) :
+    def patch_content(cls, guide_uuid, content, current_user_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         
@@ -42,12 +42,34 @@ class Guides() :
         UPDATE guides
         SET 
         content = %s,
+        WHERE uuid = %s
+        AND user_id = %s 
+        RETURNING uuid, content, plant_type_id, user_id
+        """
+        cursor.execute(sql, (content, guide_uuid, current_user_id))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None :
+            return None
+        return result    
+    
+    @classmethod
+    def patch_meta(cls, guide_uuid, title, plant_type_id, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql="""
+        UPDATE guides
+        SET 
+        title = %s,
         plant_type_id = %s
         WHERE uuid = %s
         AND user_id = %s 
         RETURNING uuid, content, plant_type_id, user_id
         """
-        cursor.execute(sql, (guide_uuid, content, plant_type_id, current_user_id))
+        cursor.execute(sql, (title, plant_type_id,guide_uuid, current_user_id))
         result = cursor.fetchone()
         db.commit()
         cursor.close()

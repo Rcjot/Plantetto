@@ -1,7 +1,7 @@
 from . import guide_bp
 from flask_login import login_required, current_user
 from flask import request, jsonify
-from .forms import GuideForm
+from .forms import GuideForm, PatchMetaGuideForm
 from ...models.guide import Guides
 from ...services import cloudinary
 
@@ -36,3 +36,42 @@ def get_guide(guide_uuid) :
         guide=result
     )
 
+@guide_bp.route("/<uuid:guide_uuid>/metadata", methods=["PATCH"])
+@login_required
+def patch_meta_guide(guide_uuid) :
+    guide_uuid = str(guide_uuid) 
+    form = PatchMetaGuideForm()
+    current_user_id = current_user.get_id()
+    validated = form.validate()
+    error = {
+        "title" : form.title.errors,
+        "plant_type" : form.plant_type.errors,
+        "root" : []
+    }
+
+    if validated :
+        to_update_guide = Guides.patch_meta(guide_uuid=guide_uuid,title=form.title.data, plant_type_id=form.plant_type.data, current_user_id=current_user_id)
+        if (to_update_guide) :
+            return jsonify(success=True, guide_uuid=guide_uuid)
+        return jsonify(success=False, message="update plant failed"), 404
+
+    return jsonify(success=False,
+                    message="form fields might be invalid",
+                    error=error), 400
+
+@guide_bp.route("/<uuid:guide_uuid>/content", methods=["PATCH"])
+@login_required
+def patch_content_guide(guide_uuid) :
+    data = request.get_data()
+    guide_uuid = str(guide_uuid) 
+    content = data["content"]
+    current_user_id = current_user.get_id()
+
+    to_update_guide = Guides.patch_meta(guide_uuid=guide_uuid,
+                                        content=content,
+                                        current_user_id=current_user_id)
+    if (to_update_guide) :
+        return jsonify(success=True, guide_uuid=guide_uuid)
+    return jsonify(success=False, message="update plant failed"), 404
+
+  

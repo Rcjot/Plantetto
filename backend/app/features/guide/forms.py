@@ -10,3 +10,8 @@ def plant_type_exists(form, field) :
 
 class GuideForm(FlaskForm) :
     plant_type = IntegerField(validators=[plant_type_exists])
+
+
+class PatchMetaGuideForm(FlaskForm) :
+    title = StringField(validators=[validators.Length(max=150), validators.DataRequired()])
+    plant_type = IntegerField(validators=[plant_type_exists])
