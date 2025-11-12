@@ -100,3 +100,12 @@ def delete_diarypic(plant_uuid) :
     except Exception as e:
         print(f"something erorr in cloudinary deletion: {e}")
         raise 
+
+def delete_guideimage(guides_image_uuid, guide_uuid) :
+    try :
+        res = cloudinary.uploader.destroy(f"guides/{guide_uuid}/guides_image_{guides_image_uuid}", resource_type="image")
+        if (res['result'] != 'ok') :
+            raise Exception("cloudinary delete failed : result not found")
+    except Exception as e:
+        print(f"something erorr in cloudinary deletion: {e}")
+        raise 

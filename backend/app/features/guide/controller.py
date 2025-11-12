@@ -61,17 +61,38 @@ def patch_meta_guide(guide_uuid) :
                     message="form fields might be invalid",
                     error=error), 400
 
+def get_content_image(content) :
+    images = []
+
+    def traverse(node) :
+        if isinstance(node, dict) :
+            if node.get("type") == "image" and "attrs" in node and "src" in node["attrs"] :
+                images.append(node["attrs"]["src"])
+            if "content" in node :
+                for child in node["content"] :
+                    traverse(child)
+    traverse(content)
+    return images
+
 @guide_bp.route("/<uuid:guide_uuid>/content", methods=["PATCH"])
 @login_required
 def patch_content_guide(guide_uuid) :
     data = request.get_json()
     guide_uuid = str(guide_uuid) 
+    used_images = get_content_image(data["content"])
     content = json.dumps(data["content"])
     current_user_id = current_user.get_id()
+    guide = Guides.get_guide_id(guide_uuid)
+
 
     to_update_guide = Guides.patch_content(guide_uuid=guide_uuid,
                                         content=content,
                                         current_user_id=current_user_id)
+    
+    unused_images = GuidesImages.delete_unused_images(used_images, guide['id'])
+    for image_tuple in unused_images :
+        cloudinary.delete_guideimage(image_tuple[0], guide_uuid)   
+
     if (to_update_guide) :
         return jsonify(success=True, guide_uuid=guide_uuid)
     return jsonify(success=False, message="update plant failed"), 404
@@ -98,3 +119,4 @@ def upload_image(guide_uuid) :
     except Exception as e :
         print(e)
         return jsonify(success=False, message="something went wrong trying to upload image", image_url=None), 500
+    

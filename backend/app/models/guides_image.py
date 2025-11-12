@@ -33,3 +33,30 @@ class GuidesImages() :
 
         db.commit()
         cursor.close()
+    
+    @classmethod 
+    def delete_unused_images(cls, image_urls, guide_id) :
+        db = get_db()
+        cursor = db.cursor()
+        if (image_urls) :
+            sql = "DELETE FROM guides_images WHERE guide_id = %s AND image_url NOT IN %s RETURNING uuid"
+            cursor.execute(sql, (guide_id, tuple(image_urls),))
+        else :
+            sql = "DELETE FROM guides_images WHERE guide_id = %s RETURNING uuid"
+            cursor.execute(sql, (guide_id,))
+        result = cursor.fetchall()
+
+        db.commit()
+        cursor.close()
+        return result
+    
+    # @classmethod
+    # def delete_unused_images(cls, unused_image_urls, guide_id) :
+    #     db = get_db()
+    #     cursor = db.cursor()
+
+    #     sql = "DELETE FROM guides_images WHERE guide_id = %s AND image_url IN %s"
+    #     cursor.execute(sql, (guide_id, tuple(unused_image_urls),))
+
+    #     db.commit()
+    #     cursor.close()
