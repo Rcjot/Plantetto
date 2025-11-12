@@ -76,6 +76,7 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 import content from "@/components/tiptap-templates/simple/data/content.json";
 import type { GuideType } from "@/features/guides/guideTypes";
 import guidesApi from "@/api/guidesApi";
+import { useBlocker } from "react-router-dom";
 
 const MainToolbarContent = ({
     onHighlighterClick,
@@ -202,6 +203,7 @@ export function SimpleEditor({
         "main" | "highlighter" | "link"
     >("main");
     const toolbarRef = useRef<HTMLDivElement>(null);
+    const [isDirty, setIsDirty] = useState(false);
 
     const editor = useEditor({
         immediatelyRender: false,
@@ -242,7 +244,23 @@ export function SimpleEditor({
             }),
         ],
         content: passedGuide.content ?? content,
+        onUpdate() {
+            setIsDirty(true);
+        },
     });
+
+    // blocker = useBlocker((tx) => {
+    //     if (isDirty) {
+    //         const confirm = window.confirm(
+    //             "You have unsaved changes. Are you sure you want to leave?"
+    //         );
+    //         if (confirm) {
+    //             tx.retry();
+    //         }
+    //     } else {
+    //         tx.retry();
+    //     }
+    // }, isDirty);
 
     // const rect = useCursorVisibility({
     //     editor,
@@ -254,6 +272,23 @@ export function SimpleEditor({
             setMobileView("main");
         }
     }, [isMobile, mobileView]);
+
+    useEffect(() => {
+        if (!isDirty) return;
+        function handleOnBeforeUndload(event: BeforeUnloadEvent) {
+            event.preventDefault();
+
+            return (event.returnValue = "");
+        }
+        window.addEventListener("beforeunload", handleOnBeforeUndload, {
+            capture: true,
+        });
+        return () => {
+            window.removeEventListener("beforeunload", handleOnBeforeUndload, {
+                capture: true,
+            });
+        };
+    }, [isDirty]);
 
     const [errors, setErrors] = useState<{
         root: string;
@@ -279,8 +314,26 @@ export function SimpleEditor({
                 setErrors({ root: "" });
             }
             setSaving(false);
+            setIsDirty(false);
         }
     }
+
+    const blocker = useBlocker(
+        ({ currentLocation, nextLocation }) =>
+            isDirty && currentLocation.pathname !== nextLocation.pathname
+    );
+    useEffect(() => {
+        if (blocker.state === "blocked") {
+            const confirm = window.confirm(
+                "You have unsaved changes. Are you sure you want to leave?"
+            );
+            if (confirm) {
+                blocker.proceed();
+            } else {
+                blocker.reset();
+            }
+        }
+    }, [blocker]);
 
     return (
         <>
@@ -289,7 +342,7 @@ export function SimpleEditor({
                 <button
                     type="button"
                     onClick={handleSubmit}
-                    className="btn btn-primary"
+                    className={`btn btn-${isDirty ? "warning" : "primary"}`}
                 >
                     {saving ? "saving..." : "save"}
                 </button>
