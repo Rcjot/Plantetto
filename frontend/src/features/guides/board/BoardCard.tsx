@@ -32,7 +32,10 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
 
     async function handleDeleteConfirm() {
         setDeleteLoading(true);
-        await guidesApi.deleteGuide(boardCard.uuid);
+        const { ok } = await guidesApi.deleteGuide(boardCard.uuid);
+        if (ok) {
+            refetch();
+        }
         setDeleteLoading(false);
     }
 

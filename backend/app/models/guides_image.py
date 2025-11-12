@@ -70,3 +70,21 @@ class GuidesImages() :
         cursor.close()
 
         return result
+
+    @classmethod
+    def check_guide_has_images(cls, guide_id) :
+        db = get_db()
+        cursor = db.cursor()
+
+        sql = """
+        SELECT * FROM guides_images
+        WHERE guide_id = %s
+        """
+        cursor.execute(sql, (guide_id,) )
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None :
+            return None
+        return result    

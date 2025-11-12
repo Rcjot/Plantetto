@@ -126,4 +126,20 @@ def upload_image(guide_uuid) :
     except Exception as e :
         print(e)
         return jsonify(success=False, message="something went wrong trying to upload image", image_url=None), 500
-    
+
+@guide_bp.route("/<uuid:guide_uuid>", methods=["DELETE"])
+def delete_guide(guide_uuid) :
+    guide_uuid = str(guide_uuid)
+    guide = Guides.get_guide_id(guide_uuid)
+    guide_id = guide['id']
+    guide_has_images = GuidesImages.check_guide_has_images(guide_id)
+    to_delete_guide = Guides.delete_guide(guide_uuid, current_user.get_id())
+    if (to_delete_guide):
+        if guide_has_images :
+            try :
+                cloudinary.delete_guide(guide_uuid)
+            except : 
+                return jsonify(success=True, message="delete guide failed!"), 500
+        return jsonify(success=True, message="delete guide successful")
+    else :
+        return jsonify(success=False, message="delete guide failed"), 404
