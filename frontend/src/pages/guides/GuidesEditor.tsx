@@ -34,9 +34,9 @@ function GuidesEditor() {
     useEffect(() => {
         if (guide) {
             setTitle(guide.title);
-            if (guide.plant_type.id) {
-                setSelectValue(String(guide.plant_type.id));
-            }
+            setSelectValue(
+                String(guide.plant_type ? guide.plant_type.id : "0")
+            );
         }
     }, [guide]);
 
@@ -54,9 +54,12 @@ function GuidesEditor() {
 
     async function handleSaveMeta(newPlantType?: string) {
         if (guide) {
+            newPlantType = newPlantType === "0" ? "" : newPlantType;
+            const toPassSelectValue = selectValue === "0" ? "" : selectValue;
+
             const formData = new FormData();
             formData.append("title", title);
-            formData.append("plant_type", newPlantType ?? selectValue);
+            formData.append("plant_type", newPlantType ?? toPassSelectValue);
             const res = await guidesApi.patchMetaGuide(guide?.uuid, formData);
             if (!res.ok) {
                 const constructedErrors = {
@@ -65,6 +68,12 @@ function GuidesEditor() {
                     root: res.errors.root[0],
                 };
                 setErrors(constructedErrors);
+            } else {
+                setErrors({
+                    title: "",
+                    plant_type: "",
+                    root: "",
+                });
             }
         }
     }
@@ -104,6 +113,7 @@ function GuidesEditor() {
                                 <SelectValue placeholder="Select plant type" />
                             </SelectTrigger>
                             <SelectContent className="bg-base-100 max-h-[25vh]">
+                                <SelectItem value="0">general</SelectItem>
                                 {plantTypes.length > 0 ? (
                                     plantTypes.map((type) => (
                                         <SelectItem

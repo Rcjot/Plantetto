@@ -10,8 +10,8 @@ CREATE TABLE guides (
     guide_status VARCHAR(10) CHECK (guide_status IN ('draft', 'published')) DEFAULT 'draft',
     last_edit TIMESTAMPTZ NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    plant_type_id BIGSERIAL REFERENCES plant_types(id) ON DELETE CASCADE,
-    user_id BIGSERIAL REFERENCES users(id) ON DELETE CASCADE
+    plant_type_id BIGINT NULL REFERENCES plant_types(id) ON DELETE SET NULL,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE guides_images (
@@ -19,6 +19,6 @@ CREATE TABLE guides_images (
     uuid UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
     image_url TEXT,
     is_used BOOLEAN DEFAULT FALSE,
-    guide_id BIGSERIAL REFERENCES guides(id) ON DELETE CASCADE,
+    guide_id BIGINT REFERENCES guides(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 )
