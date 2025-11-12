@@ -96,10 +96,21 @@ async function uploadImage(
     }
 }
 
+async function createGuide() {
+    try {
+        const { data } = await axios.post(`/guides/`);
+        return { ok: true, guide_uuid: data["guide_uuid"] };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, image_url: null };
+    }
+}
+
 export default {
     getUserBoard,
     getGuide,
     patchMetaGuide,
     patchContentGuide,
     uploadImage,
+    createGuide,
 };

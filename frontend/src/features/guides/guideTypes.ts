@@ -5,7 +5,8 @@ export interface GuideType {
     uuid: string;
     title: string;
     content: object | null;
+    guide_status: "draft" | "published";
     created_at: string;
-    plant_type: PlanttypeType;
+    plant_type: PlanttypeType | null;
     author: UserType;
 }

@@ -88,10 +88,20 @@ class Guides() :
         guides.title, 
         guides.content, 
         guides.guide_status,
+        CASE 
+            WHEN plant_types.id IS NOT NULL THEN 
+                JSON_BUILD_OBJECT(
+                    'id', plant_types.id,
+                    'plant_name', plant_types.plant_name
+                )
+            ELSE NULL
+        END AS plant_type,
         JSON_BUILD_OBJECT(
-            'id', plant_types.id,
-            'plant_name', plant_types.plant_name
-        ) AS plant_type,
+                'id', users.uuid,
+                'username', users.username,
+                'display_name', users.display_name,
+                'pfp_url', users.pfp_url
+        ) AS author,
         guides.created_at
         FROM guides
         JOIN users ON guides.user_id = users.id
