@@ -18,6 +18,7 @@ CREATE TABLE guides_images (
     id BIGSERIAL PRIMARY KEY,
     uuid UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
     image_url TEXT,
+    is_used BOOLEAN DEFAULT FALSE,
     guide_id BIGSERIAL REFERENCES guides(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 )

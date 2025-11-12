@@ -39,6 +39,8 @@ class GuidesImages() :
         db = get_db()
         cursor = db.cursor()
         if (image_urls) :
+            sql = "UPDATE guides_images SET is_used = TRUE WHERE guide_id = %s AND image_url IN %s"
+            cursor.execute(sql, (guide_id, tuple(image_urls),))
             sql = "DELETE FROM guides_images WHERE guide_id = %s AND image_url NOT IN %s RETURNING uuid"
             cursor.execute(sql, (guide_id, tuple(image_urls),))
         else :
