@@ -1,3 +1,4 @@
+import type { UserType } from "../auth/authTypes";
 import type { PlanttypeType } from "../garden/gardenTypes";
 
 export interface GuideType {
@@ -6,4 +7,5 @@ export interface GuideType {
     content: object | null;
     created_at: string;
     plant_type: PlanttypeType;
+    author: UserType;
 }

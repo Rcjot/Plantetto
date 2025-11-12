@@ -249,19 +249,6 @@ export function SimpleEditor({
         },
     });
 
-    // blocker = useBlocker((tx) => {
-    //     if (isDirty) {
-    //         const confirm = window.confirm(
-    //             "You have unsaved changes. Are you sure you want to leave?"
-    //         );
-    //         if (confirm) {
-    //             tx.retry();
-    //         }
-    //     } else {
-    //         tx.retry();
-    //     }
-    // }, isDirty);
-
     // const rect = useCursorVisibility({
     //     editor,
     //     overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
@@ -355,7 +342,7 @@ export function SimpleEditor({
                 ) : (
                     <div className="absolute top-[0px] h-[45px]  w-full bg-base-200 z-1"></div>
                 )}
-                <div className="simple-editor-wrapper max-w-fit max-h-[calc(100dvh-200px)]">
+                <div className="simple-editor-wrapper max-w-min max-h-[calc(100dvh-200px)]">
                     <EditorContext.Provider value={{ editor }}>
                         <Toolbar
                             ref={toolbarRef}
