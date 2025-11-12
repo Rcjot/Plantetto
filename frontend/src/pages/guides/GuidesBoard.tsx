@@ -40,7 +40,11 @@ function GuidesBoard() {
             <div className="flex flex-wrap gap-3">
                 {board.map((boardCard) => {
                     return (
-                        <BoardCard key={boardCard.uuid} boardCard={boardCard} />
+                        <BoardCard
+                            key={boardCard.uuid}
+                            boardCard={boardCard}
+                            refetch={fetchBoard}
+                        />
                     );
                 })}
             </div>

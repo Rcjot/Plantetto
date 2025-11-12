@@ -77,6 +77,28 @@ class Guides() :
             return None
         return result    
 
+    @classmethod
+    def patch_status(cls, guide_uuid, status, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql="""
+        UPDATE guides
+        SET 
+        guide_status = %s
+        WHERE uuid = %s
+        AND user_id = %s 
+        RETURNING uuid, content, plant_type_id, user_id
+        """
+        cursor.execute(sql, (status, guide_uuid, current_user_id))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None :
+            return None
+        return result    
+    
     @classmethod 
     def get_user_board(cls, username) :
         db = get_db()

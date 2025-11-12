@@ -89,6 +89,21 @@ def patch_content_guide(guide_uuid) :
         return jsonify(success=True, guide_uuid=guide_uuid)
     return jsonify(success=False, message="update plant failed"), 404
 
+@guide_bp.route("/<uuid:guide_uuid>/status", methods=["PATCH"])
+@login_required
+def patch_status_guide(guide_uuid) :
+    data = request.get_json()
+    guide_uuid = str(guide_uuid)
+    status = data["status"]
+    print(status)
+
+    current_user_id = current_user.get_id()
+    to_update_guide = Guides.patch_status(guide_uuid=guide_uuid, status=status, current_user_id=current_user_id )
+
+    if (to_update_guide) :
+        return jsonify(success=True, guide_uuid=guide_uuid)
+    return jsonify(success=False, message="update plant failed"), 404
+
 
 @guide_bp.route("/<uuid:guide_uuid>/images", methods=["POST"])
 @login_required

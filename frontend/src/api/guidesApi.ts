@@ -68,6 +68,33 @@ async function patchContentGuide(guide_uuid: string, content: object) {
     }
 }
 
+async function patchStatusGuide(
+    guide_uuid: string,
+    status: "draft" | "published"
+) {
+    try {
+        await axios.patch(`/guides/${guide_uuid}/status`, {
+            status: status,
+        });
+        return { ok: true };
+    } catch (error) {
+        console.error(error);
+
+        return { ok: false, errors: { root: ["some error occurred"] } };
+    }
+}
+
+async function deleteGuide(guide_uuid: string) {
+    try {
+        await axios.delete(`/guides/${guide_uuid}`);
+        return { ok: true };
+    } catch (error) {
+        console.error(error);
+
+        return { ok: false, errors: { root: ["some error occurred"] } };
+    }
+}
+
 async function uploadImage(
     guide_uuid: string,
     formData: FormData,
@@ -111,6 +138,8 @@ export default {
     getGuide,
     patchMetaGuide,
     patchContentGuide,
+    patchStatusGuide,
+    deleteGuide,
     uploadImage,
     createGuide,
 };
