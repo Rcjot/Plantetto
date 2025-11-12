@@ -8,8 +8,9 @@ CREATE TABLE guides (
     title VARCHAR(150) NOT NULL DEFAULT 'Untitled',
     content JSONB NULL,
     guide_status VARCHAR(10) CHECK (guide_status IN ('draft', 'published')) DEFAULT 'draft',
-    last_edit TIMESTAMPTZ NULL,
+    last_edit_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    published_date TIMESTAMPTZ NULL,
     plant_type_id BIGINT NULL REFERENCES plant_types(id) ON DELETE SET NULL,
     user_id BIGINT REFERENCES users(id) ON DELETE CASCADE
 );
