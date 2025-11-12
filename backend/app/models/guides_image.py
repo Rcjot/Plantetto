@@ -52,13 +52,21 @@ class GuidesImages() :
         cursor.close()
         return result
     
-    # @classmethod
-    # def delete_unused_images(cls, unused_image_urls, guide_id) :
-    #     db = get_db()
-    #     cursor = db.cursor()
+    @classmethod
+    def delete_all_unused_images(cls) :
+        db = get_db()
+        cursor = db.cursor()
 
-    #     sql = "DELETE FROM guides_images WHERE guide_id = %s AND image_url IN %s"
-    #     cursor.execute(sql, (guide_id, tuple(unused_image_urls),))
+        sql = """DELETE FROM guides_images gi
+         USING guides g
+         WHERE 
+            gi.guide_id = g.id
+            AND gi.is_used = FALSE 
+            AND gi.created_at < NOW() - INTERVAL '7 days' 
+         RETURNING gi.uuid AS image_uuid, g.uuid AS guide_uuid"""
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        db.commit()
+        cursor.close()
 
-    #     db.commit()
-    #     cursor.close()
+        return result
