@@ -56,7 +56,7 @@ async function patchMetaGuide(guide_uuid: string, formData: FormData) {
 
 async function patchContentGuide(guide_uuid: string, content: object) {
     try {
-        const { data } = await axios.patch(`/guides/${guide_uuid}/metadata`, {
+        const { data } = await axios.patch(`/guides/${guide_uuid}/content`, {
             content: content,
         });
         const guide: GuideType = data["guide"];

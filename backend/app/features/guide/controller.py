@@ -5,6 +5,7 @@ from .forms import GuideForm, PatchMetaGuideForm
 from ...models.guide import Guides
 from ...models.guides_image import GuidesImages
 from ...services import cloudinary
+import json
 
 @guide_bp.route("/", methods=["POST"]) 
 @login_required
@@ -63,12 +64,12 @@ def patch_meta_guide(guide_uuid) :
 @guide_bp.route("/<uuid:guide_uuid>/content", methods=["PATCH"])
 @login_required
 def patch_content_guide(guide_uuid) :
-    data = request.get_data()
+    data = request.get_json()
     guide_uuid = str(guide_uuid) 
-    content = data["content"]
+    content = json.dumps(data["content"])
     current_user_id = current_user.get_id()
 
-    to_update_guide = Guides.patch_meta(guide_uuid=guide_uuid,
+    to_update_guide = Guides.patch_content(guide_uuid=guide_uuid,
                                         content=content,
                                         current_user_id=current_user_id)
     if (to_update_guide) :

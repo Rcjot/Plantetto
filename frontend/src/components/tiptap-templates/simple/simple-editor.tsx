@@ -75,6 +75,7 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 
 import content from "@/components/tiptap-templates/simple/data/content.json";
 import type { GuideType } from "@/features/guides/guideTypes";
+import guidesApi from "@/api/guidesApi";
 
 const MainToolbarContent = ({
     onHighlighterClick,
@@ -254,8 +255,31 @@ export function SimpleEditor({
         }
     }, [isMobile, mobileView]);
 
-    function handleSubmit() {
+    const [errors, setErrors] = useState<{
+        root: string;
+    }>({
+        root: "",
+    });
+    const [saving, setSaving] = useState(false);
+
+    async function handleSubmit() {
         console.log(editor?.getHTML());
+        if (passedGuide && editor != null) {
+            setSaving(true);
+            const res = await guidesApi.patchContentGuide(
+                passedGuide?.uuid,
+                editor.getJSON()
+            );
+            if (!res.ok && res.errors) {
+                const constructedErrors = {
+                    root: res.errors.root[0],
+                };
+                setErrors(constructedErrors);
+            } else {
+                setErrors({ root: "" });
+            }
+            setSaving(false);
+        }
     }
 
     return (
@@ -267,8 +291,9 @@ export function SimpleEditor({
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    save
+                    {saving ? "saving..." : "save"}
                 </button>
+                <span className="text-warning-content">{errors?.root}</span>
             </div>
 
             <div className="relative bg-base-100">

@@ -41,7 +41,7 @@ class Guides() :
         sql="""
         UPDATE guides
         SET 
-        content = %s,
+        content = %s
         WHERE uuid = %s
         AND user_id = %s 
         RETURNING uuid, content, plant_type_id, user_id
