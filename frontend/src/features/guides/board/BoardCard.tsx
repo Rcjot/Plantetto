@@ -88,7 +88,11 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
                     </ul>
                 </div>
                 <h1>{boardCard.title}</h1>
-                <p>{boardCard.created_at}</p>
+                <p>created at : {boardCard.created_at}</p>
+                <p>last edit : {boardCard.last_edit_date}</p>
+                {boardCard.guide_status === "published" && (
+                    <p>published date : {boardCard.published_date}</p>
+                )}
                 <p>
                     {boardCard.plant_type
                         ? boardCard.plant_type.plant_name

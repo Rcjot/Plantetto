@@ -40,7 +40,8 @@ class Guides() :
         sql="""
         UPDATE guides
         SET 
-        content = %s
+        content = %s,
+        last_edit_date = CURRENT_TIMESTAMP
         WHERE uuid = %s
         AND user_id = %s 
         RETURNING uuid, content, plant_type_id, user_id
@@ -63,7 +64,8 @@ class Guides() :
         UPDATE guides
         SET 
         title = %s,
-        plant_type_id = %s
+        plant_type_id = %s,
+        last_edit_date = CURRENT_TIMESTAMP
         WHERE uuid = %s
         AND user_id = %s 
         RETURNING uuid, content, plant_type_id, user_id
@@ -81,11 +83,17 @@ class Guides() :
     def patch_status(cls, guide_uuid, status, current_user_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        if status == "draft" :
+            published_date_sql = "published_date = NULL"
+        else :
+            published_date_sql = "published_date = CURRENT_TIMESTAMP"
         
         sql="""
         UPDATE guides
         SET 
-        guide_status = %s
+        guide_status = %s,
+        """ + published_date_sql + """
         WHERE uuid = %s
         AND user_id = %s 
         RETURNING uuid, content, plant_type_id, user_id
@@ -138,7 +146,9 @@ class Guides() :
                 'display_name', users.display_name,
                 'pfp_url', users.pfp_url
         ) AS author,
-        guides.created_at
+        guides.created_at,
+        guides.published_date,
+        guides.last_edit_date
         FROM guides
         JOIN users ON guides.user_id = users.id
         LEFT JOIN plant_types ON guides.plant_type_id = plant_types.id
@@ -176,7 +186,9 @@ class Guides() :
                 'display_name', users.display_name,
                 'pfp_url', users.pfp_url
         ) AS author,
-        guides.created_at
+        guides.created_at,
+        guides.published_date,
+        guides.last_edit_date
         FROM guides
         JOIN users ON guides.user_id = users.id
         LEFT JOIN plant_types ON guides.plant_type_id = plant_types.id

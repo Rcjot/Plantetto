@@ -7,6 +7,8 @@ export interface GuideType {
     content: object | null;
     guide_status: "draft" | "published";
     created_at: string;
+    published_date: string;
+    last_edit_date: string;
     plant_type: PlanttypeType | null;
     author: UserType;
 }
