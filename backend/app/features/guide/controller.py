@@ -7,6 +7,16 @@ from ...models.guides_image import GuidesImages
 from ...services import cloudinary
 import json
 
+@guide_bp.route("/")
+@login_required
+def get_published_guides() :
+    result = Guides.get_published_guides()
+
+    return jsonify(
+        guides=result
+    )
+
+
 @guide_bp.route("/", methods=["POST"]) 
 @login_required
 def create_guide() :
@@ -29,6 +39,7 @@ def get_guide(guide_uuid) :
     return jsonify(
         guide=result
     )
+
 
 @guide_bp.route("/<uuid:guide_uuid>/metadata", methods=["PATCH"])
 @login_required
