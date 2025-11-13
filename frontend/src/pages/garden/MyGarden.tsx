@@ -17,6 +17,9 @@ function MyGarden() {
     const [loading, setLoading] = useState(false);
     const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [categoryMap, setCategoryMap] = useState<
+        Record<string, number | undefined>
+    >({});
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [meta, setMeta] = useState<MetaDataType | null>(null);
@@ -34,10 +37,9 @@ function MyGarden() {
         async function loadPlants() {
             if (!auth.user) return;
             setLoading(true);
-
-            const categoryMap: Record<string, number | undefined> = {};
-            plantTypes.forEach((pt) => (categoryMap[pt.plant_name] = pt.id));
-            categoryMap["All"] = undefined;
+            // const categoryMap: Record<string, number | undefined> = {};
+            // plantTypes.forEach((pt) => (categoryMap[pt.plant_name] = pt.id));
+            // categoryMap["All"] = undefined;
 
             const plant_type_id = categoryMap[selectedCategory];
 
@@ -72,7 +74,15 @@ function MyGarden() {
         }
 
         loadPlants();
-    }, [auth.user, selectedCategory, search, page, reload, plantTypes]);
+    }, [
+        auth.user,
+        selectedCategory,
+        search,
+        page,
+        reload,
+        plantTypes,
+        categoryMap,
+    ]);
 
     const handleCardClick = (plant: PlantType) => {
         setSelectedPlant(plant);
@@ -127,6 +137,7 @@ function MyGarden() {
                         setPage={setPage}
                         selectedCategory={selectedCategory}
                         setSelectedCategory={setSelectedCategory}
+                        setCategoryMap={setCategoryMap}
                     />
                 </div>
             </div>

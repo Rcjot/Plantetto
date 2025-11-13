@@ -4,15 +4,6 @@ import { isAxiosError } from "axios";
 
 async function getUserBoard(username: string) {
     try {
-        // const { data } = await axios.get(
-        //     `/users/${username}/plants?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
-        // );
-
-        // const meta_data = data["meta_data"];
-
-        // const plants: PlantType[] = data["plants"];
-        // return { ok: true, plants: plants, meta_data };
-
         const { data } = await axios.get(`/users/${username}/board`);
 
         const board: GuideType[] = data["board"];
@@ -24,14 +15,20 @@ async function getUserBoard(username: string) {
     }
 }
 
-async function getPublishedGuides() {
+async function getPublishedGuides(
+    search: string,
+    plant_type_id: number | undefined,
+    page: number
+) {
     try {
-        const { data } = await axios.get(`/guides/`);
+        const { data } = await axios.get(
+            `/guides/?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
+        );
 
-        console.log(data);
         const guides: GuideType[] = data["guides"];
+        const meta_data = data["meta_data"];
 
-        return { ok: true, guides: guides };
+        return { ok: true, guides: guides, meta_data };
     } catch (error) {
         console.error(error);
         return { ok: false, guides: [] };

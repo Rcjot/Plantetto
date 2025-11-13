@@ -9,15 +9,24 @@ interface FilterScrollProps {
     setPage: React.Dispatch<React.SetStateAction<number>>;
     selectedCategory: string;
     setSelectedCategory: React.Dispatch<React.SetStateAction<string>>;
+    setCategoryMap: React.Dispatch<Record<string, number | undefined>>;
 }
 
 function FilterScroll({
     setPage,
     selectedCategory,
     setSelectedCategory,
+    setCategoryMap,
 }: FilterScrollProps) {
     // Refs and scroll control
     const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
+
+    useEffect(() => {
+        const newCategoryMap: Record<string, number | undefined> = {};
+        plantTypes.forEach((pt) => (newCategoryMap[pt.plant_name] = pt.id));
+        newCategoryMap["All"] = undefined;
+        setCategoryMap(newCategoryMap);
+    }, [plantTypes, setCategoryMap]);
 
     const filterScrollRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
