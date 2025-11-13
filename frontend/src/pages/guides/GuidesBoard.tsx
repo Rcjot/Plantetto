@@ -3,6 +3,7 @@ import GuideCard from "@/features/guides/board/GuideCard";
 import useFetchGuideBoard from "@/features/guides/hooks/useFetchGuideBoard";
 import { Link, useNavigate } from "react-router-dom";
 import FilterScroll from "@/features/garden/FilterScroll";
+import { ArrowLeft } from "lucide-react";
 
 function GuidesBoard() {
     const {
@@ -55,7 +56,9 @@ function GuidesBoard() {
 
     return (
         <div className="flex flex-col gap-7 p-3 sm:p-10">
-            <Link to={"/guides"}>Back</Link>
+            <Link to={"/guides"} className="w-fit">
+                <ArrowLeft size={32} />
+            </Link>
             <button
                 className="btn btn-primary self-start"
                 onClick={handleCreateGuide}

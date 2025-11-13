@@ -13,6 +13,8 @@ import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { Selection } from "@tiptap/extensions";
 
+import { ArrowLeft } from "lucide-react";
+
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
@@ -71,9 +73,9 @@ function GuidesView() {
                         ? "/guides/board"
                         : "/guides"
                 }
-                className="self-start"
+                className="self-start w-fit"
             >
-                Back
+                <ArrowLeft size={32} />
             </Link>
             <div className="flex flex-col w-full gap-10">
                 <div className="flex flex-col w-[50%] text-center gap-2 self-center">

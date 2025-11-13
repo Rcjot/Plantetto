@@ -14,7 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import guidesApi from "@/api/guidesApi";
 import { Link } from "react-router-dom";
-
+import { ArrowLeft } from "lucide-react";
 function GuidesEditor() {
     const { uuid } = useParams()!;
     const guide = useFetchGuide(uuid);
@@ -83,8 +83,8 @@ function GuidesEditor() {
 
     return (
         <div className="flex flex-col items-center justify-center p-3 sm:p-10">
-            <Link to={"/guides/board"} className="self-start">
-                Back
+            <Link to={"/guides/board"} className="self-start w-fit">
+                <ArrowLeft size={32} />
             </Link>
 
             <div className="myEditor flex flex-col items-center gap-3  p-5 w-fit">
