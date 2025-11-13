@@ -12,9 +12,10 @@ import timeAgo from "@/lib/timeAgo";
 interface GuideCardPropsType {
     guideCard: GuideType;
     refetch: () => void;
+    refetchDelete: () => void;
 }
 
-function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
+function GuideCard({ guideCard, refetch, refetchDelete }: GuideCardPropsType) {
     const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
     const [publishLoading, setPublishLoading] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -40,7 +41,7 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
         setDeleteLoading(true);
         const { ok } = await guidesApi.deleteGuide(guideCard.uuid);
         if (ok) {
-            refetch();
+            refetchDelete();
         }
         setDeleteLoading(false);
     }

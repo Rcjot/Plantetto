@@ -52,6 +52,10 @@ function GuidesBoard() {
         return pages;
     };
 
+    function refetchDelete () {
+        setPage(1)
+    }
+
     if (board === null) return <div>loading...</div>;
 
     return (
@@ -113,6 +117,7 @@ function GuidesBoard() {
                                 key={boardCard.uuid}
                                 guideCard={boardCard}
                                 refetch={fetchBoard}
+                                refetchDelete={refetchDelete}
                             />
                         );
                     })
