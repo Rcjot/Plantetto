@@ -1,7 +1,7 @@
 import guidesApi from "@/api/guidesApi";
 import GuideCard from "@/features/guides/board/GuideCard";
 import useFetchGuideBoard from "@/features/guides/hooks/useFetchGuideBoard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FilterScroll from "@/features/garden/FilterScroll";
 
 function GuidesBoard() {
@@ -23,11 +23,11 @@ function GuidesBoard() {
         setStatus,
     } = useFetchGuideBoard();
 
+    const navigate = useNavigate();
+
     async function handleCreateGuide() {
-        const { ok } = await guidesApi.createGuide();
-        if (ok) {
-            fetchBoard();
-        }
+        const { guide_uuid } = await guidesApi.createGuide();
+        navigate(`/guides/${guide_uuid}/edit`);
     }
 
     const renderPageButtons = () => {
