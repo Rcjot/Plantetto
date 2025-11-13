@@ -55,8 +55,8 @@ function Guides() {
                         }}
                     />
                 </div>
-                <Link to="/guides/board" className="btn btn-primary self-end">
-                    board
+                <Link to="/guides/board" className="underline">
+                    My Guides Board
                 </Link>
             </div>
             <div className="w-full">
