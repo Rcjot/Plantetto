@@ -107,6 +107,8 @@ def get_user_diaries_today(username) :
 
 @user_bp.route("/<username>/board")
 def get_user_board(username) :
+    status = request.args.get("status", default="all", type=str)
+    sort = request.args.get("sort", default="recent", type=str)
     search = request.args.get("search", default="", type=str)
     plant_type_id = request.args.get("plant_type_id", default=None, type=int)
     page = request.args.get("page", default=1, type=int)
@@ -114,7 +116,7 @@ def get_user_board(username) :
 
     offset = (page - 1) * limit
 
-    result = Guides.get_user_board(username, search, plant_type_id, limit, offset)
+    result = Guides.get_user_board(username, search, plant_type_id, limit, offset, sort, status)
     board = result["guides"]
     total_count = result["meta_data"]["total_count"]
     result_count = result["meta_data"]["result_count"]

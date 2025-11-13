@@ -17,6 +17,10 @@ function GuidesBoard() {
         setCategoryMap,
         meta,
         loading,
+        sort,
+        setSort,
+        status,
+        setStatus,
     } = useFetchGuideBoard();
 
     async function handleCreateGuide() {
@@ -52,24 +56,44 @@ function GuidesBoard() {
     return (
         <div className="flex flex-col gap-7 p-3 sm:p-10">
             <Link to={"/guides"}>Back</Link>
-            <div className=" sm:max-w-md">
-                <input
-                    type="text"
-                    placeholder="Search"
-                    className="input input-bordered w-full bg-white border-gray-200"
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
-                />
-            </div>
             <button
                 className="btn btn-primary self-start"
                 onClick={handleCreateGuide}
             >
                 create a new guide
             </button>
+            <div className="flex w-full justify-between">
+                <div className="w-full sm:w-[50%] flex gap-3">
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        className="input input-bordered w-full bg-white border-gray-200"
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPage(1);
+                        }}
+                    />
+                    <select
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value)}
+                        className="select"
+                    >
+                        <option value="recent">Recent</option>
+                        <option value="oldest">Oldest</option>
+                    </select>
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="select"
+                    >
+                        <option value="all">All</option>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                    </select>
+                </div>
+            </div>
+
             <div className="w-full">
                 <FilterScroll
                     setPage={setPage}

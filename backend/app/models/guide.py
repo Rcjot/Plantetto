@@ -122,7 +122,7 @@ class Guides() :
         return result
     
     @classmethod 
-    def get_user_board(cls, username, search, plant_type_id, limit, offset) :
+    def get_user_board(cls, username, search, plant_type_id, limit, offset, sort, status) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -180,13 +180,23 @@ class Guides() :
         LEFT JOIN thumbnail AS thumbnail ON guides.id = thumbnail.guide_id
         WHERE users.username = %s
         AND guides.title ILIKE %s
-        ORDER BY guides.last_edit_date DESC
         """
+        if status == "published" :
+            sql+= "AND guides.guide_status = 'published' "
+        elif status == "draft" :
+            sql+= "AND guides.guide_status = 'draft' "
+
         search = "%" + search + "%"
         params = [username, search]
         if (plant_type_id is not None) :
             sql += " AND guides.plant_type_id =%s"
             params.extend([plant_type_id])
+            
+        sql +="""
+        ORDER BY guides.last_edit_date DESC
+        """ if sort == "recent" else """
+        ORDER BY guides.last_edit_date ASC
+        """ 
         sql+= " LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 

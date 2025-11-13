@@ -6,11 +6,13 @@ async function getUserBoard(
     username: string,
     search: string,
     plant_type_id: number | undefined,
-    page: number
+    page: number,
+    sort: string,
+    status: string
 ) {
     try {
         const { data } = await axios.get(
-            `/users/${username}/board?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
+            `/users/${username}/board?page=${page}&search=${search}&plant_type_id=${plant_type_id}&sort=${sort}&status=${status}`
         );
 
         const board: GuideType[] = data["board"];

@@ -15,6 +15,9 @@ function useFetchGuideBoard() {
     const [categoryMap, setCategoryMap] = useState<
         Record<string, number | undefined>
     >({});
+    const [sort, setSort] = useState<string>("recent");
+    const [status, setStatus] = useState<string>("all");
+
     const fetchBoard = useCallback(async () => {
         const plant_type_id = categoryMap[selectedCategory];
 
@@ -23,7 +26,9 @@ function useFetchGuideBoard() {
                 auth.user.username,
                 search,
                 plant_type_id,
-                page
+                page,
+                sort,
+                status
             );
             setBoard(res.board);
             if (res.ok && res.board) {
@@ -47,7 +52,7 @@ function useFetchGuideBoard() {
             }
             setLoading(false);
         }
-    }, [auth, page, search, categoryMap, selectedCategory]);
+    }, [auth, page, search, categoryMap, selectedCategory, sort, status]);
 
     useEffect(() => {
         fetchBoard();
@@ -65,6 +70,10 @@ function useFetchGuideBoard() {
         setSelectedCategory,
         search,
         setSearch,
+        sort,
+        setSort,
+        status,
+        setStatus,
     };
 }
 
