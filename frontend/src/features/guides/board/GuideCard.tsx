@@ -5,6 +5,7 @@ import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import guidesApi from "@/api/guidesApi";
 import defaultPlantPic from "@/assets/plant_placeholder.png";
+import dayjs from "dayjs";
 import timeAgo from "@/lib/timeAgo";
 import ProfilePicture from "@/components/ProfilePicture";
 
@@ -106,6 +107,10 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
             </>
         );
     }
+    const maxLength = 30;
+    const isTruncated = guideCard.title.length > maxLength;
+    const displayTitle =
+        guideCard.title.slice(0, maxLength) + (isTruncated ? " ..." : "");
 
     return (
         <>
@@ -122,8 +127,10 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                         />
                     </div>
                     <div className="flex flex-col text-start p-3 w-full">
-                        <div className="flex ">
-                            <h1 className="font-bold">{guideCard.title}</h1>
+                        <div className="flex gap-3">
+                            <h1 className="font-bold wrap-anywhere">
+                                {displayTitle}
+                            </h1>
                             {renderOptions()}
                         </div>
 
@@ -134,8 +141,16 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                         </p>
 
                         <div className="mt-auto flex items-center gap-3">
-                            <p className="mr-auto">
-                                {timeAgo(guideCard.published_date)}
+                            <p className="mr-auto text-xs mt-auto">
+                                modified
+                                <br />
+                                {timeAgo(guideCard.last_edit_date)}
+                                <br />
+                                created
+                                <br />
+                                {dayjs(guideCard.created_at).format(
+                                    "MMM D, YYYY"
+                                )}
                             </p>
                             <Link
                                 to={`/${guideCard.author.username}`}

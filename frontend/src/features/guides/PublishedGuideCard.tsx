@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import type { GuideType } from "./guideTypes";
 import defaultPlantPic from "@/assets/plant_placeholder.png";
-import timeAgo from "@/lib/timeAgo";
 import ProfilePicture from "@/components/ProfilePicture";
+import dayjs from "dayjs";
 
 interface PublishedGuideCardPropsType {
     guideCard: GuideType;
@@ -10,6 +10,12 @@ interface PublishedGuideCardPropsType {
 
 function PublishedGuideCard({ guideCard }: PublishedGuideCardPropsType) {
     const navigate = useNavigate();
+
+    const maxLength = 55;
+    const isTruncated = guideCard.title.length > maxLength;
+    const displayTitle =
+        guideCard.title.slice(0, maxLength) + (isTruncated ? " ..." : "");
+
     return (
         <>
             <button
@@ -25,7 +31,9 @@ function PublishedGuideCard({ guideCard }: PublishedGuideCardPropsType) {
                         />
                     </div>
                     <div className="flex flex-col text-start p-3 w-full">
-                        <h1 className="font-bold">{guideCard.title}</h1>
+                        <h1 className="font-bold wrap-anywhere">
+                            {displayTitle}
+                        </h1>
 
                         <p>
                             {guideCard.plant_type
@@ -34,8 +42,11 @@ function PublishedGuideCard({ guideCard }: PublishedGuideCardPropsType) {
                         </p>
 
                         <div className="mt-auto flex items-center gap-3">
-                            <p className="mr-auto">
-                                {timeAgo(guideCard.published_date)}
+                            <p className="mr-auto text-sm mt-auto">
+                                published <br />
+                                {dayjs(guideCard.published_date).format(
+                                    "MMM D, YYYY"
+                                )}
                             </p>
                             <Link
                                 to={`/${guideCard.author.username}`}
