@@ -41,7 +41,7 @@ function Guides() {
     if (guides === null) return <div>loading...</div>;
 
     return (
-        <div className="myEditor flex flex-col items-center gap-7 p-3 sm:p-10">
+        <div className="flex flex-col gap-7 p-3 sm:p-10">
             <div className="flex w-full justify-between">
                 <div className=" sm:max-w-md">
                     <input
