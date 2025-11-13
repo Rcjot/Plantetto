@@ -30,6 +30,9 @@ import { Editor } from "@tiptap/core";
 import content from "@/components/tiptap-templates/simple/data/content.json";
 import { Link } from "react-router-dom";
 
+import dayjs from "dayjs";
+import ProfilePicture from "@/components/ProfilePicture";
+
 function GuidesView() {
     const { uuid } = useParams();
     const guide = useFetchGuide(uuid);
@@ -72,15 +75,55 @@ function GuidesView() {
             >
                 Back
             </Link>
-            <div className="flex flex-col max-w-fit gap-10">
-                <div className="flex flex-col gap-2 self-center">
-                    <h1 className="text-4xl font-bold text-center">
+            <div className="flex flex-col w-full gap-10">
+                <div className="flex flex-col w-[50%] text-center gap-2 self-center">
+                    <h1 className="text-4xl font-bold text-center wrap-anywhere">
                         {guide.title}
                     </h1>
+                    <div className="flex gap-3 self-center items-center">
+                        <p>by</p>
+
+                        <Link
+                            to={`/${guide.author.username}`}
+                            className="h-fit w-fit"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <ProfilePicture src={guide.author.pfp_url} />
+                        </Link>
+
+                        <div>
+                            <Link
+                                to={`/${guide.author.username}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="h-fit w-fit"
+                            >
+                                <span className="font-[1000] h-fit hover:underline cursor-pointer">
+                                    {guide.author.display_name ??
+                                        guide.author.username}
+                                </span>
+                            </Link>
+                            <Link
+                                to={`/${guide.author.username}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="h-fit w-fit"
+                            >
+                                <p className="text-[#525252] hover:underline cursor-pointer">
+                                    @{guide.author.username}
+                                </p>
+                            </Link>
+                        </div>
+                    </div>
+
                     <p className="text-center">
-                        {guide.author.display_name ?? guide.author.username}
+                        published on{" "}
+                        {dayjs(guide.created_at).format("MMMM D, YYYY")}
                     </p>
-                    <p className="text-center">{guide.created_at}</p>{" "}
+                    {guide.created_at !== guide.last_edit_date && (
+                        <p className="text-center">
+                            updated on{" "}
+                            {dayjs(guide.last_edit_date).format("MMMM D, YYYY")}
+                        </p>
+                    )}
                 </div>
 
                 <EditorContent
