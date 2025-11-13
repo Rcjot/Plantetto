@@ -1,6 +1,6 @@
 import guidesApi from "@/api/guidesApi";
 import { useAuthContext } from "@/features/auth/AuthContext";
-import BoardCard from "@/features/guides/board/BoardCard";
+import GuideCard from "@/features/guides/board/GuideCard";
 import type { GuideType } from "@/features/guides/guideTypes";
 import { useCallback, useEffect, useState } from "react";
 
@@ -40,9 +40,9 @@ function GuidesBoard() {
             <div className="flex flex-wrap gap-3">
                 {board.map((boardCard) => {
                     return (
-                        <BoardCard
+                        <GuideCard
                             key={boardCard.uuid}
-                            boardCard={boardCard}
+                            guideCard={boardCard}
                             refetch={fetchBoard}
                         />
                     );

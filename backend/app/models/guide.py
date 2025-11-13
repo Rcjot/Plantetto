@@ -239,7 +239,9 @@ class Guides() :
                 'display_name', users.display_name,
                 'pfp_url', users.pfp_url
         ) AS author,
-        guides.created_at
+        guides.created_at,
+        guides.published_date,
+        guides.last_edit_date
         FROM guides
         JOIN users ON guides.user_id = users.id
         LEFT JOIN plant_types ON guides.plant_type_id = plant_types.id

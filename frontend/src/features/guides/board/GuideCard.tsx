@@ -5,12 +5,12 @@ import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import guidesApi from "@/api/guidesApi";
 
-interface BoardCardPropsType {
-    boardCard: GuideType;
+interface GuideCardPropsType {
+    guideCard: GuideType;
     refetch: () => void;
 }
 
-function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
+function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
     const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
     const [publishLoading, setPublishLoading] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -18,10 +18,10 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
 
     async function handlePublishConfirm() {
         const newStatus =
-            boardCard.guide_status === "draft" ? "published" : "draft";
+            guideCard.guide_status === "draft" ? "published" : "draft";
         setPublishLoading(true);
         const { ok } = await guidesApi.patchStatusGuide(
-            boardCard.uuid,
+            guideCard.uuid,
             newStatus
         );
         if (ok) {
@@ -32,7 +32,7 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
 
     async function handleDeleteConfirm() {
         setDeleteLoading(true);
-        const { ok } = await guidesApi.deleteGuide(boardCard.uuid);
+        const { ok } = await guidesApi.deleteGuide(guideCard.uuid);
         if (ok) {
             refetch();
         }
@@ -43,7 +43,7 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
         <>
             <Link
                 className="card bg-base-100 w-fit shadow-sm p-6"
-                to={`/guides/${boardCard.uuid}/edit`}
+                to={`/guides/${guideCard.uuid}/edit`}
             >
                 <div
                     className="ml-auto dropdown dropdown-end sm:dropdown-start"
@@ -68,7 +68,7 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
                                     e.stopPropagation();
                                 }}
                             >
-                                {boardCard.guide_status === "draft"
+                                {guideCard.guide_status === "draft"
                                     ? "publish"
                                     : "unpublish"}
                             </button>
@@ -87,25 +87,25 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
                         </li>
                     </ul>
                 </div>
-                <h1>{boardCard.title}</h1>
-                <p>created at : {boardCard.created_at}</p>
-                <p>last edit : {boardCard.last_edit_date}</p>
-                {boardCard.guide_status === "published" && (
-                    <p>published date : {boardCard.published_date}</p>
+                <h1>{guideCard.title}</h1>
+                <p>created at : {guideCard.created_at}</p>
+                <p>last edit : {guideCard.last_edit_date}</p>
+                {guideCard.guide_status === "published" && (
+                    <p>published date : {guideCard.published_date}</p>
                 )}
                 <p>
-                    {boardCard.plant_type
-                        ? boardCard.plant_type.plant_name
+                    {guideCard.plant_type
+                        ? guideCard.plant_type.plant_name
                         : "General"}
                 </p>
-                <p>{boardCard.guide_status}</p>
+                <p>{guideCard.guide_status}</p>
             </Link>
             <ConfirmDialog
                 open={publishConfirmOpen}
                 setOpen={setPublishConfirmOpen}
                 onConfirm={handlePublishConfirm}
                 loading={publishLoading}
-                text={`Are you sure to ${boardCard.guide_status === "draft" ? "publish" : "unpublish"}?`}
+                text={`Are you sure to ${guideCard.guide_status === "draft" ? "publish" : "unpublish"}?`}
             />
             <ConfirmDialog
                 open={deleteConfirmOpen}
@@ -118,4 +118,4 @@ function BoardCard({ boardCard, refetch }: BoardCardPropsType) {
     );
 }
 
-export default BoardCard;
+export default GuideCard;

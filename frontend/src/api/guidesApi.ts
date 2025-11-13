@@ -24,6 +24,20 @@ async function getUserBoard(username: string) {
     }
 }
 
+async function getPublishedGuides() {
+    try {
+        const { data } = await axios.get(`/guides/`);
+
+        console.log(data);
+        const guides: GuideType[] = data["guides"];
+
+        return { ok: true, guides: guides };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, guides: [] };
+    }
+}
+
 async function getGuide(guide_uuid: string) {
     try {
         const { data } = await axios.get(`/guides/${guide_uuid}`);
@@ -136,6 +150,7 @@ async function createGuide() {
 export default {
     getUserBoard,
     getGuide,
+    getPublishedGuides,
     patchMetaGuide,
     patchContentGuide,
     patchStatusGuide,
