@@ -335,7 +335,7 @@ class Guides() :
         if (plant_type_id is not None) :
             sql += " AND guides.plant_type_id =%s"
             params.extend([plant_type_id])
-        sql+= " LIMIT %s OFFSET %s"
+        sql+= "ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
         cursor.execute(guides_query + sql, params)

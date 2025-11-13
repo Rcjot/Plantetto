@@ -144,6 +144,7 @@ function GuideCard({ guideCard, refetch, refetchDelete }: GuideCardPropsType) {
                                 ? guideCard.plant_type.plant_name
                                 : "General"}
                         </p>
+                        <p className="text-xs">{guideCard.guide_status}</p>
 
                         <div className="mt-auto flex items-center gap-3">
                             <p className="mr-auto text-xs mt-auto">
