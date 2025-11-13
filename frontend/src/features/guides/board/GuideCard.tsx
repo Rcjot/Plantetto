@@ -1,5 +1,5 @@
 import type { GuideType } from "../guideTypes";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -7,7 +7,7 @@ import guidesApi from "@/api/guidesApi";
 import defaultPlantPic from "@/assets/plant_placeholder.png";
 import dayjs from "dayjs";
 import timeAgo from "@/lib/timeAgo";
-import ProfilePicture from "@/components/ProfilePicture";
+// import ProfilePicture from "@/components/ProfilePicture";
 
 interface GuideCardPropsType {
     guideCard: GuideType;
@@ -58,10 +58,25 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                     <div tabIndex={0} role="button" className="cursor-pointer">
                         <MoreHorizontalIcon className="size-7 self-end" />
                     </div>
+
                     <ul
                         tabIndex={-1}
                         className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 mt-[-20px]"
                     >
+                        <li>
+                            <button
+                                className="text-neutral-800 hover:bg-primary hover:text-neutral-100"
+                                onClick={(e) => {
+                                    navigate(`/guides/${guideCard.uuid}`, {
+                                        state: { from: "board" },
+                                    });
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }}
+                            >
+                                preview
+                            </button>
+                        </li>
                         <li>
                             <button
                                 className="text-neutral-800 hover:bg-primary hover:text-neutral-100"
@@ -88,20 +103,6 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                                 delete
                             </button>
                         </li>
-                        <li>
-                            <button
-                                className="text-neutral-800 hover:bg-primary hover:text-neutral-100"
-                                onClick={(e) => {
-                                    navigate(`/guides/${guideCard.uuid}`, {
-                                        state: { from: "board" },
-                                    });
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                }}
-                            >
-                                preview
-                            </button>
-                        </li>
                     </ul>
                 </div>
             </>
@@ -114,23 +115,26 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
 
     return (
         <>
-            <button
+            <div
                 className="card bg-base-100 shadow-sm h-50 cursor-pointer"
                 onClick={() => navigate(`/guides/${guideCard.uuid}/edit`)}
             >
-                <div className="flex gap-3 min-w-100 max-w-100">
-                    <div className="h-full rounded-tl-lg rounded-bl-lg overflow-hidden">
+                <div className="flex gap-3 w-full sm:min-w-100 max-w-100">
+                    <div className="h-full flex-1 rounded-tl-lg rounded-bl-lg overflow-hidden">
                         <img
                             className="h-50 object-cover hover:scale-105 transition-transform duration-300"
                             src={guideCard.thumbnail ?? defaultPlantPic}
                             alt="guide thumbnail"
                         />
                     </div>
-                    <div className="flex flex-col text-start p-3 w-full">
+                    <div className="flex flex-col flex-2 text-start p-3 w-full">
                         <div className="flex gap-3">
-                            <h1 className="font-bold wrap-anywhere">
-                                {displayTitle}
-                            </h1>
+                            <button className="text-start cursor-pointer">
+                                <h1 className="font-bold wrap-anywhere">
+                                    {displayTitle}
+                                </h1>
+                            </button>
+
                             {renderOptions()}
                         </div>
 
@@ -152,7 +156,7 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                                     "MMM D, YYYY"
                                 )}
                             </p>
-                            <Link
+                            {/* <Link
                                 to={`/${guideCard.author.username}`}
                                 className="h-fit w-fit"
                                 onClick={(e) => e.stopPropagation()}
@@ -182,11 +186,11 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                                         @{guideCard.author.username}
                                     </p>
                                 </Link>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
-            </button>
+            </div>
             <ConfirmDialog
                 open={publishConfirmOpen}
                 setOpen={setPublishConfirmOpen}
