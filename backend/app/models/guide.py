@@ -287,7 +287,7 @@ class Guides() :
         search = "%" + search + "%"
         params = [search]
         if (plant_type_id is not None) :
-            sql += " AND plants.plant_type_id =%s"
+            sql += " AND guides.plant_type_id =%s"
             params.extend([plant_type_id])
         sql+= " LIMIT %s OFFSET %s"
         params.extend([limit, offset])
