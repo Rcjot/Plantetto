@@ -28,6 +28,7 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 import { Editor } from "@tiptap/core";
 
 import content from "@/components/tiptap-templates/simple/data/content.json";
+import { Link } from "react-router-dom";
 
 function GuidesView() {
     const { uuid } = useParams();
@@ -59,7 +60,10 @@ function GuidesView() {
     if (!guide) return <div>loading..</div>;
 
     return (
-        <div className="flex flex-col items-center justify-center gap-10 p-10 ">
+        <div className="flex flex-col items-center justify-center gap-10 p-3 sm:p-10 ">
+            <Link to={"/guides"} className="self-start">
+                Back
+            </Link>
             <div className="flex flex-col max-w-fit gap-10">
                 <div className="flex flex-col gap-2 self-center">
                     <h1 className="text-4xl font-bold text-center">

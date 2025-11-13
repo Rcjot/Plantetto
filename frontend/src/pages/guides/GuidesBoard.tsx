@@ -3,6 +3,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import GuideCard from "@/features/guides/board/GuideCard";
 import type { GuideType } from "@/features/guides/guideTypes";
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function GuidesBoard() {
     const { auth } = useAuthContext()!;
@@ -29,7 +30,8 @@ function GuidesBoard() {
     if (board === null) return <div>loading...</div>;
 
     return (
-        <div className="flex flex-col gap-7 p-10">
+        <div className="flex flex-col gap-7 p-3 sm:p-10">
+            <Link to={"/guides"}>Back</Link>
             <button
                 className="btn btn-primary self-start"
                 onClick={handleCreateGuide}

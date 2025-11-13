@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import guidesApi from "@/api/guidesApi";
+import { Link } from "react-router-dom";
 
 function GuidesEditor() {
     const { uuid } = useParams()!;
@@ -81,7 +82,11 @@ function GuidesEditor() {
     if (!guide) return <div>loading..</div>;
 
     return (
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center p-3 sm:p-10">
+            <Link to={"/guides/board"} className="self-start">
+                Back
+            </Link>
+
             <div className="myEditor flex flex-col items-center gap-3  p-5 w-fit">
                 <SimpleEditor passedGuide={guide}>
                     <div className="flex flex-col">

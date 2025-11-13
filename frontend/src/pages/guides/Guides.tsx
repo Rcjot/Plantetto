@@ -10,7 +10,7 @@ function Guides() {
         return <div>no guides published yet to the community...</div>;
 
     return (
-        <div className="myEditor flex flex-col items-center  p-5">
+        <div className="myEditor flex flex-col items-center gap-7 p-3 sm:p-10">
             <Link to="/guides/board" className="btn btn-primary">
                 board
             </Link>
