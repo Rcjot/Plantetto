@@ -2,13 +2,21 @@ import type { GuideType } from "@/features/guides/guideTypes";
 import axios from "@/lib/axios";
 import { isAxiosError } from "axios";
 
-async function getUserBoard(username: string) {
+async function getUserBoard(
+    username: string,
+    search: string,
+    plant_type_id: number | undefined,
+    page: number
+) {
     try {
-        const { data } = await axios.get(`/users/${username}/board`);
+        const { data } = await axios.get(
+            `/users/${username}/board?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
+        );
 
         const board: GuideType[] = data["board"];
+        const meta_data = data["meta_data"];
 
-        return { ok: true, board: board };
+        return { ok: true, board: board, meta_data };
     } catch (error) {
         console.error(error);
         return { ok: false, board: null };

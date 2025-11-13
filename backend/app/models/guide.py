@@ -180,6 +180,7 @@ class Guides() :
         LEFT JOIN thumbnail AS thumbnail ON guides.id = thumbnail.guide_id
         WHERE users.username = %s
         AND guides.title ILIKE %s
+        ORDER BY guides.last_edit_date DESC
         """
         search = "%" + search + "%"
         params = [username, search]
