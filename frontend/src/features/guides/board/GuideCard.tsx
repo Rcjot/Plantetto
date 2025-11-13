@@ -5,6 +5,8 @@ import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import guidesApi from "@/api/guidesApi";
 import defaultPlantPic from "@/assets/plant_placeholder.png";
+import timeAgo from "@/lib/timeAgo";
+import ProfilePicture from "@/components/ProfilePicture";
 
 interface GuideCardPropsType {
     guideCard: GuideType;
@@ -42,12 +44,9 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
         setDeleteLoading(false);
     }
 
-    return (
-        <>
-            <Link
-                className="card bg-base-100 w-fit shadow-sm p-6"
-                to={`/guides/${guideCard.uuid}/edit`}
-            >
+    function renderOptions() {
+        return (
+            <>
                 <div
                     className="ml-auto dropdown dropdown-end sm:dropdown-start"
                     onClick={(e) => {
@@ -56,7 +55,7 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                     }}
                 >
                     <div tabIndex={0} role="button" className="cursor-pointer">
-                        <MoreHorizontalIcon className="size-4 self-end" />
+                        <MoreHorizontalIcon className="size-7 self-end" />
                     </div>
                     <ul
                         tabIndex={-1}
@@ -104,36 +103,75 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                         </li>
                     </ul>
                 </div>
-                <div className="flex gap-3 max-w-100 ">
-                    {
-                        <div className="h-full w-25">
-                            <img
-                                className="h-full w-full object-scale-down"
-                                src={guideCard.thumbnail ?? defaultPlantPic}
-                                alt=""
-                            />
+            </>
+        );
+    }
+
+    return (
+        <>
+            <button
+                className="card bg-base-100 shadow-sm h-50 cursor-pointer"
+                onClick={() => navigate(`/guides/${guideCard.uuid}/edit`)}
+            >
+                <div className="flex gap-3 min-w-100 max-w-100">
+                    <div className="h-full rounded-tl-lg rounded-bl-lg overflow-hidden">
+                        <img
+                            className="h-50 object-cover hover:scale-105 transition-transform duration-300"
+                            src={guideCard.thumbnail ?? defaultPlantPic}
+                            alt="guide thumbnail"
+                        />
+                    </div>
+                    <div className="flex flex-col text-start p-3 w-full">
+                        <div className="flex ">
+                            <h1 className="font-bold">{guideCard.title}</h1>
+                            {renderOptions()}
                         </div>
-                    }
-                    <div>
-                        <h1>{guideCard.title}</h1>
-                        <p>created at : {guideCard.created_at}</p>
-                        <p>last edit : {guideCard.last_edit_date}</p>
-                        {guideCard.guide_status === "published" && (
-                            <p>published date : {guideCard.published_date}</p>
-                        )}
+
                         <p>
                             {guideCard.plant_type
                                 ? guideCard.plant_type.plant_name
                                 : "General"}
                         </p>
-                        <p>{guideCard.guide_status}</p>
-                        <p>
-                            {guideCard.author.display_name ??
-                                guideCard.author.username}
-                        </p>
+
+                        <div className="mt-auto flex items-center gap-3">
+                            <p className="mr-auto">
+                                {timeAgo(guideCard.published_date)}
+                            </p>
+                            <Link
+                                to={`/${guideCard.author.username}`}
+                                className="h-fit w-fit"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <ProfilePicture
+                                    src={guideCard.author.pfp_url}
+                                />
+                            </Link>
+
+                            <div>
+                                <Link
+                                    to={`/${guideCard.author.username}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="h-fit w-fit"
+                                >
+                                    <span className="font-[1000] h-fit hover:underline cursor-pointer">
+                                        {guideCard.author.display_name ??
+                                            guideCard.author.username}
+                                    </span>
+                                </Link>
+                                <Link
+                                    to={`/${guideCard.author.username}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="h-fit w-fit"
+                                >
+                                    <p className="text-[#525252] hover:underline cursor-pointer">
+                                        @{guideCard.author.username}
+                                    </p>
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </Link>
+            </button>
             <ConfirmDialog
                 open={publishConfirmOpen}
                 setOpen={setPublishConfirmOpen}
