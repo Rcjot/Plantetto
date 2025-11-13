@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import useFetchGuide from "@/features/guides/hooks/useFetchGuide";
 import { EditorContent } from "@tiptap/react";
 
@@ -33,6 +33,7 @@ import { Link } from "react-router-dom";
 function GuidesView() {
     const { uuid } = useParams();
     const guide = useFetchGuide(uuid);
+    const location = useLocation();
 
     const editor = new Editor({
         extensions: [
@@ -61,7 +62,14 @@ function GuidesView() {
 
     return (
         <div className="flex flex-col items-center justify-center gap-10 p-3 sm:p-10 ">
-            <Link to={"/guides"} className="self-start">
+            <Link
+                to={
+                    location.state?.from == "board"
+                        ? "/guides/board"
+                        : "/guides"
+                }
+                className="self-start"
+            >
                 Back
             </Link>
             <div className="flex flex-col max-w-fit gap-10">

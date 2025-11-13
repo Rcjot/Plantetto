@@ -1,5 +1,5 @@
 import type { GuideType } from "../guideTypes";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -16,6 +16,8 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
     const [publishLoading, setPublishLoading] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
+
+    const navigate = useNavigate();
 
     async function handlePublishConfirm() {
         const newStatus =
@@ -84,6 +86,20 @@ function GuideCard({ guideCard, refetch }: GuideCardPropsType) {
                                 }}
                             >
                                 delete
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                className="text-neutral-800 hover:bg-primary hover:text-neutral-100"
+                                onClick={(e) => {
+                                    navigate(`/guides/${guideCard.uuid}`, {
+                                        state: { from: "board" },
+                                    });
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }}
+                            >
+                                preview
                             </button>
                         </li>
                     </ul>
