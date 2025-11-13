@@ -6,14 +6,35 @@ from ...models.guide import Guides
 from ...models.guides_image import GuidesImages
 from ...services import cloudinary
 import json
+import math
 
 @guide_bp.route("/")
 @login_required
 def get_published_guides() :
-    result = Guides.get_published_guides()
+    search = request.args.get("search", default="", type=str)
+    plant_type_id = request.args.get("plant_type_id", default=None, type=int)
+    page = request.args.get("page", default=1, type=int)
+    limit = request.args.get("limit", default = 12, type=int)
+
+    offset = (page - 1) * limit
+
+    result = Guides.get_published_guides(search, plant_type_id, limit, offset)
+    guides = result["guides"]
+    total_count = result["meta_data"]["total_count"]
+    result_count = result["meta_data"]["result_count"]
+    max_page = math.ceil(result_count / limit)
+    meta_data = {
+        "page" : page,
+        "total_count" : total_count,
+        "limit" : limit,
+        "max_page" : max_page,
+        "has_next" : page < max_page,
+        "has_prev" : page > 1,
+    }
 
     return jsonify(
-        guides=result
+        guides=guides,
+        meta_data=meta_data
     )
 
 
