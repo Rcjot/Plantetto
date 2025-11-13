@@ -122,11 +122,11 @@ class Guides() :
         return result
     
     @classmethod 
-    def get_user_board(cls, username) :
+    def get_user_board(cls, username, search, plant_type_id, limit, offset) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        sql = """
+        guides_query = """
         WITH thumbnail AS (
             SELECT DISTINCT ON (guide_id)
                 guide_id,
@@ -158,19 +158,54 @@ class Guides() :
         guides.published_date,
         guides.last_edit_date,
         thumbnail.image_url AS thumbnail
+        """
+
+        meta_data_query = """
+        WITH thumbnail AS (
+            SELECT DISTINCT ON (guide_id)
+                guide_id,
+                image_url
+            FROM guides_images
+            WHERE is_used = TRUE
+            ORDER BY guide_id ASC
+        )
+        SELECT COUNT(*) OVER() AS result_count,
+            (SELECT COUNT(*) FROM guides) AS total_count
+        """
+
+        sql = """
         FROM guides
         JOIN users ON guides.user_id = users.id
         LEFT JOIN plant_types ON guides.plant_type_id = plant_types.id
         LEFT JOIN thumbnail AS thumbnail ON guides.id = thumbnail.guide_id
         WHERE users.username = %s
+        AND guides.title ILIKE %s
         """
+        search = "%" + search + "%"
+        params = [username, search]
+        if (plant_type_id is not None) :
+            sql += " AND guides.plant_type_id =%s"
+            params.extend([plant_type_id])
+        sql+= " LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
 
-        cursor.execute(sql, (username,))
+        cursor.execute(guides_query + sql, params)
         guides = cursor.fetchall()
+        cursor.execute(meta_data_query + sql, params)
+        meta_data = cursor.fetchone()
 
         cursor.close()
 
-        return guides
+        if (meta_data is None) :
+            meta_data = {
+                "total_count" : 0,
+                "result_count" : 0
+            }
+
+        return ({
+            "guides" : guides,
+            "meta_data" : meta_data
+        })
 
     @classmethod
     def get_guide(cls, guide_uuid) :

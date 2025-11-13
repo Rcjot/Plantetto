@@ -107,8 +107,28 @@ def get_user_diaries_today(username) :
 
 @user_bp.route("/<username>/board")
 def get_user_board(username) :
-    result = Guides.get_user_board(username)
+    search = request.args.get("search", default="", type=str)
+    plant_type_id = request.args.get("plant_type_id", default=None, type=int)
+    page = request.args.get("page", default=1, type=int)
+    limit = request.args.get("limit", default = 12, type=int)
+
+    offset = (page - 1) * limit
+
+    result = Guides.get_user_board(username, search, plant_type_id, limit, offset)
+    board = result["guides"]
+    total_count = result["meta_data"]["total_count"]
+    result_count = result["meta_data"]["result_count"]
+    max_page = math.ceil(result_count / limit)
+    meta_data = {
+        "page" : page,
+        "total_count" : total_count,
+        "limit" : limit,
+        "max_page" : max_page,
+        "has_next" : page < max_page,
+        "has_prev" : page > 1,
+    }
 
     return jsonify(
-        board=result
+        board=board,
+        meta_data=meta_data
     )
