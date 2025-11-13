@@ -147,7 +147,8 @@ export function canColorHighlight(
     if (!isExtensionAvailable(editor, ["nodeBackground"])) return false
 
     try {
-      return editor.can().toggleNodeBackgroundColor("test")
+      // return editor.can().toggleNodeBackgroundColor("test")
+      return true
     } catch {
       return false
     }
@@ -202,7 +203,8 @@ export function removeHighlight(
   if (mode === "mark") {
     return editor.chain().focus().unsetMark("highlight").run()
   } else {
-    return editor.chain().focus().unsetNodeBackgroundColor().run()
+    // return editor.chain().focus().unsetNodeBackgroundColor().run()
+    return true
   }
 }
 
@@ -291,12 +293,7 @@ export function useColorHighlight(config: UseColorHighlightConfig) {
 
       return true
     } else {
-      const success = editor
-        .chain()
-        .focus()
-        .toggleNodeBackgroundColor(highlightColor)
-        .run()
-
+      const success = true
       if (success) {
         onApplied?.({ color: highlightColor, label, mode })
       }
