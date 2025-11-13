@@ -4,10 +4,9 @@ import PublishedGuideCard from "@/features/guides/PublishedGuideCard";
 
 function Guides() {
     const guides = useFetchPublishedGuides();
-    console.log(guides);
 
     if (guides === null) return <div>loading...</div>;
-    if (guides.length <= 0)
+    if (guides.length == 0)
         return <div>no guides published yet to the community...</div>;
 
     return (

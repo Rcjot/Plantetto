@@ -11,4 +11,5 @@ export interface GuideType {
     last_edit_date: string;
     plant_type: PlanttypeType | null;
     author: UserType;
+    thumbnail: string | null;
 }

@@ -3,7 +3,7 @@ import type { GuideType } from "../guideTypes";
 import guidesApi from "@/api/guidesApi";
 
 function useFetchPublishedGuides() {
-    const [guides, setGuides] = useState<GuideType[] | null>([]);
+    const [guides, setGuides] = useState<GuideType[] | null>(null);
 
     useEffect(() => {
         const fetchGuide = async () => {

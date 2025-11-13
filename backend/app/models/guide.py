@@ -127,6 +127,14 @@ class Guides() :
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         sql = """
+        WITH thumbnail AS (
+            SELECT DISTINCT ON (guide_id)
+                guide_id,
+                image_url
+            FROM guides_images
+            WHERE is_used = TRUE
+            ORDER BY guide_id ASC
+        )
         SELECT 
         guides.uuid, 
         guides.title, 
@@ -148,10 +156,12 @@ class Guides() :
         ) AS author,
         guides.created_at,
         guides.published_date,
-        guides.last_edit_date
+        guides.last_edit_date,
+        thumbnail.image_url AS thumbnail
         FROM guides
         JOIN users ON guides.user_id = users.id
         LEFT JOIN plant_types ON guides.plant_type_id = plant_types.id
+        LEFT JOIN thumbnail AS thumbnail ON guides.id = thumbnail.guide_id
         WHERE users.username = %s
         """
 
@@ -220,6 +230,14 @@ class Guides() :
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         sql = """
+        WITH thumbnail AS (
+            SELECT DISTINCT ON (guide_id)
+                guide_id,
+                image_url
+            FROM guides_images
+            WHERE is_used = TRUE
+            ORDER BY guide_id ASC
+        )
         SELECT 
         guides.uuid, 
         guides.title, 
@@ -241,10 +259,12 @@ class Guides() :
         ) AS author,
         guides.created_at,
         guides.published_date,
-        guides.last_edit_date
+        guides.last_edit_date,
+        thumbnail.image_url AS thumbnail
         FROM guides
         JOIN users ON guides.user_id = users.id
         LEFT JOIN plant_types ON guides.plant_type_id = plant_types.id
+        LEFT JOIN thumbnail AS thumbnail ON guides.id = thumbnail.guide_id
         WHERE guides.guide_status = 'published'
         """
 
