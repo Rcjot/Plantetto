@@ -13,7 +13,30 @@ function Guides() {
         search,
         setSearch,
         setCategoryMap,
+        meta,
+        loading,
     } = useFetchPublishedGuides();
+
+    const renderPageButtons = () => {
+        if (!meta) return null;
+        const pages = [];
+        for (let i = 1; i <= meta.max_page; i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`btn btn-sm ${
+                        i === page
+                            ? "bg-primary text-white hover:bg-primary"
+                            : "btn-outline hover:bg-primary hover:text-white hover:border-transparent"
+                    }`}
+                >
+                    {i}
+                </button>
+            );
+        }
+        return pages;
+    };
 
     if (guides === null) return <div>loading...</div>;
 
@@ -59,6 +82,29 @@ function Guides() {
                     <div>no guides published yet to the community...</div>
                 )}
             </div>
+            {!loading && meta && meta.max_page > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+                    <button
+                        className="btn btn-sm btn-primary"
+                        disabled={page <= 1}
+                        onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                    >
+                        Prev
+                    </button>
+
+                    {renderPageButtons()}
+
+                    <button
+                        className="btn btn-sm btn-primary"
+                        disabled={page >= meta.max_page}
+                        onClick={() =>
+                            setPage((p) => Math.min(p + 1, meta.max_page))
+                        }
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
