@@ -52,8 +52,9 @@ function GuidesBoard() {
         return pages;
     };
 
-    function refetchDelete () {
-        setPage(1)
+    function refetchDelete() {
+        setPage(1);
+        fetchBoard();
     }
 
     if (board === null) return <div>loading...</div>;
