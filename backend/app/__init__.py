@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from . import database
 from flask_login import LoginManager
+from .services import cleanup
 
 login_manager = LoginManager()
 
@@ -17,6 +18,7 @@ def create_app() :
         DATABASE_URL=DATABASE_URL
     )
 
+
     cors = CORS(app,
                 origins="*",
                 supports_credentials=True,
@@ -28,7 +30,10 @@ def create_app() :
     database.init_app(app)
 
     login_manager.init_app(app)
-    
+
+    cleanup.cleanup_unused_guides_images(app)
+    cleanup.init_app(app)
+
     @app.route("/") 
     def server():
         return send_from_directory(app.static_folder, "index.html")
@@ -52,6 +57,9 @@ def create_app() :
 
     from .features.diary import diary_bp
     app.register_blueprint(diary_bp, url_prefix="/api/diaries")
+
+    from .features.guide import guide_bp
+    app.register_blueprint(guide_bp, url_prefix="/api/guides")
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :

@@ -11,12 +11,15 @@ function ConfirmDialog({
     setOpen,
     onConfirm,
     loading,
+    text,
 }: {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     onConfirm: () => Promise<void>;
     loading: boolean;
+    text?: string;
 }) {
+    text = text ? text : "Are you sure to do action?";
     return (
         <>
             <Dialog open={open} onOpenChange={setOpen}>
@@ -26,7 +29,7 @@ function ConfirmDialog({
                             Confirm Action
                         </DialogTitle>
                         <DialogDescription className="text-center">
-                            Are you sure to do action?
+                            {text}
                         </DialogDescription>
                         <div className="flex gap-2 justify-center">
                             <button

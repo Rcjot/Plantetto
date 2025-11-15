@@ -13,6 +13,8 @@ flask-wtf = "*"
 colorama = "*"
 email-validator = "*"
 cloudinary = "*"
+apscheduler = "*"
+tzdata = "*"
 
 [dev-packages]
 

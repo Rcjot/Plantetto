@@ -105,7 +105,7 @@ class Plants() :
             plants.plant_description,
             plants.picture_url,
             plants.created_at,
-            plant_types.plant_name,
+            plant_types.plant_name AS plant_type,
             JSON_BUILD_OBJECT(
                 'id', users.uuid,
                 'pfp_url', users.pfp_url,
