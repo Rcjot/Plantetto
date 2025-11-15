@@ -66,10 +66,21 @@ async function fetchDiariesToday() {
     }
 }
 
+async function fetchDiariesTodayFollowing() {
+    try {
+        const { data } = await axios.get(`/diaries/following`);
+        const plantDiaries: DiaryCardType[] = data["diaries"];
+        return { ok: true, plantDiaries: plantDiaries };
+    } catch {
+        return { ok: false, plantDiaries: [] };
+    }
+}
+
 export default {
     getUserPlantsOptions,
     addDiaryEntry,
     editDiaryEntry,
     deleteDiaryEntry,
     fetchDiariesToday,
+    fetchDiariesTodayFollowing,
 };
