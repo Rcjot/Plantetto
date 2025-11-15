@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import profileApi from "@/api/profileApi";
+import followApi from "@/api/followApi";
 import type { UserType } from "@/features/auth/authTypes";
 import { DialogDemo } from "@/features/profile/EditProfileCard";
 import { useAuthContext } from "@/features/auth/AuthContext";
@@ -8,6 +9,12 @@ import ProfilePicture from "@/components/ProfilePicture";
 
 function Profile() {
     const [user, setUser] = useState<UserType | "loading" | null>("loading");
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followCounts, setFollowCounts] = useState({
+        followers_count: 0,
+        following_count: 0,
+    });
+    const [isFollowLoading, setIsFollowLoading] = useState(false);
     const { username } = useParams<string>();
     const { auth } = useAuthContext()!;
 
@@ -26,9 +33,66 @@ function Profile() {
         }
     }, [username, auth.user]);
 
+    const fetchFollowStatus = useCallback(async () => {
+        if (username && auth.user && username !== auth.user.username) {
+            const { ok, isFollowing } =
+                await followApi.checkFollowStatus(username);
+            if (ok) {
+                setIsFollowing(isFollowing);
+            }
+        }
+    }, [username, auth.user]);
+
+    const fetchFollowCounts = useCallback(async () => {
+        if (username) {
+            const { ok, counts } = await followApi.getFollowCounts(username);
+            if (ok) {
+                setFollowCounts(counts);
+            }
+        }
+    }, [username]);
+
     useEffect(() => {
+        if (!username) return;
         fetchProfile();
-    }, [fetchProfile]);
+    }, [username, fetchProfile]);
+
+    useEffect(() => {
+        if (!username || !auth.user) return;
+
+        if (username !== auth.user.username) {
+            fetchFollowStatus();
+        }
+        fetchFollowCounts();
+    }, [username, auth.user, fetchFollowStatus, fetchFollowCounts]);
+
+    const handleFollowToggle = async () => {
+        if (!username || isFollowLoading) return;
+
+        setIsFollowLoading(true);
+
+        if (isFollowing) {
+            const { ok } = await followApi.unfollowUser(username);
+            if (ok) {
+                setIsFollowing(false);
+                setFollowCounts((prev) => ({
+                    ...prev,
+                    followers_count: Math.max(0, prev.followers_count - 1),
+                }));
+            }
+        } else {
+            const { ok } = await followApi.followUser(username);
+            if (ok) {
+                setIsFollowing(true);
+                setFollowCounts((prev) => ({
+                    ...prev,
+                    followers_count: prev.followers_count + 1,
+                }));
+            }
+        }
+
+        setIsFollowLoading(false);
+    };
 
     if (user === "loading") return <div className="p-10">Loading...</div>;
     if (!user) return <div className="p-10">User not found.</div>;
@@ -58,14 +122,36 @@ function Profile() {
                                 <p className="text-base-content/70">
                                     @{user.username}
                                 </p>
+                                <div className="flex gap-4 mt-2 text-sm">
+                                    <span className="text-base-content/70">
+                                        <span className="font-bold text-base-content">
+                                            {followCounts.followers_count}
+                                        </span>{" "}
+                                        Followers
+                                    </span>
+                                    <span className="text-base-content/70">
+                                        <span className="font-bold text-base-content">
+                                            {followCounts.following_count}
+                                        </span>{" "}
+                                        Following
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                         {isOwnProfile ? (
                             <DialogDemo onSaved={fetchProfile} />
                         ) : (
-                            <button className="btn btn-sm btn-neutral" disabled>
-                                Follow
+                            <button
+                                className={`btn ${isFollowing ? "btn-primary" : "btn-primary"}`}
+                                onClick={handleFollowToggle}
+                                disabled={isFollowLoading}
+                            >
+                                {isFollowLoading
+                                    ? "Loading..."
+                                    : isFollowing
+                                      ? "Unfollow"
+                                      : "Follow"}
                             </button>
                         )}
                     </div>
