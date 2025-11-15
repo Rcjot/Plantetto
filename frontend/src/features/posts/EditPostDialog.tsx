@@ -9,8 +9,9 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { useAuthContext } from "../auth/AuthContext";
 import globeIcon from "@/assets/icons/globe.svg";
 import lockIcon from "@/assets/icons/lock.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditPostForm from "./EditPostForm";
+import { usePostContext } from "./context/PostContext";
 
 function EditPostDialog({
     open,
@@ -20,7 +21,20 @@ function EditPostDialog({
     setOpen: (open: boolean) => void;
 }) {
     const { auth } = useAuthContext()!;
-    const [selectValue, setSelectValue] = useState<string>("everyone");
+    const { post } = usePostContext()!;
+    const [selectValue, setSelectValue] = useState<
+        "everyone" | "private" | "for_me"
+    >("everyone");
+
+    useEffect(() => {
+        if (post) {
+            setSelectValue(
+                post.visibility as "everyone" | "private" | "for_me"
+            );
+        }
+    }, [post]);
+
+    if (!post) return null;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -41,28 +55,34 @@ function EditPostDialog({
                             <div className="flex items-center gap-1">
                                 <img
                                     src={
-                                        selectValue == "everyone"
+                                        selectValue === "everyone"
                                             ? globeIcon
                                             : lockIcon
                                     }
-                                    className="w-4 h-4  left-20 absolute z-20"
-                                    alt="globe"
+                                    className="w-4 h-4 left-20 absolute z-20"
+                                    alt="visibility"
                                 />
                                 <select
                                     className="select appearance-none select-ghost w-fit h-fit pl-5 focus:outline-none focus:ring-1"
                                     value={selectValue}
                                     onChange={(e) => {
-                                        setSelectValue(e.target.value);
+                                        setSelectValue(
+                                            e.target.value as
+                                                | "everyone"
+                                                | "private"
+                                                | "for_me"
+                                        );
                                     }}
                                 >
                                     <option value="everyone">Everyone</option>
                                     <option value="private">Private</option>
+                                    <option value="for_me">For me</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <EditPostForm />
+                    <EditPostForm selectValue={selectValue} />
                 </DialogHeader>
             </DialogContent>
         </Dialog>

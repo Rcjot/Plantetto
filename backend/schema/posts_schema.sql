@@ -7,6 +7,7 @@ CREATE TABLE posts (
     id BIGSERIAL PRIMARY KEY,
     uuid UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
     caption TEXT,
+    visibility VARCHAR(10) CHECK (visibility IN ('everyone', 'private', 'for_me')) DEFAULT 'everyone',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     user_id BIGSERIAL REFERENCES users(id)
 );

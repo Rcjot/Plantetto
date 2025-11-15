@@ -11,11 +11,11 @@ from .forms import PostForm
 def get_posts() :
     limit = request.args.get("limit", default = 10, type=int)
     cursor_id = request.args.get("next_cursor", default=None, type=int)
-    result = Posts.all(limit, cursor_id)
+    current_user_id = current_user.get_id()
+    result = Posts.all(limit, cursor_id, current_user_id)
     feed = result
     has_more = len(feed) > limit
     feed = feed[:limit]
-
 
     return jsonify(
         feed=feed,
@@ -35,6 +35,7 @@ def get_post(post_uuid) :
 def create_post() :
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
+    visibility = request.form.get("visibility", "everyone")
     mediaList = request.files.getlist('media')
     form = PostForm()
     validated = form.validate()
@@ -46,7 +47,7 @@ def create_post() :
     }
     if validated : 
         try:
-            new_post = Posts(caption=caption, user_id=current_user_id)
+            new_post = Posts(caption=caption, visibility=visibility, user_id=current_user_id)
             res = new_post.add()
             new_post_id = res['id']
             new_post_uuid = res['uuid']
@@ -91,14 +92,26 @@ def delete_post(post_uuid) :
 
 @post_bp.route("/<uuid:post_uuid>", methods=["PUT"])
 @login_required
-def update_post(post_uuid) :
+def update_post(post_uuid):
     post_uuid = str(post_uuid)
     # no need to validate since its only caption
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
-    to_update_post = Posts.update(post_uuid, caption, current_user_id)
-    if (to_update_post) :
-        return jsonify(success=True, message="edit post successful", post_uuid=post_uuid)        
-    else :
-        return jsonify(success=False, message="edit post failed!"), 404
+    visibility = request.form.get("visibility")
 
+    to_update_post = Posts.update(
+        post_uuid=post_uuid,
+        caption=caption,
+        visibility=visibility,
+        current_user_id=current_user_id
+    )
+
+    if (to_update_post):
+        return jsonify(
+            success=True,
+            message="edit post successful",
+            post_uuid=post_uuid,
+            to_update_post=to_update_post
+        )
+    else:
+        return jsonify(success=False, message="edit post failed!"), 404

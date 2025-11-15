@@ -5,7 +5,11 @@ import { usePostContext } from "./context/PostContext";
 import { notifyRecentsUpdated } from "@/features/recent/recentService";
 import { useAuthContext } from "../auth/AuthContext";
 
-function EditPostForm() {
+interface Props {
+    selectValue: "everyone" | "private" | "for_me";
+}
+
+function EditPostForm({ selectValue }: Props) {
     const { post, updateCaption, setOpenEditCallback } = usePostContext()!;
     const { auth } = useAuthContext()!;
     const [caption, setCaption] = useState<string>(post.caption);
@@ -19,48 +23,46 @@ function EditPostForm() {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setIsSubmitting(true);
+
         const formData = new FormData();
         formData.append("caption", caption);
+        formData.append("visibility", selectValue);
+
         const { ok } = await postsApi.editPost(post.post_uuid, formData);
+
         if (ok) {
             updateCaption(caption);
             if (auth.user?.id) {
                 notifyRecentsUpdated(auth.user.id);
             }
         }
+
         setIsSubmitting(false);
         setOpenEditCallback(false);
     }
 
     return (
-        <>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <div className=" max-h-[700px] overflow-y-auto grid gap-y-3">
-                    <textarea
-                        className="textarea w-full outline-none max-h-[350px] overflow-y-auto"
-                        placeholder="What's growing today?"
-                        value={caption}
-                        onChange={(e) => {
-                            setCaption(e.target.value);
-                        }}
-                    ></textarea>
-                    {post.media.length > 0 && (
-                        <>
-                            <div className="px-7">
-                                <PostCarousel mediaList={post.media} />
-                            </div>
-                        </>
-                    )}
-                </div>
-
-                <button
-                    className="btn btn-primary w-fit px-10 self-center"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? "Saving..." : "Save"}
-                </button>
-            </form>
-        </>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <div className="max-h-[700px] overflow-y-auto grid gap-y-3">
+                <textarea
+                    className="textarea w-full outline-none max-h-[350px] overflow-y-auto"
+                    placeholder="What's growing today?"
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                />
+                {post.media.length > 0 && (
+                    <div className="px-7">
+                        <PostCarousel mediaList={post.media} />
+                    </div>
+                )}
+            </div>
+            <button
+                className="btn btn-primary w-fit px-10 self-center mt-3"
+                disabled={isSubmitting}
+            >
+                {isSubmitting ? "Saving..." : "Save"}
+            </button>
+        </form>
     );
 }
 

@@ -2,10 +2,11 @@ from ..database import get_db
 import psycopg2.extras
 
 class Posts() :
-    def __init__(self, id=None, uuid=None, caption=None, created_at=None, user_id=None) :
+    def __init__(self, id=None, uuid=None, caption=None, visibility=None, created_at=None, user_id=None) :
         self.id = id
         self.uuid = uuid
         self.caption = caption
+        self.visibility = visibility
         self.created_at = created_at
         self.user_id = user_id
     
@@ -13,19 +14,18 @@ class Posts() :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
 
-        sql = "INSERT INTO posts(caption, user_id) VALUES(%s, %s) RETURNING id, uuid"
-        cursor.execute(sql, (self.caption, self.user_id))
+        sql = "INSERT INTO posts(caption, visibility, user_id) VALUES(%s, %s, %s) RETURNING id, uuid"
+        cursor.execute(sql, (self.caption, self.visibility, self.user_id))
 
         id_uuid_res = cursor.fetchone()
 
         db.commit()
         cursor.close()
     
-
         return id_uuid_res
 
     @classmethod
-    def all(cls, limit, cursor_id) :
+    def all(cls, limit, cursor_id, current_user_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         sql =   """
@@ -41,6 +41,7 @@ class Posts() :
                     posts.id AS cursor_id,
                     posts.uuid AS post_uuid,
                     posts.caption,
+                    posts.visibility,
                     posts.created_at,
                     JSON_BUILD_OBJECT(
                         'id', users.uuid,
@@ -63,22 +64,32 @@ class Posts() :
                 JOIN users ON posts.user_id = users.id
                 LEFT JOIN media ON media.post_id = posts.id
                 LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
+                WHERE (
+                    posts.visibility = 'everyone'
+                    OR (posts.visibility = 'private' AND (
+                        posts.user_id = %s
+                        OR posts.user_id IN (
+                            SELECT following_id FROM follows WHERE follower_id = %s
+                        )
+                    ))
+                    OR (posts.visibility = 'for_me' AND posts.user_id = %s)
+                )
                 """
         if cursor_id :
             sql +=  """
-                    WHERE posts.id < %s
+                    AND posts.id < %s
                     GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
                     ORDER BY posts.created_at DESC
                     LIMIT %s
                     """
-            params = [cursor_id, limit + 1]
+            params = [current_user_id, current_user_id, current_user_id, cursor_id, limit + 1]
         else : 
             sql +=  """
                     GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
                     ORDER BY posts.created_at DESC
                     LIMIT %s
                     """
-            params = [limit + 1]
+            params = [current_user_id, current_user_id, current_user_id, limit + 1]
         cursor.execute(sql, params)
         posts = cursor.fetchall()
         cursor.close()
@@ -101,6 +112,7 @@ class Posts() :
                 SELECT 
                     posts.uuid AS post_uuid,
                     posts.caption,
+                    posts.visibility,
                     posts.created_at,
                     JSON_BUILD_OBJECT(
                         'id', users.uuid,
@@ -148,15 +160,27 @@ class Posts() :
 
     
     @classmethod
-    def update(cls, post_uuid, caption, current_user_id) :
+    def update(cls, post_uuid, caption, visibility, current_user_id):
         db = get_db()
         cursor = db.cursor()
-        sql = "UPDATE posts SET caption = %s WHERE uuid = %s AND user_id =%s RETURNING *"
-        cursor.execute(sql, (caption, post_uuid, current_user_id))
+
+        sql = """
+            UPDATE posts
+            SET 
+                caption = %s,
+                visibility = %s
+            WHERE uuid = %s 
+            AND user_id = %s
+            RETURNING id, uuid, caption, visibility, created_at, user_id
+        """
+
+        cursor.execute(sql, (caption, visibility, post_uuid, current_user_id))
         result = cursor.fetchone()
+
         db.commit()
         cursor.close()
 
         if result is None:
             return None
+
         return result

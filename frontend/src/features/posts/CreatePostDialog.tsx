@@ -9,8 +9,9 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { useAuthContext } from "../auth/AuthContext";
 import globeIcon from "@/assets/icons/globe.svg";
 import lockIcon from "@/assets/icons/lock.svg";
-import { useState } from "react";
 import CreatePostForm from "./CreatePostForm";
+import { useCreatePostContext } from "./context/PostContext";
+import { User } from "lucide-react";
 
 function CreatePostDialog({
     open,
@@ -20,7 +21,8 @@ function CreatePostDialog({
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const { auth } = useAuthContext()!;
-    const [selectValue, setSelectValue] = useState<string>("everyone");
+    const { visibility, setVisibility } = useCreatePostContext()!;
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-[550px] max-h-[95vh] overflow-y-auto bg-base-100">
@@ -38,24 +40,36 @@ function CreatePostDialog({
                                 {auth.user?.display_name ?? auth.user?.username}
                             </h1>
                             <div className="flex items-center gap-1">
-                                <img
-                                    src={
-                                        selectValue == "everyone"
-                                            ? globeIcon
-                                            : lockIcon
-                                    }
-                                    className="w-4 h-4  left-20 absolute z-20"
-                                    alt="globe"
-                                />
+                                {visibility === "everyone" ? (
+                                    <img
+                                        src={globeIcon}
+                                        className="w-4 h-4 left-20 absolute z-20"
+                                        alt="globe"
+                                    />
+                                ) : visibility === "private" ? (
+                                    <img
+                                        src={lockIcon}
+                                        className="w-4 h-4 left-20 absolute z-20"
+                                        alt="lock"
+                                    />
+                                ) : (
+                                    <User className="w-4 h-4 left-20 absolute z-20" />
+                                )}
                                 <select
                                     className="select appearance-none select-ghost w-fit h-fit pl-5 focus:outline-none focus:ring-1"
-                                    value={selectValue}
+                                    value={visibility}
                                     onChange={(e) => {
-                                        setSelectValue(e.target.value);
+                                        setVisibility(
+                                            e.target.value as
+                                                | "everyone"
+                                                | "private"
+                                                | "for_me"
+                                        );
                                     }}
                                 >
                                     <option value="everyone">Everyone</option>
                                     <option value="private">Private</option>
+                                    <option value="for_me">For me</option>
                                 </select>
                             </div>
                         </div>
