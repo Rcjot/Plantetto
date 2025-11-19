@@ -107,3 +107,51 @@ class Follows:
         cursor.close()
         
         return counts if counts else {"followers_count": 0, "following_count": 0}
+    
+    @classmethod
+    def get_followers(cls, username):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = """
+        SELECT 
+            u.uuid as id,
+            u.username,
+            u.display_name,
+            u.pfp_url
+        FROM follows f
+        JOIN users u ON f.follower_id = u.id
+        JOIN users target ON f.following_id = target.id
+        WHERE target.username = %s
+        ORDER BY f.created_at DESC
+        """
+        
+        cursor.execute(sql, (username,))
+        followers = cursor.fetchall()
+        cursor.close()
+        
+        return followers
+    
+    @classmethod
+    def get_following(cls, username):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = """
+        SELECT 
+            u.uuid as id,
+            u.username,
+            u.display_name,
+            u.pfp_url
+        FROM follows f
+        JOIN users u ON f.following_id = u.id
+        JOIN users target ON f.follower_id = target.id
+        WHERE target.username = %s
+        ORDER BY f.created_at DESC
+        """
+        
+        cursor.execute(sql, (username,))
+        following = cursor.fetchall()
+        cursor.close()
+        
+        return following

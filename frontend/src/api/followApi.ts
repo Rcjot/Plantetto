@@ -43,9 +43,31 @@ async function getFollowCounts(username: string) {
     }
 }
 
+async function getFollowers(username: string) {
+    try {
+        const { data } = await axios.get(`/follow/${username}/followers`);
+        return { ok: true, followers: data.followers };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, followers: [] };
+    }
+}
+
+async function getFollowing(username: string) {
+    try {
+        const { data } = await axios.get(`/follow/${username}/following`);
+        return { ok: true, following: data.following };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, following: [] };
+    }
+}
+
 export default {
     followUser,
     unfollowUser,
     checkFollowStatus,
     getFollowCounts,
+    getFollowers,
+    getFollowing,
 };

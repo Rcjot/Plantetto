@@ -36,3 +36,24 @@ def check_follow_status(username):
 def get_follow_counts(username):
     counts = Follows.get_follow_counts(username)
     return jsonify(success=True, counts=counts)
+
+@follow_bp.route("/<username>/followers")
+@login_required
+def get_followers(username):
+    try:
+        followers = Follows.get_followers(username)
+        return jsonify(success=True, followers=followers)
+    except Exception as e:
+        print(f"Error in get_followers: {e}")
+        return jsonify(success=False, message="Server error"), 500
+
+
+@follow_bp.route("/<username>/following")
+@login_required
+def get_following(username):
+    try:
+        following = Follows.get_following(username)
+        return jsonify(success=True, following=following)
+    except Exception as e:
+        print(f"Error in get_following: {e}")
+        return jsonify(success=False, message="Server error"), 500
