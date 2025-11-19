@@ -51,10 +51,15 @@ async function deletePost(post_uuid: string) {
     }
 }
 
-async function fetchPosts(cursorId: number | null) {
-    const { data } = await axios.get(`/posts?next_cursor=${cursorId}`);
+async function fetchPosts(cursor: string | null) {
+    const params = new URLSearchParams();
+    if (cursor) {
+        params.append("cursor", cursor);
+    }
+
+    const { data } = await axios.get(`/posts?${params.toString()}`);
     const posts: PostType[] = data["feed"];
-    const nextCursor: number | null = data["next_cursor"];
+    const nextCursor: string | null = data["next_cursor"];
     return { posts, nextCursor };
 }
 

@@ -5,7 +5,7 @@ import PostCardProvider from "./context/PostProvider";
 
 function FeedSection() {
     const [posts, setPosts] = useState<PostType[]>([]);
-    const [nextCursor, setNextCursor] = useState<number | null>(null);
+    const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(true);
 
@@ -16,7 +16,7 @@ function FeedSection() {
         setLoading(true);
         const { posts: resPosts, nextCursor: resNextCursor } =
             await postsApi.fetchPosts(nextCursor);
-        // await new Promise((resolve) => setTimeout(resolve, 1000));
+
         setPosts((prev) => [...prev, ...resPosts]);
         setHasMore(Boolean(resNextCursor));
         setNextCursor(resNextCursor);
@@ -27,7 +27,7 @@ function FeedSection() {
         if (initialFetch.current) return;
         initialFetch.current = true;
         fetchPosts();
-    }, [fetchPosts, nextCursor]);
+    }, [fetchPosts]);
 
     useEffect(() => {
         if (!infiniteTriggerRef.current) return;
@@ -37,14 +37,13 @@ function FeedSection() {
             const entry = entries[0];
 
             if (entry.isIntersecting && !loading && hasMore) {
-                // console.log("fetching loading was false");
                 setLoading(true);
                 fetchPosts();
-            } else {
-                // console.log("not fetching! currently loading");
             }
         });
+
         observer.observe(infiniteTriggerRef.current);
+
         return () => {
             if (observedRef) observer.unobserve(observedRef);
             observer.disconnect();
