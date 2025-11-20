@@ -5,26 +5,48 @@ from ...services import cloudinary
 from ...models.post import Posts
 from ...models.media import Media
 from .forms import PostForm
+import json
 
 @post_bp.route("", strict_slashes=False) 
 @login_required
-def get_posts() :
-    limit = request.args.get("limit", default = 10, type=int)
-    cursor_id = request.args.get("next_cursor", default=None, type=int)
-    result = Posts.all(limit, cursor_id)
+def get_posts():
+    limit = request.args.get("limit", default=10, type=int)
+    cursor_data = request.args.get("cursor", default=None, type=str)
+    
+    cursor_score = None
+    cursor_timestamp = None
+    
+    if cursor_data:
+        try:
+            cursor_obj = json.loads(cursor_data)
+            cursor_score = cursor_obj.get("score")
+            cursor_timestamp = cursor_obj.get("timestamp")
+        except (json.JSONDecodeError, AttributeError):
+            return jsonify(error="Invalid cursor format"), 400
+    
+    current_user_id = current_user.get_id()
+    result = Posts.all(limit, cursor_score, cursor_timestamp, current_user_id)
+    
     feed = result
     has_more = len(feed) > limit
     feed = feed[:limit]
-
+    
+    next_cursor = None
+    if has_more and feed:
+        last_post = feed[-1]
+        next_cursor = json.dumps({
+            "score": last_post['priority_score'],
+            "timestamp": last_post['created_at'].isoformat()
+        })
 
     return jsonify(
         feed=feed,
-        next_cursor = feed[-1]['cursor_id'] if has_more else None,
+        next_cursor=next_cursor,
     )
     
 @post_bp.route("/<post_uuid>")
 @login_required
-def get_post(post_uuid) :
+def get_post(post_uuid):
     post = Posts.get_post(post_uuid)
     return jsonify(
         post=post
@@ -32,9 +54,10 @@ def get_post(post_uuid) :
 
 @post_bp.route("/", methods=["POST"])
 @login_required
-def create_post() :
+def create_post():
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
+    visibility = request.form.get("visibility", "everyone")
     mediaList = request.files.getlist('media')
     form = PostForm()
     validated = form.validate()
@@ -44,19 +67,19 @@ def create_post() :
         "media" : form.media.errors,
         "root" : []
     }
-    if validated : 
+    if validated: 
         try:
-            new_post = Posts(caption=caption, user_id=current_user_id)
+            new_post = Posts(caption=caption, visibility=visibility, user_id=current_user_id)
             res = new_post.add()
             new_post_id = res['id']
             new_post_uuid = res['uuid']
 
-            for i, media in enumerate(mediaList) :
-                if media.mimetype.startswith("image/") :
+            for i, media in enumerate(mediaList):
+                if media.mimetype.startswith("image/"):
                     media_type = "image"
-                elif media.mimetype.startswith("video/") :
+                elif media.mimetype.startswith("video/"):
                     media_type = "video"
-                else :
+                else:
                     raise ValueError("unsupported file type!")
                 media_res = cloudinary.upload_asset(media, public_id=str(i), media_type=media_type, folder=f"posts/{new_post_uuid}")
                 new_media = Media(media_url=media_res["srcURL"], media_order=i, media_type=media_type, post_id=new_post_id, width=media_res["width"], height=media_res["height"])
@@ -73,32 +96,43 @@ def create_post() :
 
 @post_bp.route("/<uuid:post_uuid>", methods=["DELETE"])
 @login_required
-def delete_post(post_uuid) :
+def delete_post(post_uuid):
     post_uuid = str(post_uuid)
     current_user_id = current_user.get_id()
     to_delete_post_with_media = Posts.get_post(post_uuid)
     to_delete_post = Posts.delete(post_uuid, current_user_id)    
     
-    if (to_delete_post) :
-        if (len(to_delete_post_with_media["media"]) > 0) :
-            try :
+    if (to_delete_post):
+        if (len(to_delete_post_with_media["media"]) > 0):
+            try:
                 cloudinary.delete_post(post_uuid)
-            except : 
+            except: 
                 return jsonify(success=False, message="delete post failed!"), 500
         return jsonify(success=True, message="delete post successful")        
-    else :
+    else:
         return jsonify(success=False, message="delete post failed!"), 404
 
 @post_bp.route("/<uuid:post_uuid>", methods=["PUT"])
 @login_required
-def update_post(post_uuid) :
+def update_post(post_uuid):
     post_uuid = str(post_uuid)
-    # no need to validate since its only caption
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
-    to_update_post = Posts.update(post_uuid, caption, current_user_id)
-    if (to_update_post) :
-        return jsonify(success=True, message="edit post successful", post_uuid=post_uuid)        
-    else :
-        return jsonify(success=False, message="edit post failed!"), 404
+    visibility = request.form.get("visibility")
 
+    to_update_post = Posts.update(
+        post_uuid=post_uuid,
+        caption=caption,
+        visibility=visibility,
+        current_user_id=current_user_id
+    )
+
+    if (to_update_post):
+        return jsonify(
+            success=True,
+            message="edit post successful",
+            post_uuid=post_uuid,
+            to_update_post=to_update_post
+        )
+    else:
+        return jsonify(success=False, message="edit post failed!"), 404

@@ -188,3 +188,73 @@ class Diaries :
             return None
         return result
 
+    @classmethod 
+    def get_all_on_date_following(cls, on_date, current_user_id):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT 
+            JSON_BUILD_OBJECT(
+                'media_url', thumb.media_url,
+                'media_type', thumb.media_type
+            ) AS thumbnail,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'username', users.username,
+                'display_name', users.display_name,
+                'pfp_url', users.pfp_url
+            ) AS user,
+            JSON_AGG(
+                JSON_BUILD_OBJECT(
+                    'uuid', diaries.uuid,
+                    'note', diaries.note,
+                    'media_url', diaries.media_url,
+                    'media_type', diaries.media_type,
+                    'plant', plants.nickname,
+                    'plant_id', plants.id,
+                    'created_at', diaries.created_at
+                ) ORDER BY diaries.created_at
+            ) AS diaries
+        FROM diaries
+        JOIN users ON diaries.user_id = users.id
+        JOIN plants ON diaries.plant_id = plants.id
+        LEFT JOIN LATERAL (
+            SELECT media_url, media_type
+            FROM diaries
+            WHERE user_id = users.id AND media_url IS NOT NULL
+            ORDER BY created_at DESC
+            LIMIT 1
+        ) thumb ON TRUE
+        WHERE (
+            diaries.user_id IN (
+                SELECT following_id 
+                FROM follows 
+                WHERE follower_id = %s
+            )
+            OR diaries.user_id = %s
+        )
+        """
+        
+        if (on_date == "today") :
+            sql +=  """
+                    AND diaries.created_at >= NOW() - INTERVAL '24 hours'
+                    GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type
+                    ORDER BY MAX(diaries.created_at) DESC
+                    """
+            params = [current_user_id, current_user_id]
+        else :
+            sql +=  """
+                    AND diaries.created_at >= %s::date 
+                    AND diaries.created_at < (%s::date + INTERVAL '1 day')
+                    GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type
+                    ORDER BY MAX(diaries.created_at) DESC
+                    """
+            params = [current_user_id, current_user_id, on_date, on_date]
+
+        cursor.execute(sql, params)
+        diaries = cursor.fetchall()
+
+        cursor.close()
+
+        return diaries

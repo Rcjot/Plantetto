@@ -61,6 +61,9 @@ def create_app() :
     from .features.guide import guide_bp
     app.register_blueprint(guide_bp, url_prefix="/api/guides")
 
+    from .features.follow import follow_bp
+    app.register_blueprint(follow_bp, url_prefix="/api/follow")
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
         print(e.description)

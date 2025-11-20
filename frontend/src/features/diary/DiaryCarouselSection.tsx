@@ -16,7 +16,8 @@ function DiaryCarouselSection() {
     const [diaryCardList, setDiaries] = useState<DiaryCardType[]>([]);
 
     const fetchDiaries = useCallback(async () => {
-        const { ok, plantDiaries } = await diariesApi.fetchDiariesToday();
+        const { ok, plantDiaries } =
+            await diariesApi.fetchDiariesTodayFollowing();
         if (ok) {
             setDiaries(plantDiaries);
         }

@@ -10,6 +10,7 @@ export interface PostType {
     post_uuid: string;
     author: UserType;
     caption: string;
+    visibility: "everyone" | "private" | "for_me";
     created_at: string;
     media: MediaType[];
     highlight_width: number;
@@ -33,5 +34,9 @@ export interface CreatePostContextType {
     setCreatePostForm: React.Dispatch<React.SetStateAction<CreatePostFormType>>;
     caption: string;
     setCaption: React.Dispatch<React.SetStateAction<string>>;
+    visibility: "everyone" | "private" | "for_me";
+    setVisibility: React.Dispatch<
+        React.SetStateAction<"everyone" | "private" | "for_me">
+    >;
     appendPost: (newPost: PostType) => void;
 }

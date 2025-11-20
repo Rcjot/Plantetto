@@ -13,7 +13,9 @@ function CreatePost({ children }: { children: React.ReactNode }) {
         preview: [],
     });
     const [caption, setCaption] = useState("");
-
+    const [visibility, setVisibility] = useState<
+        "everyone" | "private" | "for_me"
+    >("everyone");
     const appendPost = useCallback((newPost: PostType) => {
         setAddedPosts((prev) => [newPost, ...prev]);
     }, []);
@@ -24,9 +26,19 @@ function CreatePost({ children }: { children: React.ReactNode }) {
             setCreatePostForm,
             caption,
             setCaption,
+            visibility,
+            setVisibility,
             appendPost,
         }),
-        [createPostForm, setCreatePostForm, caption, setCaption, appendPost]
+        [
+            createPostForm,
+            setCreatePostForm,
+            caption,
+            setCaption,
+            visibility,
+            setVisibility,
+            appendPost,
+        ]
     );
 
     return (

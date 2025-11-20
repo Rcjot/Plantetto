@@ -119,3 +119,13 @@ def delete_diary(diary_uuid) :
         return jsonify(success=True, message="delete diary successful")
     else :
         return jsonify(success=False, message="delete diary failed"), 404
+    
+@diary_bp.route("/following") 
+@login_required
+def get_diaries_today_following() :
+    current_user_id = current_user.get_id()
+    on_date = request.args.get("date", "today")
+    result = Diaries.get_all_on_date_following(on_date, current_user_id)
+    return jsonify(
+        diaries=result
+    )

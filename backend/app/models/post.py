@@ -1,84 +1,142 @@
 from ..database import get_db
 import psycopg2.extras
 
-class Posts() :
-    def __init__(self, id=None, uuid=None, caption=None, created_at=None, user_id=None) :
+class Posts():
+    def __init__(self, id=None, uuid=None, caption=None, visibility=None, created_at=None, user_id=None):
         self.id = id
         self.uuid = uuid
         self.caption = caption
+        self.visibility = visibility
         self.created_at = created_at
         self.user_id = user_id
     
-    def add(self) :
+    def add(self):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
 
-        sql = "INSERT INTO posts(caption, user_id) VALUES(%s, %s) RETURNING id, uuid"
-        cursor.execute(sql, (self.caption, self.user_id))
+        sql = "INSERT INTO posts(caption, visibility, user_id) VALUES(%s, %s, %s) RETURNING id, uuid"
+        cursor.execute(sql, (self.caption, self.visibility, self.user_id))
 
         id_uuid_res = cursor.fetchone()
 
         db.commit()
         cursor.close()
     
-
         return id_uuid_res
 
     @classmethod
-    def all(cls, limit, cursor_id) :
+    def all(cls, limit, cursor_score, cursor_timestamp, current_user_id):
+        """
+        Fetch posts with priority buckets and visibility rules:
+        - Priority 3: Recent posts from YOU and people you follow (last 24 hours)
+        - Priority 2: Recent posts from everyone else (last 24 hours)
+        - Priority 1: Older posts (everything 24+ hours old)
+        
+        This ensures fresh content always surfaces first, with your own posts
+        and followed users getting preference within the recent timeframe.
+        
+        Visibility rules:
+        - 'everyone': visible to all
+        - 'private': visible to author and followers
+        - 'for_me': visible only to author
+        """
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        sql =   """
-                WITH max_ratio_media AS (
-                    SELECT DISTINCT ON (post_id)
-                        post_id,
-                        width,
-                        height
-                    FROM media
-                    ORDER BY post_id, (height::float / width::float) DESC
+        
+        sql = """
+        WITH cutoff_time AS (
+            SELECT NOW() - INTERVAL '24 hours' AS recent_cutoff
+        ),
+        scored_posts AS (
+            SELECT 
+                p.id,
+                p.uuid AS post_uuid,
+                p.caption,
+                p.visibility,
+                p.created_at,
+                p.user_id,
+                CASE
+                    -- Recent posts from YOU or followed users get highest priority
+                    WHEN (p.user_id = %s OR f.following_id IS NOT NULL)
+                        AND p.created_at >= (SELECT recent_cutoff FROM cutoff_time)
+                    THEN 3
+                    -- Recent posts from non-followed users
+                    WHEN p.created_at >= (SELECT recent_cutoff FROM cutoff_time)
+                    THEN 2
+                    -- All older posts (lowest priority)
+                    ELSE 1
+                END AS priority_score
+            FROM posts p
+            LEFT JOIN follows f 
+                ON f.following_id = p.user_id AND f.follower_id = %s
+            WHERE 
+                -- Visibility filtering
+                (
+                    p.visibility = 'everyone'
+                    OR (p.visibility = 'private' AND (
+                        p.user_id = %s 
+                        OR f.following_id IS NOT NULL
+                    ))
+                    OR (p.visibility = 'for_me' AND p.user_id = %s)
                 )
-                SELECT 
-                    posts.id AS cursor_id,
-                    posts.uuid AS post_uuid,
-                    posts.caption,
-                    posts.created_at,
+        ),
+        max_ratio_media AS (
+            SELECT DISTINCT ON (post_id)
+                post_id,
+                width,
+                height
+            FROM media
+            ORDER BY post_id, (height::float / width::float) DESC
+        )
+        SELECT 
+            sp.id AS cursor_id,
+            sp.post_uuid,
+            sp.caption,
+            sp.visibility,
+            sp.created_at,
+            sp.priority_score,
+            JSON_BUILD_OBJECT(
+                'id', u.uuid,
+                'pfp_url', u.pfp_url,
+                'username', u.username,
+                'display_name', u.display_name
+            ) AS author,
+            COALESCE(
+                JSON_AGG(
                     JSON_BUILD_OBJECT(
-                        'id', users.uuid,
-                        'pfp_url', users.pfp_url,
-                        'username', users.username,
-                        'display_name', users.display_name
-                    ) AS author,
-                    COALESCE(
-                        JSON_AGG(
-                            JSON_BUILD_OBJECT(
-                                'url', media.media_url,
-                                'order', media.media_order,
-                                'type', media.media_type
-                            ) ORDER BY media.media_order
-                        ) FILTER (WHERE media.id IS NOT NULL), '[]'
-                    ) AS media,
-                    max_ratio.width AS highlight_width,
-                    max_ratio.height AS highlight_height
-                FROM posts
-                JOIN users ON posts.user_id = users.id
-                LEFT JOIN media ON media.post_id = posts.id
-                LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
-                """
-        if cursor_id :
-            sql +=  """
-                    WHERE posts.id < %s
-                    GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
-                    ORDER BY posts.created_at DESC
-                    LIMIT %s
-                    """
-            params = [cursor_id, limit + 1]
-        else : 
-            sql +=  """
-                    GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
-                    ORDER BY posts.created_at DESC
-                    LIMIT %s
-                    """
-            params = [limit + 1]
+                        'url', m.media_url,
+                        'order', m.media_order,
+                        'type', m.media_type
+                    ) ORDER BY m.media_order
+                ) FILTER (WHERE m.id IS NOT NULL), '[]'
+            ) AS media,
+            mr.width AS highlight_width,
+            mr.height AS highlight_height
+        FROM scored_posts sp
+        JOIN users u ON sp.user_id = u.id
+        LEFT JOIN media m ON m.post_id = sp.id
+        LEFT JOIN max_ratio_media mr ON mr.post_id = sp.id
+        """
+        
+        params = [current_user_id, current_user_id, current_user_id, current_user_id]
+        
+        # Add cursor filtering
+        if cursor_score is not None and cursor_timestamp is not None:
+            sql += """
+            WHERE (sp.priority_score, sp.created_at) < (%s, %s)
+            """
+            params.extend([cursor_score, cursor_timestamp])
+        
+        sql += """
+        GROUP BY sp.id, sp.post_uuid, sp.caption, sp.visibility, sp.created_at, 
+                 sp.priority_score, u.uuid, u.pfp_url, u.username, u.display_name,
+                 mr.width, mr.height
+        ORDER BY sp.priority_score DESC, sp.created_at DESC
+        LIMIT %s
+        """
+        
+        params.append(limit + 1)
+        
         cursor.execute(sql, params)
         posts = cursor.fetchall()
         cursor.close()
@@ -86,46 +144,48 @@ class Posts() :
         return posts
 
     @classmethod
-    def get_post(cls, post_uuid) :
+    def get_post(cls, post_uuid):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         sql = """
-                WITH max_ratio_media AS (
-                    SELECT DISTINCT ON (post_id)
-                        post_id,
-                        width,
-                        height
-                    FROM media
-                    ORDER BY post_id, (height::float / width::float) DESC
-                )
-                SELECT 
-                    posts.uuid AS post_uuid,
-                    posts.caption,
-                    posts.created_at,
+        WITH max_ratio_media AS (
+            SELECT DISTINCT ON (post_id)
+                post_id,
+                width,
+                height
+            FROM media
+            ORDER BY post_id, (height::float / width::float) DESC
+        )
+        SELECT 
+            posts.uuid AS post_uuid,
+            posts.caption,
+            posts.visibility,
+            posts.created_at,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS author,
+            COALESCE(
+                JSON_AGG(
                     JSON_BUILD_OBJECT(
-                        'id', users.uuid,
-                        'pfp_url', users.pfp_url,
-                        'username', users.username,
-                        'display_name', users.display_name
-                    ) AS author,
-                    COALESCE(
-                        JSON_AGG(
-                            JSON_BUILD_OBJECT(
-                                'url', media.media_url,
-                                'order', media.media_order,
-                                'type', media.media_type
-                            ) ORDER BY media.media_order
-                        ) FILTER (WHERE media.id IS NOT NULL), '[]'
-                    ) AS media,
-                    max_ratio.width AS highlight_width,
-                    max_ratio.height AS highlight_height
-                FROM posts
-                JOIN users ON posts.user_id = users.id
-                LEFT JOIN media ON media.post_id = posts.id
-                LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
-                WHERE posts.uuid = %s
-                GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
-                """
+                        'url', media.media_url,
+                        'order', media.media_order,
+                        'type', media.media_type
+                    ) ORDER BY media.media_order
+                ) FILTER (WHERE media.id IS NOT NULL), '[]'
+            ) AS media,
+            max_ratio.width AS highlight_width,
+            max_ratio.height AS highlight_height
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        LEFT JOIN media ON media.post_id = posts.id
+        LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
+        WHERE posts.uuid = %s
+        GROUP BY posts.id, users.uuid, users.pfp_url, users.username, 
+                 users.display_name, max_ratio.width, max_ratio.height
+        """
         cursor.execute(sql, (post_uuid,))
         result = cursor.fetchone()
         cursor.close()
@@ -133,7 +193,7 @@ class Posts() :
         return result
     
     @classmethod
-    def delete(cls, post_uuid, current_user_id) :
+    def delete(cls, post_uuid, current_user_id):
         db = get_db()
         cursor = db.cursor()
         sql = "DELETE FROM posts WHERE uuid = %s AND user_id = %s RETURNING *"
@@ -146,17 +206,28 @@ class Posts() :
             return None
         return result
 
-    
     @classmethod
-    def update(cls, post_uuid, caption, current_user_id) :
+    def update(cls, post_uuid, caption, visibility, current_user_id):
         db = get_db()
         cursor = db.cursor()
-        sql = "UPDATE posts SET caption = %s WHERE uuid = %s AND user_id =%s RETURNING *"
-        cursor.execute(sql, (caption, post_uuid, current_user_id))
+
+        sql = """
+            UPDATE posts
+            SET 
+                caption = %s,
+                visibility = %s
+            WHERE uuid = %s 
+            AND user_id = %s
+            RETURNING id, uuid, caption, visibility, created_at, user_id
+        """
+
+        cursor.execute(sql, (caption, visibility, post_uuid, current_user_id))
         result = cursor.fetchone()
+
         db.commit()
         cursor.close()
 
         if result is None:
             return None
+
         return result
