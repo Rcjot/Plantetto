@@ -1,7 +1,7 @@
 import type { AuthType } from "./authTypes";
 import { useCallback, useEffect, useState } from "react";
 import authApi from "@/api/authApi";
-import { io } from "socket.io-client";
+import socket from "@/lib/socket";
 
 function useAuth() {
     const [auth, setAuth] = useState<AuthType>({
@@ -21,11 +21,10 @@ function useAuth() {
     }, [fetchCredentials]);
 
     useEffect(() => {
-        const socket = io("http://arsi.local:5000");
         socket.connect();
-        // socket.emit("connect");
         socket.on("connect", function () {
             socket.emit("message", "hello");
+            socket.emit("join", { username: "test", room: "test_room" });
         });
     });
 
