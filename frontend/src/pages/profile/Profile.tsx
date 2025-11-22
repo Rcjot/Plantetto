@@ -8,6 +8,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import ProfilePicture from "@/components/ProfilePicture";
 import { FollowersDialog } from "@/features/follow/FollowersDialog";
 import { FollowingDialog } from "@/features/follow/FollowingDialog";
+import chat_icon from "@/assets/icons/chat.svg";
 
 function Profile() {
     const [user, setUser] = useState<UserType | "loading" | null>("loading");
@@ -168,19 +169,40 @@ function Profile() {
                         {isOwnProfile ? (
                             <DialogDemo onSaved={fetchProfile} />
                         ) : (
-                            <button
-                                className={`btn ${
-                                    isFollowing ? "btn-primary" : "btn-primary"
-                                }`}
-                                onClick={handleFollowToggle}
-                                disabled={isFollowLoading}
-                            >
-                                {isFollowLoading
-                                    ? "Loading..."
-                                    : isFollowing
-                                      ? "Unfollow"
-                                      : "Follow"}
-                            </button>
+                            <div className="flex gap-4 items-center">
+                                <button
+                                    className={`btn ${
+                                        isFollowing
+                                            ? "btn-primary"
+                                            : "btn-primary"
+                                    }`}
+                                    onClick={handleFollowToggle}
+                                    disabled={isFollowLoading}
+                                >
+                                    {isFollowLoading
+                                        ? "Loading..."
+                                        : isFollowing
+                                          ? "Unfollow"
+                                          : "Follow"}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const event = new CustomEvent(
+                                            "openChat",
+                                            { detail: { user: user } }
+                                        );
+                                        window.dispatchEvent(event);
+                                    }}
+                                >
+                                    <img
+                                        tabIndex={0}
+                                        role="button"
+                                        src={chat_icon}
+                                        alt="Chat"
+                                        className="w-6 h-6 sm:w-8 sm:h-8 cursor-pointer"
+                                    />
+                                </button>
+                            </div>
                         )}
                     </div>
 

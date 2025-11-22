@@ -199,3 +199,18 @@ class Users(UserMixin) :
         except Exception as e:
             print(f"error updating profile: {e}")
             return False
+
+    @classmethod
+    def get_id_uuid_by_username(cls, username) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT id, uuid FROM users WHERE username = %s"
+
+        cursor.execute(sql, (username,))
+        result = cursor.fetchone()
+
+        if not result :
+            return None
+
+        return result

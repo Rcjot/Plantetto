@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import search_icon from "../assets/icons/search.svg";
-import chat_icon from "../assets/icons/chat.svg";
 import notification_icon from "../assets/icons/notification.svg";
 import plantetto_icon from "@/assets/icons/plantetto.svg";
 import menu_icon from "../assets/icons/menu.svg";
@@ -81,13 +80,6 @@ export default function Navbar() {
                 {/* right side of nav*/}
                 <div className="flex items-center gap-3 sm:gap-5">
                     <div className="dropdown dropdown-center">
-                        <img
-                            tabIndex={0}
-                            role="button"
-                            src={chat_icon}
-                            alt="Chat"
-                            className="w-6 h-6 sm:w-7 sm:h-7 cursor-pointer"
-                        />
                         <ChatDropdown />
                     </div>
 

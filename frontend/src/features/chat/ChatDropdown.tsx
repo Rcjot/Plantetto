@@ -1,73 +1,62 @@
-import { useEffect, useState } from "react";
-import { useAuthContext } from "../auth/AuthContext";
-import socket, { joinRoom, sendMessage } from "@/lib/socket";
+import ChatRoom from "@/features/chat/ChatRoom";
+import chat_icon from "@/assets/icons/chat.svg";
+import { useRef, useEffect, useState } from "react";
+import chatApi from "@/api/chatApi";
+import type { UserType } from "../auth/authTypes";
 
 function ChatDropdown() {
-    const { auth } = useAuthContext()!;
-    const [room, setRoom] = useState<string>("");
-    const [message, setMessage] = useState<string>("");
-    const [joinedRoom, setJoinedRoom] = useState<string>("");
-
-    function onJoinSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        if (auth.user) {
-            joinRoom(auth.user.username, room);
-            setJoinedRoom(room);
-        }
-    }
-    function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        if (auth.user) {
-            sendMessage(auth.user.username, message, joinedRoom);
-        }
-    }
+    const buttonRef = useRef<HTMLImageElement>(null);
+    const [currentRecipient, setCurrentRecipient] = useState<UserType | null>(
+        null
+    );
+    const [conversationRoom, setConversationRoom] = useState<string | null>(
+        null
+    );
 
     useEffect(() => {
-        const handler = (data: string) => {
-            console.log(data);
+        const handler = (event: CustomEvent<{ user: UserType }>) => {
+            buttonRef.current?.focus();
+            console.log(event.detail.user);
+            setCurrentRecipient(event.detail.user);
         };
-        socket.on("receive", handler);
+        window.addEventListener("openChat", handler as EventListener);
 
-        return () => {
-            socket.off("receive", handler);
-        };
+        return () =>
+            window.removeEventListener("openChat", handler as EventListener);
     }, []);
+
+    useEffect(() => {
+        const fetchConversationRoom = async () => {
+            if (currentRecipient) {
+                const { conversationRoom: conversationRoomRes } =
+                    await chatApi.getConversationRoom(
+                        currentRecipient.username
+                    );
+                setConversationRoom(conversationRoomRes);
+            }
+        };
+        fetchConversationRoom();
+    }, [currentRecipient]);
 
     return (
         <>
+            <img
+                tabIndex={0}
+                role="button"
+                src={chat_icon}
+                alt="Chat"
+                className="w-6 h-6 sm:w-7 sm:h-7 cursor-pointer"
+                ref={buttonRef}
+            />
+
             <div
                 tabIndex={-1}
                 className="right-11 dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm w-[300px] h-[calc(100dvh-60px)]"
             >
-                <h1>current room : {joinedRoom}</h1>
-                <form onSubmit={onJoinSubmit}>
-                    <div>
-                        <label>room</label>
-                        <input
-                            type="text"
-                            value={room}
-                            className="input"
-                            onChange={(e) => setRoom(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <button className="btn btn-primary">join room</button>
-                </form>
-                <form onSubmit={onSendSubmit}>
-                    <div>
-                        <label>message</label>
-                        <input
-                            type="text"
-                            value={message}
-                            className="input"
-                            onChange={(e) => setMessage(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button className="btn btn-primary">send</button>
-                </form>
-                <div></div>
+                <ChatRoom
+                    recipientUser={currentRecipient}
+                    conversationRoom={conversationRoom}
+                />
             </div>
         </>
     );
