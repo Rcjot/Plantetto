@@ -65,5 +65,36 @@ class Conversations() :
     
         return uuid_res
 
+    @classmethod
+    def get_all_conversation_rooms(cls, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = """
+        SELECT
+            c.uuid,
+            JSON_BUILD_OBJECT (
+                'id', u.uuid,
+                'pfp_url', u.pfp_url,
+                'username', u.username,
+                'display_name', u.display_name
+            ) AS recipient
+        FROM conversations c
+        JOIN conversation_participants cp1
+            ON cp1.conversation_uuid = c.uuid AND cp1.user_id = %s 
+        JOIN conversation_participants cp2
+            ON cp2.conversation_uuid = c.uuid AND cp2.user_id != %s
+        JOIN users u
+            ON cp2.user_id = u.id 
+        """
+        
+        cursor.execute(sql,(current_user_id, current_user_id)) 
+        result = cursor.fetchall()
+
+        db.commit()
+        cursor.close()
+    
+        return result
+
         
 

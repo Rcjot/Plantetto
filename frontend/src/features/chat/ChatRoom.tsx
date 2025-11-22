@@ -27,7 +27,7 @@ function ChatRoom({ recipientUser, conversationRoom }: ChatRoomProps) {
 
     useEffect(() => {
         const handler = (data: string) => {
-            console.log(data);
+            console.log("handler response", data);
         };
         socket.on("new_message", handler);
 

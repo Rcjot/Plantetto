@@ -4,8 +4,8 @@ import { io } from "socket.io-client";
 
 const socket = io(serverURL, { autoConnect: false });
 
-export function joinRooms() {
-    socket.emit("join_rooms");
+export function joinRooms(username: string) {
+    socket.emit("join_rooms", username);
 }
 
 export function joinRoom(username: string, room: string) {

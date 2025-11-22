@@ -25,7 +25,7 @@ function useAuth() {
             socket.connect();
             const connectHandler = () => {
                 joinRoom(auth.user!.username, auth.user!.id);
-                joinRooms();
+                joinRooms(auth.user!.username);
             };
 
             const requestJoinHandler = (conversationRoom: string) => {
