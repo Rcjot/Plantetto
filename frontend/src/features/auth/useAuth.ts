@@ -21,9 +21,8 @@ function useAuth() {
     }, [fetchCredentials]);
 
     useEffect(() => {
-        socket.connect();
+        // socket.connect();
         socket.on("connect", function () {
-            socket.emit("message", "hello");
             socket.emit("join", { username: "test", room: "test_room" });
         });
     });

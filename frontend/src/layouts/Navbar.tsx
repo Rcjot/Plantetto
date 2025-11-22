@@ -8,6 +8,7 @@ import menu_icon from "../assets/icons/menu.svg";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import ProfilePicture from "@/components/ProfilePicture";
 import WebsiteName from "@/assets/LandingPage/Plantetto-logo.svg";
+import ChatDropdown from "@/features/chat/ChatDropdown";
 
 import {
     Dialog,
@@ -79,11 +80,17 @@ export default function Navbar() {
 
                 {/* right side of nav*/}
                 <div className="flex items-center gap-3 sm:gap-5">
-                    <img
-                        src={chat_icon}
-                        alt="Chat"
-                        className="w-6 h-6 sm:w-7 sm:h-7 cursor-pointer"
-                    />
+                    <div className="dropdown dropdown-center">
+                        <img
+                            tabIndex={0}
+                            role="button"
+                            src={chat_icon}
+                            alt="Chat"
+                            className="w-6 h-6 sm:w-7 sm:h-7 cursor-pointer"
+                        />
+                        <ChatDropdown />
+                    </div>
+
                     <img
                         src={notification_icon}
                         alt="Notifications"
