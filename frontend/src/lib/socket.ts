@@ -2,7 +2,7 @@ const serverURL = import.meta.env.VITE_SERVER_URL;
 import type { UserType } from "@/features/auth/authTypes";
 import { io } from "socket.io-client";
 
-const socket = io(serverURL);
+const socket = io(serverURL, { autoConnect: false });
 
 export function joinRooms() {
     socket.emit("join_rooms");

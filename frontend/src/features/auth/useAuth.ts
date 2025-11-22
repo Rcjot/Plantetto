@@ -22,6 +22,7 @@ function useAuth() {
 
     useEffect(() => {
         if (auth && auth.user != null) {
+            socket.connect();
             const connectHandler = () => {
                 joinRoom(auth.user!.username, auth.user!.id);
                 joinRooms();
