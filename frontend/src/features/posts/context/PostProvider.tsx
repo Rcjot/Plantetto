@@ -5,17 +5,17 @@ import type { PostType } from "../postTypes";
 import PostCard from "../PostCard";
 
 function PostCardProvider({ passedPost }: { passedPost: PostType }) {
-    const { post, updateCaption, openEdit, setOpenEditCallback } =
+    const { post, updatePost, openEdit, setOpenEditCallback } =
         usePost(passedPost);
 
     const contextValue = useMemo(
         () => ({
             post,
-            updateCaption,
+            updatePost,
             openEdit,
             setOpenEditCallback,
         }),
-        [post, updateCaption, openEdit, setOpenEditCallback]
+        [post, updatePost, openEdit, setOpenEditCallback]
     );
 
     return (

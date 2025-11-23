@@ -4,13 +4,15 @@ import postsApi from "@/api/postsApi";
 import { usePostContext } from "./context/PostContext";
 import { notifyRecentsUpdated } from "@/features/recent/recentService";
 import { useAuthContext } from "../auth/AuthContext";
+import type { PlantOptionType } from "../garden/gardenTypes";
 
 interface Props {
     selectValue: "everyone" | "private" | "for_me";
+    plantTags: PlantOptionType[];
 }
 
-function EditPostForm({ selectValue }: Props) {
-    const { post, updateCaption, setOpenEditCallback } = usePostContext()!;
+function EditPostForm({ selectValue, plantTags }: Props) {
+    const { post, updatePost, setOpenEditCallback } = usePostContext()!;
     const { auth } = useAuthContext()!;
     const [caption, setCaption] = useState<string>(post.caption);
 
@@ -28,10 +30,13 @@ function EditPostForm({ selectValue }: Props) {
         formData.append("caption", caption);
         formData.append("visibility", selectValue);
 
+        const stringified = JSON.stringify(plantTags.map((p) => p.id));
+        formData.append("planttags", stringified);
+
         const { ok } = await postsApi.editPost(post.post_uuid, formData);
 
         if (ok) {
-            updateCaption(caption);
+            updatePost(caption, selectValue, plantTags);
             if (auth.user?.id) {
                 notifyRecentsUpdated(auth.user.id);
             }

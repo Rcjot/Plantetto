@@ -48,7 +48,7 @@ export function PlantTagSelect({
             <PopoverContent className="w-[200px] p-0">
                 <Command>
                     <CommandInput placeholder="Search framework..." />
-                    <CommandList>
+                    <CommandList className="no-propagate">
                         <CommandEmpty>No framework found.</CommandEmpty>
                         <CommandGroup>
                             {plants.map((plant) => (

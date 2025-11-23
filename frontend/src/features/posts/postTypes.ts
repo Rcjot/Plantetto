@@ -21,7 +21,11 @@ export interface PostType {
 
 export interface PostContextType {
     post: PostType;
-    updateCaption: (newCaption: string) => void;
+    updatePost: (
+        newCaption: string,
+        visibility: "everyone" | "private" | "for_me",
+        plantTags: PlantOptionType[]
+    ) => void;
     openEdit: boolean;
     setOpenEditCallback: (open: boolean) => void;
 }
