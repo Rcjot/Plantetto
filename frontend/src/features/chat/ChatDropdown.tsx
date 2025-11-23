@@ -2,7 +2,7 @@ import ChatRoom from "@/features/chat/ChatRoom";
 import chat_icon from "@/assets/icons/chat.svg";
 import { useState, useRef } from "react";
 import useConversationRooms from "./useConversationRooms";
-import useChatRoom from "./useChatRoom";
+import useChatState from "./useChatState";
 import ChatList from "./ChatList";
 
 function ChatDropdown() {
@@ -13,7 +13,7 @@ function ChatDropdown() {
         currentRecipient,
         conversationRoom,
         setCurrentRecipient,
-    } = useChatRoom(setIsListState);
+    } = useChatState(setIsListState);
 
     const ulDropdownRef = useRef<HTMLUListElement>(null);
 

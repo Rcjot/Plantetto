@@ -20,12 +20,12 @@ class Messages() :
         """
         cursor.execute(sql, (self.content, self.sender_id, self.conversation_uuid))
         
-        id_res = cursor.fetchone()
+        res = cursor.fetchone()
 
         db.commit()
         cursor.close()
 
-        return id_res
+        return res
 
     @classmethod
     def all_under_conversation(cls, current_user_id, conversation_uuid) :
@@ -34,13 +34,13 @@ class Messages() :
 
         sql = """
         SELECT
-            content,
-            created_at,
+            m.content,
+            m.created_at,
             JSON_BUILD_OBJECT(
-                'id', u.uuid,
-                'pfp_url', u.pfp_url,
-                'username', u.username,
-                'display_name', u.display_name
+                'id', sender.uuid,
+                'pfp_url', sender.pfp_url,
+                'username', sender.username,
+                'display_name', sender.display_name
             ) AS sender,
             (sender.id = %s) AS current_user_is_sender
         FROM messages m
@@ -50,9 +50,9 @@ class Messages() :
         """
         cursor.execute(sql,(current_user_id, conversation_uuid,))
         
-        id_res = cursor.fetchone()
+        res = cursor.fetchall()
 
         db.commit()
         cursor.close()
 
-        return id_res
+        return res

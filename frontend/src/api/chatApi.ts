@@ -1,5 +1,8 @@
 import axios from "@/lib/axios";
-import type { ConversationRoomType } from "@/features/chat/chatTypes";
+import type {
+    ConversationRoomType,
+    MessageType,
+} from "@/features/chat/chatTypes";
 
 async function getConversationRoom(username: string) {
     try {
@@ -21,7 +24,20 @@ async function getConversationRooms() {
     }
 }
 
+async function getConversationMessages(conversationRoomUuid: string) {
+    try {
+        const { data } = await axios.get(
+            `chat/room/${conversationRoomUuid}/messages`
+        );
+        const messages: MessageType[] = data["messages"];
+        return { ok: true, messages: messages };
+    } catch {
+        return { ok: false, messages: [] };
+    }
+}
+
 export default {
     getConversationRoom,
     getConversationRooms,
+    getConversationMessages,
 };

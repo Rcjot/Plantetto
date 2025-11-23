@@ -4,6 +4,8 @@ import socket, { sendMessage } from "@/lib/socket";
 import type { UserType } from "../auth/authTypes";
 import ProfilePicture from "@/components/ProfilePicture";
 import { ArrowLeft } from "lucide-react";
+import useChat from "./useChat";
+import ChatMessagesSection from "./ChatMessagesSection";
 
 interface ChatRoomProps {
     recipientUser: UserType | null;
@@ -17,6 +19,7 @@ function ChatRoom({
     toggleListState,
 }: ChatRoomProps) {
     const { auth } = useAuthContext()!;
+    const { messages } = useChat(conversationRoom);
     const [message, setMessage] = useState<string>("");
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -45,7 +48,7 @@ function ChatRoom({
     }, []);
     // initially this is not mounted yet, so chatroom has to be opened to receive messages
     // transfer this when working in notifications.
-    if (!recipientUser) return <div>loading...</div>;
+    if (!recipientUser || !messages) return <div>loading...</div>;
 
     return (
         <>
@@ -66,7 +69,14 @@ function ChatRoom({
                         {recipientUser.display_name ?? recipientUser.username}
                     </h1>
                 </div>
-
+                <div>
+                    messages history here
+                    {!conversationRoom ? (
+                        <h1>spark a conversation</h1>
+                    ) : (
+                        <ChatMessagesSection messages={messages} />
+                    )}
+                </div>
                 <form onSubmit={onSendSubmit}>
                     <div>
                         <label>message</label>

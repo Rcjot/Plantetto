@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import chatApi from "@/api/chatApi";
 import type { UserType } from "../auth/authTypes";
 
-function useChatRoom(
+function useChatState(
     setIsListState: React.Dispatch<React.SetStateAction<boolean>>
 ) {
     const buttonRef = useRef<HTMLImageElement>(null);
@@ -51,4 +51,4 @@ function useChatRoom(
     };
 }
 
-export default useChatRoom;
+export default useChatState;

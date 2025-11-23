@@ -28,7 +28,7 @@ def get_conversation_rooms() :
 
 # no route for adding message since it is handled with sockets
 
-@chat_bp.route("/room/messages/<uuid:conversation_uuid>")
+@chat_bp.route("/room/<uuid:conversation_uuid>/messages")
 @login_required
 def get_conversation_messages(conversation_uuid) :
     conversation_uuid = str(conversation_uuid)
