@@ -87,6 +87,7 @@ function CreatePostDialog({
                             setPlantTags={setPlantTags}
                         />
                     </div>
+
                     <div className="flex flex-wrap gap-3">
                         {plantTags.map((p) => {
                             return (
@@ -102,7 +103,6 @@ function CreatePostDialog({
                             );
                         })}
                     </div>
-
                     <CreatePostForm setOpen={setOpen} />
                 </DialogHeader>
             </DialogContent>

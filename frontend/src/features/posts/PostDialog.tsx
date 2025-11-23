@@ -40,7 +40,7 @@ function PostDialog() {
                     open={true}
                     onOpenChange={(open) => {
                         if (!open) {
-                            navigate(origin);
+                            navigate(origin); // navigate back to origin
                         }
                     }}
                 >

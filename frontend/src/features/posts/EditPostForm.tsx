@@ -29,10 +29,8 @@ function EditPostForm({ selectValue, plantTags }: Props) {
         const formData = new FormData();
         formData.append("caption", caption);
         formData.append("visibility", selectValue);
-
         const stringified = JSON.stringify(plantTags.map((p) => p.id));
         formData.append("planttags", stringified);
-
         const { ok } = await postsApi.editPost(post.post_uuid, formData);
 
         if (ok) {
