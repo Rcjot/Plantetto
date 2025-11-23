@@ -11,3 +11,7 @@ export interface MessageType {
     current_user_is_sender: boolean;
     sender: UserType;
 }
+
+export interface MessageSocketType extends MessageType {
+    sender_username: string;
+}

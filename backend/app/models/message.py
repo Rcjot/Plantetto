@@ -16,7 +16,7 @@ class Messages() :
         sql = """INSERT INTO messages
         (content, sender_id, conversation_uuid) 
         VALUES (%s, %s, %s)
-        RETURNING id
+        RETURNING id, created_at
         """
         cursor.execute(sql, (self.content, self.sender_id, self.conversation_uuid))
         

@@ -24,7 +24,9 @@ function ChatList({
                                 e.stopPropagation();
 
                                 setCurrentRecipient(room.recipient);
-                                toggleListState();
+
+                                // because it takes time to setup new room (rerender)
+                                setTimeout(() => toggleListState(), 150);
                             }}
                             tabIndex={-1}
                             key={room.uuid}

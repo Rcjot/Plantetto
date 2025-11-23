@@ -16,7 +16,7 @@ function useChat(conversationRoomUuid: string | null) {
         }
     }, [conversationRoomUuid]);
 
-    return { messages };
+    return { messages, setMessages };
 }
 
 export default useChat;

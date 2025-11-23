@@ -19,10 +19,7 @@ def handle_chat_message(data):
     sender_obj = data['sender']
 
     message = data['message']
-    payload = {
-        "sender": sender_obj,
-        "message": message
-    } 
+
     sender_username = data['sender_username']
     recipient_username = data['recipient_username']
     print(sender_username, 'sent a message to', recipient_username)
@@ -69,7 +66,15 @@ def handle_chat_message(data):
     # include details in message payload
     # message -> message_res
     new_message = Messages(content=message, conversation_uuid=conversation_room, sender_id=sender_id)
-    new_message.add()
+    res = new_message.add()
+
+    payload = {
+        "sender_username" : sender_username,
+        "sender": sender_obj,
+        "content": message,
+        "created_at" : str(res["created_at"])
+    } 
+
     emit("new_message", payload, to=conversation_room)
 
 

@@ -6,6 +6,7 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { ArrowLeft } from "lucide-react";
 import useChat from "./useChat";
 import ChatMessagesSection from "./ChatMessagesSection";
+import type { MessageSocketType } from "./chatTypes";
 
 interface ChatRoomProps {
     recipientUser: UserType | null;
@@ -19,7 +20,7 @@ function ChatRoom({
     toggleListState,
 }: ChatRoomProps) {
     const { auth } = useAuthContext()!;
-    const { messages } = useChat(conversationRoom);
+    const { messages, setMessages } = useChat(conversationRoom);
     const [message, setMessage] = useState<string>("");
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -32,20 +33,30 @@ function ChatRoom({
                 message,
                 conversationRoom
             );
+            setMessage("");
         }
     }
 
     useEffect(() => {
         console.log("listening to new messages");
-        const handler = (data: string) => {
-            console.log("handler response", data);
+        const handler = (data: MessageSocketType) => {
+            console.log("handle response", data);
+
+            const newMessage = {
+                content: data.content,
+                created_at: data.created_at,
+                current_user_is_sender:
+                    data.sender_username === auth.user?.username,
+                sender: data.sender,
+            };
+            setMessages((prev) => [...(prev ?? []), newMessage]);
         };
         socket.on("new_message", handler);
 
         return () => {
             socket.off("new_message", handler);
         };
-    }, []);
+    }, [auth, setMessages]);
     // initially this is not mounted yet, so chatroom has to be opened to receive messages
     // transfer this when working in notifications.
     if (!recipientUser || !messages) return <div>loading...</div>;
