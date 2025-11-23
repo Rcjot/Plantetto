@@ -41,3 +41,7 @@ class PostForm(FlaskForm) :
     caption = StringField()
     media = MultipleFileField(validators=[are_image_video, atleast_caption_media])
     planttags = StringField(validators=[is_valid_plant])
+
+class PostEditForm(FlaskForm) :
+    caption = StringField()
+    planttags = StringField(validators=[is_valid_plant])

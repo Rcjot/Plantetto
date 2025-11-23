@@ -6,6 +6,7 @@ from ...models.post import Posts
 from ...models.media import Media
 from ...models.planttag import PlantTags
 from .forms import PostForm
+from .forms import PostEditForm
 import json
 
 @post_bp.route("", strict_slashes=False) 
@@ -167,14 +168,13 @@ def update_post(post_uuid):
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
     visibility = request.form.get("visibility")
-    form = PostForm()
+    form = PostEditForm()
     current_user_id = current_user.get_id()
     form.current_user_id = current_user_id
 
     validated = form.validate()
     error = {
             "caption" : form.caption.errors,
-            "media" : form.media.errors,
             "planttags" : form.planttags.errors,
             "root" : []
         }
