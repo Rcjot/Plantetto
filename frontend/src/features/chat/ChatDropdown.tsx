@@ -1,42 +1,28 @@
 import ChatRoom from "@/features/chat/ChatRoom";
 import chat_icon from "@/assets/icons/chat.svg";
-import { useRef, useEffect, useState } from "react";
-import chatApi from "@/api/chatApi";
-import type { UserType } from "../auth/authTypes";
+import { useState, useRef } from "react";
+import useConversationRooms from "./useConversationRooms";
+import useChatRoom from "./useChatRoom";
+import ChatList from "./ChatList";
 
 function ChatDropdown() {
-    const buttonRef = useRef<HTMLImageElement>(null);
-    const [currentRecipient, setCurrentRecipient] = useState<UserType | null>(
-        null
-    );
-    const [conversationRoom, setConversationRoom] = useState<string | null>(
-        null
-    );
+    const [isListState, setIsListState] = useState(true);
+    const { conversationRooms: conversationRoomsList } = useConversationRooms();
+    const {
+        buttonRef,
+        currentRecipient,
+        conversationRoom,
+        setCurrentRecipient,
+    } = useChatRoom(setIsListState);
 
-    useEffect(() => {
-        const handler = (event: CustomEvent<{ user: UserType }>) => {
-            buttonRef.current?.focus();
-            console.log(event.detail.user);
-            setCurrentRecipient(event.detail.user);
-        };
-        window.addEventListener("openChat", handler as EventListener);
+    const ulDropdownRef = useRef<HTMLUListElement>(null);
 
-        return () =>
-            window.removeEventListener("openChat", handler as EventListener);
-    }, []);
-
-    useEffect(() => {
-        const fetchConversationRoom = async () => {
-            if (currentRecipient) {
-                const { conversationRoom: conversationRoomRes } =
-                    await chatApi.getConversationRoom(
-                        currentRecipient.username
-                    );
-                setConversationRoom(conversationRoomRes);
-            }
-        };
-        fetchConversationRoom();
-    }, [currentRecipient]);
+    function toggleListState() {
+        // buttons inside dynamically rendered components dismounts and redirects focus somewhere else not the dropdown
+        // fix by programmatically regain focus for the dropdown
+        ulDropdownRef.current?.focus();
+        setIsListState((prev) => !prev);
+    }
 
     return (
         <>
@@ -49,15 +35,25 @@ function ChatDropdown() {
                 ref={buttonRef}
             />
 
-            <div
+            <ul
                 tabIndex={-1}
-                className="right-11 dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm w-[300px] h-[calc(100dvh-60px)]"
+                ref={ulDropdownRef}
+                className="right-11 dropdown-content p-4 menu bg-base-100 rounded-box z-1 w-52 shadow-sm w-[300px] h-[calc(100dvh-60px)]"
             >
-                <ChatRoom
-                    recipientUser={currentRecipient}
-                    conversationRoom={conversationRoom}
-                />
-            </div>
+                {isListState ? (
+                    <ChatList
+                        conversationRoomsList={conversationRoomsList}
+                        setCurrentRecipient={setCurrentRecipient}
+                        toggleListState={toggleListState}
+                    />
+                ) : (
+                    <ChatRoom
+                        recipientUser={currentRecipient}
+                        conversationRoom={conversationRoom}
+                        toggleListState={toggleListState}
+                    />
+                )}
+            </ul>
         </>
     );
 }
