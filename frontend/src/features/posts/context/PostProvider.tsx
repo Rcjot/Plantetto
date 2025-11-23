@@ -4,7 +4,13 @@ import usePost from "./usePost";
 import type { PostType } from "../postTypes";
 import PostCard from "../PostCard";
 
-function PostCardProvider({ passedPost }: { passedPost: PostType }) {
+function PostCardProvider({
+    passedPost,
+    origin = "/home",
+}: {
+    passedPost: PostType;
+    origin?: string;
+}) {
     const { post, updatePost, openEdit, setOpenEditCallback } =
         usePost(passedPost);
 
@@ -14,8 +20,9 @@ function PostCardProvider({ passedPost }: { passedPost: PostType }) {
             updatePost,
             openEdit,
             setOpenEditCallback,
+            origin, // Add this
         }),
-        [post, updatePost, openEdit, setOpenEditCallback]
+        [post, updatePost, openEdit, setOpenEditCallback, origin]
     );
 
     return (

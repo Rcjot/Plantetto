@@ -38,7 +38,7 @@ export default function SearchResults({ search }: Props) {
             {/* content */}
             <div>
                 {activeTab === "sprouts" ? (
-                    <SearchResultsPosts search={search} />
+                    <SearchResultsPosts search={search} origin="/explore" />
                 ) : (
                     <SearchResultsUsers search={search} />
                 )}

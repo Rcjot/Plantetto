@@ -282,7 +282,7 @@ class Posts():
             condition += "AND pty.plant_name = %s "
             condition_params += [plant_type]
 
-        # Only include posts with visibility = 'everyone'
+        # Only include posts with visibility = 'everyone'   
         condition += "AND posts.visibility = 'everyone' "
 
         if cursor_timestamp :
@@ -308,6 +308,98 @@ class Posts():
         cursor.close()
 
         return posts
+    
+    @classmethod
+    def explorePostsOfPlant(cls, limit, search, cursor_timestamp, plant_type, current_user_id):
+        """
+        Explore posts for a specific plant type, using current_user_id to exclude their own posts.
+        """
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+            WITH max_ratio_media AS (
+                SELECT DISTINCT ON (post_id)
+                    post_id,
+                    width,
+                    height
+                FROM media
+                ORDER BY post_id, (height::float / width::float) DESC
+            )
+            SELECT
+                posts.id AS cursor_id,
+                posts.uuid AS post_uuid,
+                posts.caption,
+                posts.created_at,
+                JSON_BUILD_OBJECT(
+                    'id', users.id,
+                    'pfp_url', users.pfp_url,
+                    'username', users.username,
+                    'display_name', users.display_name
+                ) AS author,
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'url', media.media_url,
+                            'order', media.media_order,
+                            'type', media.media_type
+                        ) ORDER BY media.media_order
+                    ) FILTER (WHERE media.id IS NOT NULL), '[]'
+                ) AS media,
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'id', p.id,
+                            'uuid', p.uuid,
+                            'nickname', p.nickname
+                        )
+                    ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                ) AS planttags,
+                max_ratio.width AS highlight_width,
+                max_ratio.height AS highlight_height
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+            LEFT JOIN media ON media.post_id = posts.id
+            LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
+            LEFT JOIN plant_tags pt ON posts.id = pt.post_id
+            LEFT JOIN plants p ON p.id = pt.plant_id
+            LEFT JOIN plant_types pty ON p.plant_type_id = pty.id
+            WHERE posts.user_id != %s
+        """
+
+        params = [current_user_id]
+
+        if search:
+            search_like = f"%{search}%"
+            sql += """
+                AND (posts.caption ILIKE %s OR pty.plant_name ILIKE %s
+                    OR users.username ILIKE %s OR users.display_name ILIKE %s)
+            """
+            params.extend([search_like] * 4)
+
+        if plant_type:
+            sql += " AND pty.plant_name = %s"
+            params.append(plant_type)
+        sql += " AND posts.visibility = 'everyone'"
+
+        if cursor_timestamp:
+            sql += " AND posts.created_at < %s"
+            params.append(cursor_timestamp)
+
+        sql += """
+            GROUP BY posts.id, users.id, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
+            ORDER BY posts.created_at DESC
+            LIMIT %s
+        """
+        params.append(limit + 1)
+
+        cursor.execute(sql, params)
+        posts = cursor.fetchall()
+        cursor.close()
+
+        return posts
+
+    
     
     @classmethod
     def delete(cls, post_uuid, current_user_id):

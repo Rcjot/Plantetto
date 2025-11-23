@@ -5,9 +5,13 @@ import PostCardProvider from "@/features/posts/context/PostProvider";
 
 interface Props {
     search: string;
+    origin?: string;
 }
 
-export default function SearchResultsPosts({ search }: Props) {
+export default function SearchResultsPosts({
+    search,
+    origin = "/home",
+}: Props) {
     const [posts, setPosts] = useState<PostType[]>([]);
     const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState(true);
@@ -17,7 +21,6 @@ export default function SearchResultsPosts({ search }: Props) {
     const infiniteTriggerRef = useRef<HTMLDivElement | null>(null);
     const initialFetchDone = useRef(false);
 
-    // Fetch posts (initial or paginated)
     const fetchPosts = async (cursor: string | null = null, reset = false) => {
         if (!search.trim()) return;
 
@@ -103,7 +106,7 @@ export default function SearchResultsPosts({ search }: Props) {
         <div className="flex flex-col gap-6 pb-12 w-full">
             {posts.map((post) => (
                 <div key={post.post_uuid} className="w-full max-w-2xl mx-auto">
-                    <PostCardProvider passedPost={post} />
+                    <PostCardProvider passedPost={post} origin={origin} />
                 </div>
             ))}
 

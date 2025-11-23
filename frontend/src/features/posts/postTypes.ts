@@ -28,6 +28,7 @@ export interface PostContextType {
     ) => void;
     openEdit: boolean;
     setOpenEditCallback: (open: boolean) => void;
+    origin?: string;
 }
 
 export interface CreatePostFormType {

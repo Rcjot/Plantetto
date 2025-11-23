@@ -56,22 +56,37 @@ def get_post(post_uuid):
     )
 
 @post_bp.route("/explore")
+@login_required
 def explore_posts():
     limit = request.args.get("limit", default=10, type=int)
     search = request.args.get("search", default="", type=str)
-    cursor_timestamp = request.args.get("cursor", default=None, type=str)
+    cursor = request.args.get("cursor", default=None, type=str)
     plant_type = request.args.get("planttype", default=None, type=str)
 
-    result = Posts.explore(limit, search, cursor_timestamp, plant_type)
+    current_user_id = int(current_user.get_id())
 
-    feed = result 
+    if plant_type:
+        feed = Posts.explorePostsOfPlant(
+            limit=limit,
+            search=search,
+            cursor_timestamp=cursor,
+            plant_type=plant_type,
+            current_user_id=current_user_id
+        )
+    else:
+        feed = Posts.explore(
+            limit=limit,
+            search=search,
+            cursor_timestamp=cursor,
+             plant_type=plant_type,
+        )
+
     has_more = len(feed) > limit
     feed = feed[:limit]
+    next_cursor = feed[-1]["created_at"] if has_more else None
 
-    return jsonify(
-        feed=feed,
-        next_cursor = feed[-1]['created_at'] if has_more else None,
-    )
+    return jsonify(feed=feed, next_cursor=next_cursor)
+
 
 @post_bp.route("/", methods=["POST"])
 @login_required
