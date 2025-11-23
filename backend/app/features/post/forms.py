@@ -29,10 +29,13 @@ def atleast_caption_media(form, field) :
 def is_valid_plant(form, field) :
     parsed_tags_list = json.loads(field.data)
     print(parsed_tags_list)
+    fetched_planttag_list = []
     for tag in parsed_tags_list :
-        if (not Plants.check_user_plant_exists_by_id(tag, form.current_user_id)) :
+        fetched_plant = Plants.check_user_plant_exists_by_id(tag, form.current_user_id)
+        if (not fetched_plant) :
             raise ValidationError("plant must exist or plant selected is not yours")
-    form.parsed_planttags = parsed_tags_list
+        fetched_planttag_list.append(fetched_plant)
+    form.parsed_planttags = fetched_planttag_list  
 
 class PostForm(FlaskForm) :
     caption = StringField()

@@ -209,7 +209,7 @@ class Posts():
     @classmethod
     def update(cls, post_uuid, caption, visibility, current_user_id):
         db = get_db()
-        cursor = db.cursor()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         sql = """
             UPDATE posts

@@ -91,10 +91,13 @@ def create_post():
             new_post = Posts.get_post(new_post_uuid)
 
             for tag in form.parsed_planttags :
-                new_planttag = PlantTags(plant_id=tag, post_id=new_post_id)
+                new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
                 new_planttag.add()
   
-            return jsonify(success=True, post_uuid=new_post_uuid, new_post=new_post)
+            return jsonify(success=True,
+                           post_uuid=new_post_uuid,
+                           new_post=new_post,
+                           planttags=form.parsed_planttags)
         except Exception as e:
             print(e)
             error["root"] = ["something went wrong creating a post"]
@@ -128,20 +131,44 @@ def update_post(post_uuid):
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
     visibility = request.form.get("visibility")
+    form = PostForm()
+    current_user_id = current_user.get_id()
+    form.current_user_id = current_user_id
 
-    to_update_post = Posts.update(
-        post_uuid=post_uuid,
-        caption=caption,
-        visibility=visibility,
-        current_user_id=current_user_id
-    )
-
-    if (to_update_post):
-        return jsonify(
-            success=True,
-            message="edit post successful",
+    validated = form.validate()
+    error = {
+            "caption" : form.caption.errors,
+            "media" : form.media.errors,
+            "planttags" : form.planttags.errors,
+            "root" : []
+        }
+    if validated :
+        to_update_post = Posts.update(
             post_uuid=post_uuid,
-            to_update_post=to_update_post
+            caption=caption,
+            visibility=visibility,
+            current_user_id=current_user_id
         )
-    else:
-        return jsonify(success=False, message="edit post failed!"), 404
+    
+        if (to_update_post):
+            new_post_id = to_update_post["id"]
+            print(new_post_id)
+            PlantTags.delete_all_of_post(post_id=new_post_id)
+            for tag in form.parsed_planttags :
+                new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
+                new_planttag.add()
+
+
+            return jsonify(
+                success=True,
+                message="edit post successful",
+                post_uuid=post_uuid,
+                to_update_post=to_update_post,
+                planttags=form.parsed_planttags
+            )
+        else:
+            return jsonify(success=False, message="edit post failed!"), 404
+    else :
+        return jsonify(success=False,
+                message="form fields might be invalid",
+                error=error), 400

@@ -27,4 +27,12 @@ class PlantTags() :
         db.commit()
         cursor.close()
 
+    @classmethod
+    def delete_all_of_post(cls, post_id) :
+        db = get_db()
+        cursor = db.cursor()
 
+        sql = "DELETE FROM plant_tags WHERE post_id = %s"
+        cursor.execute(sql, (post_id,)) 
+        db.commit()
+        cursor.close()
