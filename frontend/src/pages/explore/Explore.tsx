@@ -114,7 +114,7 @@ function Explore() {
         e.preventDefault();
         const trimmed = search.trim();
 
-        navigate(`/explore?search=${encodeURIComponent(trimmed)}`);
+        //navigate(`/explore?search=${encodeURIComponent(trimmed)}`);
 
         setSubmittedSearch(trimmed);
         setIsSearching(trimmed !== "");

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import search_icon from "../assets/icons/search.svg";
 import chat_icon from "../assets/icons/chat.svg";
@@ -21,6 +21,9 @@ import {
 export default function Navbar() {
     const { auth, logout } = useAuthContext()!;
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const isExplorePage = location.pathname.startsWith("/explore");
 
     const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
     const [navSearch, setNavSearch] = useState("");
@@ -38,6 +41,7 @@ export default function Navbar() {
         const trimmed = navSearch.trim();
         if (!trimmed) return;
         navigate(`/explore?search=${encodeURIComponent(trimmed)}`);
+        setNavSearch("");
     };
 
     return (
@@ -65,25 +69,27 @@ export default function Navbar() {
                     </Link>
                 </div>
 
-                <div className="flex-1 flex justify-center px-2">
-                    <form
-                        onSubmit={handleNavbarSearch}
-                        className="flex items-center gap-2 w-full max-w-xs sm:max-w-sm md:max-w-md"
-                    >
-                        <img
-                            src={search_icon}
-                            alt="Search"
-                            className="w-6 h-6"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="input input-bordered flex-1 border-gray-200 bg-base-200"
-                            value={navSearch}
-                            onChange={(e) => setNavSearch(e.target.value)}
-                        />
-                    </form>
-                </div>
+                {!isExplorePage && (
+                    <div className="flex-1 flex justify-center px-2">
+                        <form
+                            onSubmit={handleNavbarSearch}
+                            className="flex items-center gap-2 w-full max-w-xs sm:max-w-sm md:max-w-md"
+                        >
+                            <img
+                                src={search_icon}
+                                alt="Search"
+                                className="w-6 h-6"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="input input-bordered flex-1 border-gray-200 bg-base-200"
+                                value={navSearch}
+                                onChange={(e) => setNavSearch(e.target.value)}
+                            />
+                        </form>
+                    </div>
+                )}
 
                 {/* right side */}
                 <div className="flex items-center gap-3 sm:gap-5">
