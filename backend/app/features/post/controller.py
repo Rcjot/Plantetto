@@ -4,6 +4,7 @@ from flask import request, jsonify
 from ...services import cloudinary
 from ...models.post import Posts
 from ...models.media import Media
+from ...models.planttag import PlantTags
 from .forms import PostForm
 import json
 
@@ -60,11 +61,14 @@ def create_post():
     visibility = request.form.get("visibility", "everyone")
     mediaList = request.files.getlist('media')
     form = PostForm()
-    validated = form.validate()
     current_user_id = current_user.get_id()
+    form.current_user_id = current_user_id
+
+    validated = form.validate()
     error = {
         "caption" : form.caption.errors,
         "media" : form.media.errors,
+        "planttags" : form.planttags.errors,
         "root" : []
     }
     if validated: 
@@ -85,6 +89,11 @@ def create_post():
                 new_media = Media(media_url=media_res["srcURL"], media_order=i, media_type=media_type, post_id=new_post_id, width=media_res["width"], height=media_res["height"])
                 new_media.add()
             new_post = Posts.get_post(new_post_uuid)
+
+            for tag in form.parsed_planttags :
+                new_planttag = PlantTags(plant_id=tag, post_id=new_post_id)
+                new_planttag.add()
+  
             return jsonify(success=True, post_uuid=new_post_uuid, new_post=new_post)
         except Exception as e:
             print(e)
