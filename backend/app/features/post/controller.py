@@ -17,6 +17,7 @@ def get_posts():
     cursor_score = None
     cursor_timestamp = None
     
+    # Parse cursor if provided
     if cursor_data:
         try:
             cursor_obj = json.loads(cursor_data)
@@ -32,6 +33,7 @@ def get_posts():
     has_more = len(feed) > limit
     feed = feed[:limit]
     
+    # Create next cursor from last item
     next_cursor = None
     if has_more and feed:
         last_post = feed[-1]
@@ -51,6 +53,24 @@ def get_post(post_uuid):
     post = Posts.get_post(post_uuid)
     return jsonify(
         post=post
+    )
+
+@post_bp.route("/explore")
+def explore_posts():
+    limit = request.args.get("limit", default=10, type=int)
+    search = request.args.get("search", default="", type=str)
+    cursor_timestamp = request.args.get("cursor", default=None, type=str)
+    plant_type = request.args.get("planttype", default=None, type=str)
+
+    result = Posts.explore(limit, search, cursor_timestamp, plant_type)
+
+    feed = result 
+    has_more = len(feed) > limit
+    feed = feed[:limit]
+
+    return jsonify(
+        feed=feed,
+        next_cursor = feed[-1]['created_at'] if has_more else None,
     )
 
 @post_bp.route("/", methods=["POST"])
@@ -93,12 +113,12 @@ def create_post():
             for tag in form.parsed_planttags :
                 new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
                 new_planttag.add()
-  
             new_post['planttags'] = form.parsed_planttags
             return jsonify(success=True,
                            post_uuid=new_post_uuid,
                            new_post=new_post,
                            )
+
         except Exception as e:
             print(e)
             error["root"] = ["something went wrong creating a post"]
@@ -150,7 +170,7 @@ def update_post(post_uuid):
             visibility=visibility,
             current_user_id=current_user_id
         )
-    
+
         if (to_update_post):
             new_post_id = to_update_post["id"]
             print(new_post_id)
@@ -173,3 +193,5 @@ def update_post(post_uuid):
         return jsonify(success=False,
                 message="form fields might be invalid",
                 error=error), 400
+
+
