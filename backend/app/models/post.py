@@ -110,12 +110,23 @@ class Posts():
                     ) ORDER BY m.media_order
                 ) FILTER (WHERE m.id IS NOT NULL), '[]'
             ) AS media,
+            COALESCE (
+                JSON_AGG(
+                    JSON_BUILD_OBJECT(
+                        'id', p.id,
+                        'uuid', p.uuid,
+                        'nickname', p.nickname
+                    ) 
+                ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+            ) AS planttags,
             mr.width AS highlight_width,
             mr.height AS highlight_height
         FROM scored_posts sp
         JOIN users u ON sp.user_id = u.id
         LEFT JOIN media m ON m.post_id = sp.id
         LEFT JOIN max_ratio_media mr ON mr.post_id = sp.id
+        LEFT JOIN plant_tags pt ON sp.id = pt.post_id
+        LEFT JOIN plants p ON p.id = pt.plant_id
         """
         
         params = [current_user_id, current_user_id, current_user_id, current_user_id]
@@ -176,12 +187,23 @@ class Posts():
                     ) ORDER BY media.media_order
                 ) FILTER (WHERE media.id IS NOT NULL), '[]'
             ) AS media,
+            COALESCE (
+                JSON_AGG(
+                    JSON_BUILD_OBJECT(
+                        'id', p.id,
+                        'uuid', p.uuid,
+                        'nickname', p.nickname
+                    ) 
+                ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+            ) AS planttags,
             max_ratio.width AS highlight_width,
             max_ratio.height AS highlight_height
         FROM posts
         JOIN users ON posts.user_id = users.id
         LEFT JOIN media ON media.post_id = posts.id
         LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
+        LEFT JOIN plant_tags pt ON posts.id = pt.post_id
+        LEFT JOIN plants p ON p.id = pt.plant_id
         WHERE posts.uuid = %s
         GROUP BY posts.id, users.uuid, users.pfp_url, users.username, 
                  users.display_name, max_ratio.width, max_ratio.height

@@ -14,6 +14,7 @@ export interface PostType {
     visibility: "everyone" | "private" | "for_me";
     created_at: string;
     media: MediaType[];
+    planttags: PlantOptionType[];
     highlight_width: number;
     highlight_height: number;
 }

@@ -60,6 +60,7 @@ function PostCard() {
                         user={post.author}
                         createdAt={post.created_at}
                         postCaption={post.caption}
+                        planttags={post.planttags}
                     />
                     {auth.user?.id === post.author.id && (
                         <PostOptionsButton setDeleted={setDeleted} />

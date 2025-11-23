@@ -74,6 +74,7 @@ function PostDialog() {
                                     user={post.author}
                                     createdAt={post.created_at}
                                     postCaption={post.caption}
+                                    planttags={post.planttags}
                                 />
                             </div>
                         </DialogHeader>
