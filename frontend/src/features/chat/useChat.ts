@@ -3,7 +3,9 @@ import type { MessageType } from "./chatTypes";
 import chatApi from "@/api/chatApi";
 
 function useChat(conversationRoomUuid: string | null) {
-    const [messages, setMessages] = useState<MessageType[] | null>(null);
+    const [messages, setMessages] = useState<MessageType[] | null>(
+        conversationRoomUuid ? null : []
+    );
 
     useEffect(() => {
         if (conversationRoomUuid) {

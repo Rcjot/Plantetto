@@ -31,6 +31,7 @@ def handle_chat_message(data):
     recipient_id = recipient_res['id']
     recipient_uuid = recipient_res['uuid']
  
+    room_destination = conversation_room
     if not conversation_room :
 
 
@@ -52,19 +53,18 @@ def handle_chat_message(data):
             # request recipient to join room and send a message
             # requests are addressed directly to recipients personal room
             emit("request_join", conversation_room, to=recipient_uuid)
+            emit("conversation_created", conversation_room, to=sender_uuid)
             print("requested recipient to join", conversation_room)
-            emit("new_message", payload, to=recipient_uuid)
+
+            room_destination = recipient_uuid
+
             # note : personal room basing off of user uuid is not secure as it is exposed in the frontend
-            return
         else : 
             conversation_room = conversation_res['uuid']
             print('already have conversation', conversation_room)
     else :
         print("already have passed conversation", conversation_room)
-    # add message entry in db
-    # added entry should return details in message creation
-    # include details in message payload
-    # message -> message_res
+
     new_message = Messages(content=message, conversation_uuid=conversation_room, sender_id=sender_id)
     res = new_message.add()
 
@@ -75,7 +75,7 @@ def handle_chat_message(data):
         "created_at" : str(res["created_at"])
     } 
 
-    emit("new_message", payload, to=conversation_room)
+    emit("new_message", payload, to=room_destination)
 
 
 @socketio.on("join")

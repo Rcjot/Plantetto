@@ -40,8 +40,6 @@ function ChatRoom({
     useEffect(() => {
         console.log("listening to new messages");
         const handler = (data: MessageSocketType) => {
-            console.log("handle response", data);
-
             const newMessage = {
                 content: data.content,
                 created_at: data.created_at,

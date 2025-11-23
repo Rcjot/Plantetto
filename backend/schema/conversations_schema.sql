@@ -10,7 +10,7 @@ CREATE TABLE conversations (
 );
 
 CREATE TABLE conversation_participants (
-    conversation_uuid UUID NOT NULL REFERENCES conversations (uuid),
+    conversation_uuid UUID NOT NULL REFERENCES conversations (uuid) ON DELETE CASCADE,
     user_id BIGINT NOT NULL REFERENCES users (id),
     last_read_message_id BIGINT DEFAULT 0,
     PRIMARY KEY (conversation_uuid, user_id)

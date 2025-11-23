@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import chatApi from "@/api/chatApi";
 import type { UserType } from "../auth/authTypes";
+import socket from "@/lib/socket";
 
 function useChatState(
     setIsListState: React.Dispatch<React.SetStateAction<boolean>>
@@ -29,6 +30,17 @@ function useChatState(
         return () =>
             window.removeEventListener("openChat", handler as EventListener);
     }, [setIsListState]);
+
+    useEffect(() => {
+        const handler = (newConversationUuid: string) => {
+            setConversationRoom(newConversationUuid);
+        };
+
+        socket.on("conversation_created", handler);
+        return () => {
+            socket.off("conversation_created", handler);
+        };
+    });
 
     useEffect(() => {
         const fetchConversationRoom = async () => {
