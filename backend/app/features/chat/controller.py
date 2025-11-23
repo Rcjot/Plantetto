@@ -1,6 +1,7 @@
 from . import chat_bp
 from flask import request, jsonify
 from ...models.conversation import Conversations
+from ...models.message import Messages
 from ...models.user import Users
 from flask_login import login_user, login_required, current_user, logout_user
 
@@ -24,3 +25,15 @@ def get_conversation_rooms() :
     conversation_rooms = Conversations.get_all_conversation_rooms(current_user_id)
 
     return jsonify(conversation_rooms=conversation_rooms)
+
+# no route for adding message since it is handled with sockets
+
+@chat_bp.route("/room/messages/<uuid:conversation_uuid>")
+@login_required
+def get_conversation_messages(conversation_uuid) :
+    conversation_uuid = str(conversation_uuid)
+    current_user_id = current_user.get_id()
+
+    messages = Messages.all_under_conversation(current_user_id, conversation_uuid)
+
+    return jsonify(messages=messages)

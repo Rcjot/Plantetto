@@ -2,6 +2,7 @@ from flask_socketio import SocketIO, send, join_room, leave_room, emit
 from . import socketio
 from flask_login import login_user, login_required, current_user, logout_user
 from .models.conversation import Conversations
+from .models.message import Messages
 from .models.user import Users
 
 @socketio.on("connect") 
@@ -24,17 +25,18 @@ def handle_chat_message(data):
     } 
     sender_username = data['sender_username']
     recipient_username = data['recipient_username']
-
     print(sender_username, 'sent a message to', recipient_username)
+
+    sender_res = Users.get_id_uuid_by_username(sender_username)
+    sender_id = sender_res['id']
+    sender_uuid = sender_res['uuid']
+    recipient_res = Users.get_id_uuid_by_username(recipient_username)
+    recipient_id = recipient_res['id']
+    recipient_uuid = recipient_res['uuid']
  
     if not conversation_room :
 
-        sender_res = Users.get_id_uuid_by_username(sender_username)
-        sender_id = sender_res['id']
-        sender_uuid = sender_res['uuid']
-        recipient_res = Users.get_id_uuid_by_username(recipient_username)
-        recipient_id = recipient_res['id']
-        recipient_uuid = recipient_res['uuid']
+
         
         # double check that conversation does not exist yet
         conversation_res =  Conversations.check_conversation_exists(sender_id, recipient_id)
@@ -66,7 +68,8 @@ def handle_chat_message(data):
     # added entry should return details in message creation
     # include details in message payload
     # message -> message_res
-
+    new_message = Messages(content=message, conversation_uuid=conversation_room, sender_id=sender_id)
+    new_message.add()
     emit("new_message", payload, to=conversation_room)
 
 

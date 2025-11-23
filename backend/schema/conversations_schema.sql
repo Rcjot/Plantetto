@@ -21,5 +21,5 @@ CREATE TABLE messages (
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     sender_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
-    conversation_id UUID REFERENCES conversations(uuid) ON DELETE CASCADE
+    conversation_uuid UUID REFERENCES conversations(uuid) ON DELETE CASCADE
 );
