@@ -172,7 +172,7 @@ function Explore() {
                     {selectedTag && (
                         <div className="flex flex-col gap-3">
                             <h2 className="text-xl font-semibold">
-                                Sprouts tagged with: {selectedTag}
+                                Sprouts tagged with {selectedTag}
                             </h2>
                         </div>
                     )}
