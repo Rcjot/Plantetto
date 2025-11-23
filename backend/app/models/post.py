@@ -253,15 +253,15 @@ class Posts():
                             ) ORDER BY media.media_order
                         ) FILTER (WHERE media.id IS NOT NULL), '[]'
                     ) AS media,
-                COALESCE (
-                    JSON_AGG(
-                        JSON_BUILD_OBJECT(
-                            'id', p.id,
-                            'uuid', p.uuid,
-                            'nickname', p.nickname
-                        ) 
-                    ) FILTER (WHERE pt.id IS NOT NULL), '[]'
-                ) AS planttags,
+                    COALESCE (
+                        JSON_AGG(
+                            JSON_BUILD_OBJECT(
+                                'id', p.id,
+                                'uuid', p.uuid,
+                                'nickname', p.nickname
+                            ) 
+                        ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                    ) AS planttags,
                     max_ratio.width AS highlight_width,
                     max_ratio.height AS highlight_height
                 FROM posts
@@ -279,15 +279,16 @@ class Posts():
         condition_params = [search] * 4
 
         if plant_type :
-            condition += "AND pty.plant_name = %s"
+            condition += "AND pty.plant_name = %s "
             condition_params += [plant_type]
 
+        # Only include posts with visibility = 'everyone'
+        condition += "AND posts.visibility = 'everyone' "
+
         if cursor_timestamp :
-            
             sql +=  f"""
                     WHERE posts.created_at < %s
-                    AND
-                    {condition}
+                    AND {condition}
                     GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
                     ORDER BY posts.created_at DESC
                     LIMIT %s
@@ -301,6 +302,7 @@ class Posts():
                     LIMIT %s
                     """
             params = condition_params + [limit + 1]
+
         cursor.execute(sql, params)
         posts = cursor.fetchall()
         cursor.close()
