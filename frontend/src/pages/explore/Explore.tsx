@@ -35,11 +35,13 @@ function Explore() {
     const randomTagSelected = useRef(false);
 
     useEffect(() => {
-        const s = new URLSearchParams(location.search).get("search") ?? "";
-        setSearch(s);
-        setSubmittedSearch(s);
-        setIsSearching(s !== "");
-    }, [location.search]);
+        if (location.state?.navSearch) {
+            const s = location.state.navSearch;
+            setSearch(s);
+            setSubmittedSearch(s);
+            setIsSearching(s !== "");
+        }
+    }, [location.state]);
 
     const fetchPostsForTag = async (
         tag: string,

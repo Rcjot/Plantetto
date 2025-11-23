@@ -40,7 +40,10 @@ export default function Navbar() {
         e.preventDefault();
         const trimmed = navSearch.trim();
         if (!trimmed) return;
-        navigate(`/explore?search=${encodeURIComponent(trimmed)}`);
+
+        navigate("/explore", {
+            state: { navSearch: trimmed },
+        });
         setNavSearch("");
     };
 
