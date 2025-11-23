@@ -1,4 +1,5 @@
 import type { UserType } from "../auth/authTypes";
+import type { PlantOptionType } from "../garden/gardenTypes";
 
 export interface MediaType {
     url: string;
@@ -38,5 +39,7 @@ export interface CreatePostContextType {
     setVisibility: React.Dispatch<
         React.SetStateAction<"everyone" | "private" | "for_me">
     >;
+    plantTags: PlantOptionType[];
+    setPlantTags: React.Dispatch<React.SetStateAction<PlantOptionType[]>>;
     appendPost: (newPost: PostType) => void;
 }

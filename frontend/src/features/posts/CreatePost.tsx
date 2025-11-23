@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import type { CreatePostFormType, PostType } from "./postTypes";
 import { CreatePostContext } from "./context/PostContext";
 import PostCardProvider from "./context/PostProvider";
+import type { PlantOptionType } from "../garden/gardenTypes";
 
 function CreatePost({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
@@ -16,6 +17,8 @@ function CreatePost({ children }: { children: React.ReactNode }) {
     const [visibility, setVisibility] = useState<
         "everyone" | "private" | "for_me"
     >("everyone");
+    const [plantTags, setPlantTags] = useState<PlantOptionType[]>([]);
+
     const appendPost = useCallback((newPost: PostType) => {
         setAddedPosts((prev) => [newPost, ...prev]);
     }, []);
@@ -28,6 +31,8 @@ function CreatePost({ children }: { children: React.ReactNode }) {
             setCaption,
             visibility,
             setVisibility,
+            plantTags,
+            setPlantTags,
             appendPost,
         }),
         [
@@ -37,6 +42,8 @@ function CreatePost({ children }: { children: React.ReactNode }) {
             setCaption,
             visibility,
             setVisibility,
+            plantTags,
+            setPlantTags,
             appendPost,
         ]
     );

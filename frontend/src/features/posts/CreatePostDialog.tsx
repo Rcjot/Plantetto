@@ -12,6 +12,9 @@ import lockIcon from "@/assets/icons/lock.svg";
 import CreatePostForm from "./CreatePostForm";
 import { useCreatePostContext } from "./context/PostContext";
 import { User } from "lucide-react";
+import { XCircle } from "lucide-react";
+import PlantTaggingSection from "./PlantTaggingSection";
+import type { PlantOptionType } from "../garden/gardenTypes";
 
 function CreatePostDialog({
     open,
@@ -21,7 +24,12 @@ function CreatePostDialog({
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const { auth } = useAuthContext()!;
-    const { visibility, setVisibility } = useCreatePostContext()!;
+    const { visibility, setVisibility, plantTags, setPlantTags } =
+        useCreatePostContext()!;
+
+    function removePlant(plant: PlantOptionType) {
+        setPlantTags((prev) => prev.filter((p) => p.id != plant.id));
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -73,6 +81,26 @@ function CreatePostDialog({
                                 </select>
                             </div>
                         </div>
+
+                        <PlantTaggingSection
+                            plantTags={plantTags}
+                            setPlantTags={setPlantTags}
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        {plantTags.map((p) => {
+                            return (
+                                <div
+                                    key={p.id}
+                                    className="badge badge-soft badge-primary"
+                                >
+                                    <p>{p.nickname}</p>
+                                    <button onClick={() => removePlant(p)}>
+                                        <XCircle className="h-4 w-4 text-warning cursor-pointer" />
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
 
                     <CreatePostForm setOpen={setOpen} />
