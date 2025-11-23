@@ -13,6 +13,7 @@ import Guides from "@/pages/guides/Guides";
 import GuidesEditor from "@/pages/guides/GuidesEditor";
 import GuidesBoard from "@/pages/guides/GuidesBoard";
 import GuidesView from "@/pages/guides/GuidesView";
+import Explore from "@/pages/explore/Explore";
 
 function getRoutes() {
     return [
@@ -59,7 +60,13 @@ function getRoutes() {
                         },
                         {
                             path: "/explore",
-                            element: <ComingSoon />,
+                            element: <Explore />,
+                            children: [
+                                {
+                                    path: ":username/:post_uuid",
+                                    element: <PostDialog />,
+                                },
+                            ],
                         },
                         {
                             path: "/market",

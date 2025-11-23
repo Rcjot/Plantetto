@@ -13,20 +13,22 @@ import postsApi from "@/api/postsApi";
 import type { PostType } from "./postTypes";
 
 function PostDialog() {
-    // const [open, setOpen] = useState(true); //not needed?
     const { post_uuid } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
     const [post, setPost] = useState<PostType | null>(null);
 
+    // determine origin for proper navigation on close
+    const origin = location.state?.origin || "/home";
+
     useEffect(() => {
-        if (!location.state && post_uuid) {
+        if (!location.state?.post && post_uuid) {
             const fetchPost = async () => {
-                const post = await postsApi.fetchPostByUUID(post_uuid);
-                setPost(post);
+                const fetchedPost = await postsApi.fetchPostByUUID(post_uuid);
+                setPost(fetchedPost);
             };
             fetchPost();
-        } else {
+        } else if (location.state?.post) {
             setPost(location.state.post);
         }
     }, [post_uuid, location]);
@@ -35,22 +37,19 @@ function PostDialog() {
         <>
             {post && (
                 <Dialog
-                    open={true} // always sets to true, because on visit dialog always is open?
+                    open={true}
                     onOpenChange={(open) => {
-                        // setOpen(open); // ????
                         if (!open) {
-                            navigate("/home");
+                            navigate(origin);
                         }
                     }}
                 >
-                    <DialogContent className=" p-0 min-w-[95vw] sm:p-3 sm:min-w-max md:min-h-max bg-base-100 ">
+                    <DialogContent className="p-0 min-w-[95vw] sm:p-3 sm:min-w-max md:min-h-max bg-base-100">
                         <DialogHeader className="md:max-w-[700px] p-5 lg:max-w-max lg:grid lg:grid-cols-[1fr_250px]">
                             {post.media.length > 0 &&
                                 post.highlight_height &&
                                 post.highlight_width && (
-                                    <div
-                                        className={`order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] max-h-[90vh]`}
-                                    >
+                                    <div className="order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] max-h-[90vh]">
                                         <PostCarousel
                                             mediaList={post.media}
                                             view="viewpost"
@@ -63,7 +62,7 @@ function PostDialog() {
                                         />
                                     </div>
                                 )}
-                            <div className="order-1  lg:order-2">
+                            <div className="order-1 lg:order-2">
                                 <DialogTitle className="text-center hidden">
                                     view post
                                 </DialogTitle>
