@@ -94,10 +94,11 @@ def create_post():
                 new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
                 new_planttag.add()
   
+            new_post['planttags'] = form.parsed_planttags
             return jsonify(success=True,
                            post_uuid=new_post_uuid,
                            new_post=new_post,
-                           planttags=form.parsed_planttags)
+                           )
         except Exception as e:
             print(e)
             error["root"] = ["something went wrong creating a post"]

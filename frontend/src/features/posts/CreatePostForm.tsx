@@ -19,6 +19,7 @@ function CreatePostForm({
         appendPost,
         visibility,
         plantTags,
+        setPlantTags,
     } = useCreatePostContext()!;
     // const [preview, setPreview] = useState<MediaType[]>([]);
 
@@ -78,7 +79,9 @@ function CreatePostForm({
             preview: [],
         }));
         setCaption("");
+        setPlantTags([]);
         setOpen(false);
+        console.log(newPost);
         appendPost(newPost);
     }
 
