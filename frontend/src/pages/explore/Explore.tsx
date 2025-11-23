@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import postsApi from "@/api/postsApi";
 import plantsApi from "@/api/plantsApi";
 import type { PostType } from "@/features/posts/postTypes";
 import type { PlanttypeType } from "@/features/garden/gardenTypes";
 import ExplorePostCard from "@/features/explore/ExplorePostCard";
+import SearchResults from "@/features/explore/SearchResults";
 import { Search } from "lucide-react";
 import MasonryGrid from "@/features/explore/MasonryGrid";
 
@@ -12,10 +13,16 @@ function Explore() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const params = new URLSearchParams(location.search);
+    const initialURLSearch = params.get("search") ?? "";
+
     const [posts, setPosts] = useState<PostType[]>([]);
     const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const [search, setSearch] = useState("");
+
+    const [search, setSearch] = useState(initialURLSearch);
+    const [submittedSearch, setSubmittedSearch] = useState(initialURLSearch);
+    const [isSearching, setIsSearching] = useState(initialURLSearch !== "");
 
     const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState(true);
@@ -25,9 +32,14 @@ function Explore() {
     const fetchedUUIDs = useRef<Set<string>>(new Set());
     const fetchedTags = useRef<Set<string>>(new Set());
     const initialFetchDone = useRef(false);
-
-    // ✅ ADDED — prevents double-random-tag + double-fetch
     const randomTagSelected = useRef(false);
+
+    useEffect(() => {
+        const s = new URLSearchParams(location.search).get("search") ?? "";
+        setSearch(s);
+        setSubmittedSearch(s);
+        setIsSearching(s !== "");
+    }, [location.search]);
 
     const fetchPostsForTag = async (
         tag: string,
@@ -59,7 +71,6 @@ function Explore() {
         }
     };
 
-    // Fetch plant types → ONLY SET TAG ONCE
     useEffect(() => {
         async function loadPlantTypes() {
             const res = await plantsApi.fetchPlantTypes();
@@ -68,7 +79,6 @@ function Explore() {
 
             setPlantTypes(res.plant_types);
 
-            // Ensure random tag selection happens ONLY once
             if (!randomTagSelected.current) {
                 randomTagSelected.current = true;
 
@@ -77,14 +87,13 @@ function Explore() {
                         Math.floor(Math.random() * res.plant_types.length)
                     ].plant_name;
 
-                setSelectedTag(randomTag); // ← SET TAG, DO NOT FETCH HERE
+                setSelectedTag(randomTag);
             }
         }
 
         loadPlantTypes();
     }, []);
 
-    // When selectedTag changes → Fetch posts ONCE
     useEffect(() => {
         if (!selectedTag) return;
 
@@ -103,41 +112,16 @@ function Explore() {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedTag) return;
+        const trimmed = search.trim();
 
-        fetchedUUIDs.current.clear();
-        setPosts([]);
-        setNextCursor(null);
-        setHasMore(true);
+        navigate(`/explore?search=${encodeURIComponent(trimmed)}`);
 
-        if (search.trim() !== "") {
-            (async () => {
-                setLoading(true);
-                try {
-                    const res = await postsApi.explorePosts(search, null);
-                    const imagePosts = res.posts.filter(
-                        (p) => p.media.length > 0 && p.media[0].type === "image"
-                    );
-                    imagePosts.forEach((p) =>
-                        fetchedUUIDs.current.add(p.post_uuid)
-                    );
-                    setPosts(imagePosts);
-                    setNextCursor(res.nextCursor);
-                    setHasMore(Boolean(res.nextCursor));
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    setLoading(false);
-                }
-            })();
-        } else {
-            fetchPostsForTag(selectedTag, null, true);
-        }
+        setSubmittedSearch(trimmed);
+        setIsSearching(trimmed !== "");
     };
 
-    // Infinite scroll observer
     useEffect(() => {
-        if (!infiniteTriggerRef.current || !selectedTag) return;
+        if (!infiniteTriggerRef.current || !selectedTag || isSearching) return;
 
         const observer = new IntersectionObserver((entries) => {
             const entry = entries[0];
@@ -153,7 +137,7 @@ function Explore() {
 
         observer.observe(infiniteTriggerRef.current);
         return () => observer.disconnect();
-    }, [loading, hasMore, nextCursor, selectedTag]);
+    }, [loading, hasMore, nextCursor, selectedTag, isSearching]);
 
     const openPost = (post: PostType) => {
         navigate(`/explore/${post.author.username}/${post.post_uuid}`, {
@@ -181,41 +165,48 @@ function Explore() {
                 </form>
             </div>
 
-            {!search && selectedTag && (
-                <div className="flex flex-col gap-3">
-                    <h2 className="text-xl font-semibold">
-                        Sprouts tagged with: {selectedTag}
-                    </h2>
-                </div>
+            {isSearching ? (
+                <SearchResults search={submittedSearch} />
+            ) : (
+                <>
+                    {selectedTag && (
+                        <div className="flex flex-col gap-3">
+                            <h2 className="text-xl font-semibold">
+                                Sprouts tagged with: {selectedTag}
+                            </h2>
+                        </div>
+                    )}
+
+                    <MasonryGrid>
+                        {posts.map((post) => (
+                            <ExplorePostCard
+                                key={post.post_uuid}
+                                post={post}
+                                onClick={() => openPost(post)}
+                            />
+                        ))}
+                    </MasonryGrid>
+
+                    {loading && (
+                        <div className="py-8 text-center text-neutral-500">
+                            Loading...
+                        </div>
+                    )}
+                    {!hasMore && posts.length > 0 && (
+                        <div className="py-8 text-center text-neutral-500">
+                            No more posts to explore 🌱
+                        </div>
+                    )}
+                    {!loading && posts.length === 0 && (
+                        <div className="py-8 text-center text-neutral-500">
+                            No posts found. Try a different search or tag! 🔍
+                        </div>
+                    )}
+
+                    <div ref={infiniteTriggerRef} />
+                </>
             )}
 
-            <MasonryGrid>
-                {posts.map((post) => (
-                    <ExplorePostCard
-                        key={post.post_uuid}
-                        post={post}
-                        onClick={() => openPost(post)}
-                    />
-                ))}
-            </MasonryGrid>
-
-            {loading && (
-                <div className="py-8 text-center text-neutral-500">
-                    Loading...
-                </div>
-            )}
-            {!hasMore && posts.length > 0 && (
-                <div className="py-8 text-center text-neutral-500">
-                    No more posts to explore 🌱
-                </div>
-            )}
-            {!loading && posts.length === 0 && (
-                <div className="py-8 text-center text-neutral-500">
-                    No posts found. Try a different search or tag! 🔍
-                </div>
-            )}
-
-            <div ref={infiniteTriggerRef} />
             <Outlet />
         </div>
     );
