@@ -1,3 +1,4 @@
+import type { SearchedUserType } from "@/features/auth/authTypes";
 import axios from "@/lib/axios";
 
 async function sendImage(formData: FormData) {
@@ -24,4 +25,15 @@ async function setProfile(formData: FormData) {
     }
 }
 
-export default { sendImage, setProfile, fetchProfileDetails };
+async function exploreUsers(search: string, cursor?: string | null) {
+    const params = new URLSearchParams();
+    if (search) params.append("search", search);
+    if (cursor) params.append("cursor", cursor); // only add if not null/undefined
+
+    const { data } = await axios.get(`/users/explore?${params.toString()}`);
+    const users: SearchedUserType[] = data["users"];
+    const nextCursor: string | null = data["next_cursor"];
+    return { users, nextCursor };
+}
+
+export default { sendImage, setProfile, fetchProfileDetails, exploreUsers };
