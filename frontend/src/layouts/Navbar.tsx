@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import search_icon from "../assets/icons/search.svg";
 import chat_icon from "../assets/icons/chat.svg";
@@ -20,8 +20,11 @@ import {
 
 export default function Navbar() {
     const { auth, logout } = useAuthContext()!;
+    const navigate = useNavigate();
 
     const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+    const [navSearch, setNavSearch] = useState("");
+
     const navbar_style =
         "navbar bg-base-100 px-4 py-2 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200";
 
@@ -30,12 +33,18 @@ export default function Navbar() {
         setOpenLogoutDialog(false);
     };
 
+    const handleNavbarSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        const trimmed = navSearch.trim();
+        if (!trimmed) return;
+        navigate(`/explore?search=${encodeURIComponent(trimmed)}`);
+    };
+
     return (
         <>
             <div className={navbar_style}>
-                {/* left suide of nav */}
+                {/* left side */}
                 <div className="flex items-center gap-2">
-                    {/* menu button, hidden if not on mobile view */}
                     <label
                         htmlFor="sidebar-drawer"
                         className="btn bg-white border-none lg:hidden p-2 min-h-0 h-8 w-8 flex items-center justify-center"
@@ -43,7 +52,6 @@ export default function Navbar() {
                         <img src={menu_icon} alt="Menu" className="w-5 h-5" />
                     </label>
 
-                    {/* logo n title */}
                     <Link to={"/home"} className="flex items-center gap-2">
                         <img
                             src={plantetto_icon}
@@ -54,30 +62,30 @@ export default function Navbar() {
                             className="pl-4 hidden sm:block"
                             src={WebsiteName}
                         />
-                        {/* <h1 className="text-xl lg:text-2xl font-bold hidden sm:block">
-                            Plantetto
-                        </h1> */}
                     </Link>
                 </div>
 
-                {/* search barr*/}
                 <div className="flex-1 flex justify-center px-2">
-                    <div className="flex items-center gap-2 w-full max-w-xs sm:max-w-sm md:max-w-md">
+                    <form
+                        onSubmit={handleNavbarSearch}
+                        className="flex items-center gap-2 w-full max-w-xs sm:max-w-sm md:max-w-md"
+                    >
                         <img
                             src={search_icon}
                             alt="Search"
                             className="w-6 h-6"
                         />
-                        {/* search original icon color #1C1B1F */}
                         <input
                             type="text"
-                            placeholder="Search coming soon..."
+                            placeholder="Search..."
                             className="input input-bordered flex-1 border-gray-200 bg-base-200"
+                            value={navSearch}
+                            onChange={(e) => setNavSearch(e.target.value)}
                         />
-                    </div>
+                    </form>
                 </div>
 
-                {/* right side of nav*/}
+                {/* right side */}
                 <div className="flex items-center gap-3 sm:gap-5">
                     <img
                         src={chat_icon}
@@ -108,7 +116,6 @@ export default function Navbar() {
                             className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 mt-2"
                         >
                             <li>
-                                {/* change later to use uuid */}
                                 <Link
                                     to={`/${auth.user?.username}`}
                                     className="text-neutral-800 hover:bg-primary hover:text-neutral-100"
@@ -128,6 +135,7 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
+
             <Dialog open={openLogoutDialog} onOpenChange={setOpenLogoutDialog}>
                 <DialogContent className="sm:max-w-md bg-base-100">
                     <DialogHeader>

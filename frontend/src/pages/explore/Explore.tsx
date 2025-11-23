@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import postsApi from "@/api/postsApi";
 import plantsApi from "@/api/plantsApi";
@@ -17,7 +17,7 @@ function Explore() {
     const initialURLSearch = params.get("search") ?? "";
 
     const [posts, setPosts] = useState<PostType[]>([]);
-    const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
+    const [_plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
     const [search, setSearch] = useState(initialURLSearch);
