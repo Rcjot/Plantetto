@@ -30,7 +30,6 @@ async function getConversationMessages(conversationRoomUuid: string) {
             `chat/room/${conversationRoomUuid}/messages`
         );
         const messages: MessageType[] = data["messages"];
-        console.log(messages);
         return { ok: true, messages: messages };
     } catch {
         return { ok: false, messages: [] };

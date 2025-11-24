@@ -4,7 +4,10 @@ import dayjs from "dayjs";
 function ChatBubbleSender({ message }: { message: MessageType }) {
     return (
         <>
-            <div className="chat chat-end">
+            <div
+                className="chat chat-end"
+                title={dayjs(message.created_at).format("MMM D")}
+            >
                 <div className="chat-image avatar">
                     <div className="w-10 rounded-full">
                         <img

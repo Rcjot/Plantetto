@@ -4,7 +4,10 @@ import type { MessageType } from "../chatTypes";
 function ChatBubbleRecipient({ message }: { message: MessageType }) {
     return (
         <>
-            <div className="chat chat-start">
+            <div
+                className="chat chat-start"
+                title={dayjs(message.created_at).format("MMM D")}
+            >
                 <div className="chat-image avatar">
                     <div className="w-10 rounded-full">
                         <img
