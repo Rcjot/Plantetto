@@ -16,7 +16,7 @@ function ChatListBlock({
     setCurrentRecipient,
     toggleListState,
 }: ChatListBlockType) {
-    const [recentMessage, setRecentMessage] = useState("some initial");
+    const [recentMessage, setRecentMessage] = useState("");
     const { auth } = useAuthContext()!;
 
     useEffect(() => {
@@ -29,12 +29,21 @@ function ChatListBlock({
                 : data.content;
             setRecentMessage(content);
         };
+
         socket.on(listenRoom, handler);
 
         return () => {
             socket.off(listenRoom, handler);
         };
     }, [room, auth]);
+
+    useEffect(() => {
+        if (!room.recent_message) return;
+        const content = room.recent_message.current_user_is_sender
+            ? "you: " + room.recent_message.content
+            : room.recent_message.content;
+        setRecentMessage(content);
+    }, [room]);
 
     return (
         <div

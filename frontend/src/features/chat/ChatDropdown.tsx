@@ -1,13 +1,11 @@
 import ChatRoom from "@/features/chat/ChatRoom";
 import chat_icon from "@/assets/icons/chat.svg";
 import { useState, useRef } from "react";
-import useConversationRooms from "./useConversationRooms";
 import useChatState from "./useChatState";
 import ChatList from "./ChatList";
 
 function ChatDropdown() {
     const [isListState, setIsListState] = useState(true);
-    const { conversationRooms: conversationRoomsList } = useConversationRooms();
     const {
         buttonRef,
         currentRecipient,
@@ -42,7 +40,6 @@ function ChatDropdown() {
             >
                 {isListState ? (
                     <ChatList
-                        conversationRoomsList={conversationRoomsList}
                         setCurrentRecipient={setCurrentRecipient}
                         toggleListState={toggleListState}
                     />
