@@ -1,4 +1,3 @@
-@@ -0,0 +1,6 @@
 CREATE TABLE plant_tags (
     id BIGSERIAL PRIMARY KEY,
     plant_id BIGINT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
