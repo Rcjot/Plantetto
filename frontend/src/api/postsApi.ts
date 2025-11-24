@@ -69,10 +69,41 @@ async function fetchPostByUUID(post_uuid: string) {
     return post;
 }
 
+async function explorePosts(search: string, cursor?: string | null) {
+    const params = new URLSearchParams();
+    if (search) params.append("search", search);
+
+    // dont append if null
+    if (cursor && cursor !== "null") {
+        params.append("cursor", cursor);
+    }
+
+    const { data } = await axios.get(`/posts/explore?${params.toString()}`);
+    const posts: PostType[] = data["feed"];
+    const nextCursor: string | null = data["next_cursor"];
+    return { posts, nextCursor };
+}
+
+async function explorePostsOfPlant(
+    plantTypeName: string,
+    cursor?: string | null
+) {
+    const params = new URLSearchParams();
+    params.append("planttype", plantTypeName);
+    if (cursor) params.append("cursor", cursor); // only append if truthy
+
+    const { data } = await axios.get(`/posts/explore?${params.toString()}`);
+    const posts: PostType[] = data["feed"];
+    const nextCursor: string | null = data["next_cursor"];
+    return { posts, nextCursor };
+}
+
 export default {
     createPost,
     editPost,
     deletePost,
     fetchPosts,
     fetchPostByUUID,
+    explorePosts,
+    explorePostsOfPlant,
 };

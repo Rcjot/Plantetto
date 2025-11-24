@@ -202,13 +202,13 @@ class Plants() :
     def check_user_plant_exists_by_id(cls, plant_id, user_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        sql = "SELECT * FROM plants WHERE id = %s AND user_id = %s"
+        sql = "SELECT id, uuid, nickname FROM plants WHERE id = %s AND user_id = %s"
         cursor.execute(sql, (plant_id, user_id))
         result = cursor.fetchone()
         if not result :
-            return False
+            return None
 
-        return True
+        return result
 
     @classmethod
     def get_plants_options(cls, username) :

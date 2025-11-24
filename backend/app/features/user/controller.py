@@ -31,6 +31,24 @@ def get_profile(username) :
 
     return jsonify(success=False, message="no profile", user=None), 400
 
+@user_bp.route("/explore")
+def explore_users():
+    limit = request.args.get("limit", default=10, type=int)
+    search = request.args.get("search", default="", type=str)
+    cursor_timestamp = request.args.get("cursor", default=None, type=str)
+    current_user_id = current_user.get_id()
+
+    result = Users.explore(limit, search, cursor_timestamp, current_user_id)
+
+    users = result 
+    has_more = len(users) > limit
+    users = users[:limit]
+
+    return jsonify(
+        users=users,
+        next_cursor = users[-1]['created_at'] if has_more else None,
+    )
+
 @user_bp.route("/update", methods=["POST"])
 @login_required
 def update_profile():

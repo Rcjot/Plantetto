@@ -4,18 +4,25 @@ import usePost from "./usePost";
 import type { PostType } from "../postTypes";
 import PostCard from "../PostCard";
 
-function PostCardProvider({ passedPost }: { passedPost: PostType }) {
-    const { post, updateCaption, openEdit, setOpenEditCallback } =
+function PostCardProvider({
+    passedPost,
+    origin = "/home",
+}: {
+    passedPost: PostType;
+    origin?: string;
+}) {
+    const { post, updatePost, openEdit, setOpenEditCallback } =
         usePost(passedPost);
 
     const contextValue = useMemo(
         () => ({
             post,
-            updateCaption,
+            updatePost,
             openEdit,
             setOpenEditCallback,
+            origin, // Add this
         }),
-        [post, updateCaption, openEdit, setOpenEditCallback]
+        [post, updatePost, openEdit, setOpenEditCallback, origin]
     );
 
     return (

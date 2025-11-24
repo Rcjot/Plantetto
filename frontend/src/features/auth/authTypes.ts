@@ -5,6 +5,10 @@ export interface UserType {
     display_name: string | null;
 }
 
+export interface SearchedUserType extends UserType {
+    is_following: boolean;
+}
+
 export interface AuthType {
     status: "loading" | "authenticated" | "unauthenticated";
     user: UserType | null;

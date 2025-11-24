@@ -12,6 +12,9 @@ import lockIcon from "@/assets/icons/lock.svg";
 import { useState, useEffect } from "react";
 import EditPostForm from "./EditPostForm";
 import { usePostContext } from "./context/PostContext";
+import PlantTaggingSection from "./PlantTaggingSection";
+import { XCircle } from "lucide-react";
+import type { PlantOptionType } from "../garden/gardenTypes";
 
 function EditPostDialog({
     open,
@@ -25,16 +28,22 @@ function EditPostDialog({
     const [selectValue, setSelectValue] = useState<
         "everyone" | "private" | "for_me"
     >("everyone");
+    const [plantTags, setPlantTags] = useState<PlantOptionType[]>([]);
 
     useEffect(() => {
         if (post) {
             setSelectValue(
                 post.visibility as "everyone" | "private" | "for_me"
             );
+            setPlantTags(post.planttags);
         }
     }, [post]);
 
     if (!post) return null;
+
+    function removePlant(plant: PlantOptionType) {
+        setPlantTags((prev) => prev.filter((p) => p.id != plant.id));
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -80,9 +89,35 @@ function EditPostDialog({
                                 </select>
                             </div>
                         </div>
+                        <PlantTaggingSection
+                            plantTags={plantTags}
+                            setPlantTags={setPlantTags}
+                        />
                     </div>
-
-                    <EditPostForm selectValue={selectValue} />
+                    <div className="flex flex-wrap gap-3">
+                        {plantTags.map((p) => {
+                            return (
+                                <div
+                                    key={p.id}
+                                    className="badge badge-soft badge-primary"
+                                >
+                                    <p>{p.nickname}</p>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            removePlant(p);
+                                        }}
+                                    >
+                                        <XCircle className="h-4 w-4 text-warning cursor-pointer" />
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <EditPostForm
+                        selectValue={selectValue}
+                        plantTags={plantTags}
+                    />
                 </DialogHeader>
             </DialogContent>
         </Dialog>

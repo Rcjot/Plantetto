@@ -3,15 +3,23 @@ import { useEffect, useState } from "react";
 import ProfilePicture from "@/components/ProfilePicture";
 import { Link } from "react-router-dom";
 import timeAgo from "@/lib/timeAgo";
+import type { PlantOptionType } from "../garden/gardenTypes";
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 function PostHeader({
     user,
     createdAt,
     postCaption,
+    planttags,
 }: {
     user: UserType;
     createdAt: string;
     postCaption: string;
+    planttags: PlantOptionType[];
 }) {
     const [timeDisplay, setTimeDisplay] = useState<string>(() =>
         timeAgo(createdAt)
@@ -65,6 +73,30 @@ function PostHeader({
                     <p className="hover:underline cursor-pointer">
                         {timeDisplay}
                     </p>
+                    &middot;
+                    {planttags.length > 0 && (
+                        <HoverCard>
+                            <HoverCardTrigger>
+                                <p className="hover:underline">
+                                    with {planttags.length} plants
+                                </p>
+                            </HoverCardTrigger>
+                            <HoverCardContent className="bg-base-100 no-propagate">
+                                <div className="flex flex-wrap gap-3">
+                                    {planttags.map((p) => {
+                                        return (
+                                            <div
+                                                key={p.id}
+                                                className="badge badge-soft badge-primary"
+                                            >
+                                                <p>{p.nickname}</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </HoverCardContent>
+                        </HoverCard>
+                    )}
                 </div>
                 <h1 className="wrap-anywhere">
                     {displayText}

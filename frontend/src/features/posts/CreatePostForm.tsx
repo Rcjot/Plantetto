@@ -18,6 +18,8 @@ function CreatePostForm({
         setCaption,
         appendPost,
         visibility,
+        plantTags,
+        setPlantTags,
     } = useCreatePostContext()!;
     // const [preview, setPreview] = useState<MediaType[]>([]);
 
@@ -56,6 +58,8 @@ function CreatePostForm({
         const formData = new FormData();
         formData.append("caption", caption);
         formData.append("visibility", visibility);
+        const stringified = JSON.stringify(plantTags.map((p) => p.id));
+        formData.append("planttags", stringified);
         createPostForm.media.forEach((file) => formData.append("media", file));
         const { ok, newPost, resErrors } = await postsApi.createPost(formData);
         setIsSubmitting(false);
@@ -75,7 +79,9 @@ function CreatePostForm({
             preview: [],
         }));
         setCaption("");
+        setPlantTags([]);
         setOpen(false);
+        console.log(newPost);
         appendPost(newPost);
     }
 
