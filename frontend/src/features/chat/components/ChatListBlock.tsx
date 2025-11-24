@@ -65,7 +65,9 @@ function ChatListBlock({
                 <h1>
                     {room.recipient.display_name ?? room.recipient.username}
                 </h1>
-                <p className="text-gray-600">{recentMessage}</p>
+                <p className="text-gray-600 truncate max-w-40">
+                    {recentMessage}
+                </p>
             </div>
         </div>
     );

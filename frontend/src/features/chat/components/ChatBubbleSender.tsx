@@ -22,7 +22,9 @@ function ChatBubbleSender({ message }: { message: MessageType }) {
                         {dayjs(message.created_at).format("h:mm A")}
                     </time>
                 </div>
-                <div className="chat-bubble">{message.content}</div>
+                <div className="chat-bubble wrap-anywhere">
+                    {message.content}
+                </div>
                 {/* <div className="chat-footer opacity-50">Seen at 12:46</div> */}
             </div>
         </>
