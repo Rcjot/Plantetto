@@ -4,7 +4,9 @@ from flask import request, jsonify
 from ...services import cloudinary
 from ...models.post import Posts
 from ...models.media import Media
+from ...models.planttag import PlantTags
 from .forms import PostForm
+from .forms import PostEditForm
 import json
 
 @post_bp.route("", strict_slashes=False) 
@@ -16,6 +18,7 @@ def get_posts():
     cursor_score = None
     cursor_timestamp = None
     
+    # Parse cursor if provided
     if cursor_data:
         try:
             cursor_obj = json.loads(cursor_data)
@@ -31,6 +34,7 @@ def get_posts():
     has_more = len(feed) > limit
     feed = feed[:limit]
     
+    # Create next cursor from last item
     next_cursor = None
     if has_more and feed:
         last_post = feed[-1]
@@ -52,6 +56,39 @@ def get_post(post_uuid):
         post=post
     )
 
+@post_bp.route("/explore")
+@login_required
+def explore_posts():
+    limit = request.args.get("limit", default=10, type=int)
+    search = request.args.get("search", default="", type=str)
+    cursor = request.args.get("cursor", default=None, type=str)
+    plant_type = request.args.get("planttype", default=None, type=str)
+
+    current_user_id = int(current_user.get_id())
+
+    if plant_type:
+        feed = Posts.explorePostsOfPlant(
+            limit=limit,
+            search=search,
+            cursor_timestamp=cursor,
+            plant_type=plant_type,
+            current_user_id=current_user_id
+        )
+    else:
+        feed = Posts.explore(
+            limit=limit,
+            search=search,
+            cursor_timestamp=cursor,
+             plant_type=plant_type,
+        )
+
+    has_more = len(feed) > limit
+    feed = feed[:limit]
+    next_cursor = feed[-1]["created_at"] if has_more else None
+
+    return jsonify(feed=feed, next_cursor=next_cursor)
+
+
 @post_bp.route("/", methods=["POST"])
 @login_required
 def create_post():
@@ -60,11 +97,14 @@ def create_post():
     visibility = request.form.get("visibility", "everyone")
     mediaList = request.files.getlist('media')
     form = PostForm()
-    validated = form.validate()
     current_user_id = current_user.get_id()
+    form.current_user_id = current_user_id
+
+    validated = form.validate()
     error = {
         "caption" : form.caption.errors,
         "media" : form.media.errors,
+        "planttags" : form.planttags.errors,
         "root" : []
     }
     if validated: 
@@ -85,7 +125,16 @@ def create_post():
                 new_media = Media(media_url=media_res["srcURL"], media_order=i, media_type=media_type, post_id=new_post_id, width=media_res["width"], height=media_res["height"])
                 new_media.add()
             new_post = Posts.get_post(new_post_uuid)
-            return jsonify(success=True, post_uuid=new_post_uuid, new_post=new_post)
+
+            for tag in form.parsed_planttags :
+                new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
+                new_planttag.add()
+            new_post['planttags'] = form.parsed_planttags
+            return jsonify(success=True,
+                           post_uuid=new_post_uuid,
+                           new_post=new_post,
+                           )
+
         except Exception as e:
             print(e)
             error["root"] = ["something went wrong creating a post"]
@@ -119,20 +168,45 @@ def update_post(post_uuid):
     current_user_id = current_user.get_id()
     caption = request.form.get("caption")
     visibility = request.form.get("visibility")
+    form = PostEditForm()
+    current_user_id = current_user.get_id()
+    form.current_user_id = current_user_id
 
-    to_update_post = Posts.update(
-        post_uuid=post_uuid,
-        caption=caption,
-        visibility=visibility,
-        current_user_id=current_user_id
-    )
-
-    if (to_update_post):
-        return jsonify(
-            success=True,
-            message="edit post successful",
+    validated = form.validate()
+    error = {
+            "caption" : form.caption.errors,
+            "planttags" : form.planttags.errors,
+            "root" : []
+        }
+    if validated :
+        to_update_post = Posts.update(
             post_uuid=post_uuid,
-            to_update_post=to_update_post
+            caption=caption,
+            visibility=visibility,
+            current_user_id=current_user_id
         )
-    else:
-        return jsonify(success=False, message="edit post failed!"), 404
+
+        if (to_update_post):
+            new_post_id = to_update_post["id"]
+            print(new_post_id)
+            PlantTags.delete_all_of_post(post_id=new_post_id)
+            for tag in form.parsed_planttags :
+                new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
+                new_planttag.add()
+
+
+            return jsonify(
+                success=True,
+                message="edit post successful",
+                post_uuid=post_uuid,
+                to_update_post=to_update_post,
+                planttags=form.parsed_planttags
+            )
+        else:
+            return jsonify(success=False, message="edit post failed!"), 404
+    else :
+        return jsonify(success=False,
+                message="form fields might be invalid",
+                error=error), 400
+
+

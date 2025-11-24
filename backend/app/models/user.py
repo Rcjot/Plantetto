@@ -26,6 +26,52 @@ class Users(UserMixin) :
 
         db.commit()
         cursor.close()
+    
+    @classmethod 
+    def explore(cls, limit, search, cursor_timestamp, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        search = "%" + search + "%"
+
+        # fix: include 'created_at' in the SELECT so cursor works
+        sql = """
+        SELECT
+            uuid,
+            username,
+            display_name,
+            pfp_url,
+            u.created_at,
+            (f.following_id IS NOT NULL) AS is_following
+        FROM users u
+        LEFT JOIN follows f
+            ON f.follower_id = %s
+            AND f.following_id = u.id
+        """
+        params = [current_user_id]
+
+        if cursor_timestamp:
+            sql +=  """
+                    WHERE u.created_at < %s 
+                    AND u.id != %s AND (username ILIKE %s OR display_name ILIKE %s)
+                    ORDER BY u.created_at DESC
+                    LIMIT %s
+                    """
+            params += [cursor_timestamp]
+        else: 
+            sql += """
+                    WHERE u.id != %s AND (username ILIKE %s OR display_name ILIKE %s)
+                    ORDER BY u.created_at DESC
+                    LIMIT %s
+                    """
+        params += [current_user_id, search, search, limit+1]
+
+        cursor.execute(sql, params)
+        users = cursor.fetchall()
+        cursor.close()
+        return users
+
+
 
     @classmethod
     def get_by_username(cls, username):
