@@ -75,7 +75,7 @@ def handle_chat_message(data):
         "created_at" : str(res["created_at"])
     } 
 
-    emit("new_message", payload, to=room_destination)
+    emit(f"new_message_{room_destination}", payload, to=room_destination)
 
 
 @socketio.on("join")

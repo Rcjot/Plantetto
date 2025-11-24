@@ -38,6 +38,8 @@ function ChatRoom({
     }
 
     useEffect(() => {
+        if (!conversationRoom) return;
+        const listenRoom = `new_message_${conversationRoom}`;
         console.log("listening to new messages");
         const handler = (data: MessageSocketType) => {
             const newMessage = {
@@ -49,12 +51,12 @@ function ChatRoom({
             };
             setMessages((prev) => [...(prev ?? []), newMessage]);
         };
-        socket.on("new_message", handler);
+        socket.on(listenRoom, handler);
 
         return () => {
-            socket.off("new_message", handler);
+            socket.off(listenRoom, handler);
         };
-    }, [auth, setMessages]);
+    }, [auth, setMessages, conversationRoom]);
     // initially this is not mounted yet, so chatroom has to be opened to receive messages
     // transfer this when working in notifications.
     if (!recipientUser || !messages) return <div>loading...</div>;
