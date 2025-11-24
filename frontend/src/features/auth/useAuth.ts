@@ -31,6 +31,8 @@ function useAuth() {
             const requestJoinHandler = (conversationRoom: string) => {
                 console.log("join requested to join", conversationRoom);
                 joinRoom(auth.user!.username, conversationRoom);
+                const event = new CustomEvent("joinRequest");
+                window.dispatchEvent(event);
             };
 
             socket.on("connect", connectHandler);
