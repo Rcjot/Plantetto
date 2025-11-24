@@ -33,6 +33,7 @@ function useChatState(
 
     useEffect(() => {
         const handler = async (newConversationUuid: string) => {
+            console.log("create convo", newConversationUuid);
             const { conversationRoom } =
                 await chatApi.getConversationByUuid(newConversationUuid);
             setConversationRoom(conversationRoom);
@@ -51,6 +52,7 @@ function useChatState(
                     await chatApi.getConversationRoom(
                         currentRecipient.username
                     );
+                console.log("fetching conversation", conversationRoomRes);
                 setConversationRoom(conversationRoomRes);
             }
         };

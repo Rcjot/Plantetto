@@ -27,13 +27,13 @@ function ChatRoom({
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        if (auth.user && recipientUser && conversationRoom) {
+        if (auth.user && recipientUser) {
             sendMessage(
                 auth.user,
                 auth.user.username,
                 recipientUser.username,
                 message,
-                conversationRoom.uuid ?? null
+                conversationRoom ? conversationRoom.uuid : null
             );
             setMessage("");
         }

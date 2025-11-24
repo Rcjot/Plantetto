@@ -22,7 +22,7 @@ function ChatMessagesSection({ messages, room }: ChatMessagesSectionProps) {
     }, [messages]);
 
     useEffect(() => {
-        if (!bottomRef.current) return;
+        if (!bottomRef.current || messages.length === 0) return;
         const observedRef = bottomRef.current;
 
         const observer = new IntersectionObserver((entries) => {

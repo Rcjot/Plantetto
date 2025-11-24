@@ -5,6 +5,15 @@ from ...models.message import Messages
 from ...models.user import Users
 from flask_login import login_user, login_required, current_user, logout_user
 
+@chat_bp.route("/room/<uuid:conversation_uuid>")
+@login_required
+def get_conversation_by_uuid(conversation_uuid) :
+    conversation_uuid = str(conversation_uuid)
+    current_user_id = current_user.get_id()
+
+    conversation_room = Conversations.get_conversation_by_uuid(conversation_uuid, current_user_id)
+
+    return jsonify(conversation_room=conversation_room)
 
 @chat_bp.route("/room/<username>")
 @login_required
@@ -48,12 +57,4 @@ def get_conversation_participants(conversation_uuid) :
     return jsonify(participants=participants)
 
 
-@chat_bp.route("/room/<uuid:conversation_uuid>")
-@login_required
-def get_conversation_by_uuid(conversation_uuid) :
-    conversation_uuid = str(conversation_uuid)
-    current_user_id = current_user.get_id()
 
-    conversation_room = Conversations.get_conversation_by_uuid(conversation_uuid, current_user_id)
-
-    return jsonify(conversation_room=conversation_room)
