@@ -31,7 +31,7 @@ function useAuth() {
             const requestJoinHandler = (conversationRoom: string) => {
                 console.log("join requested to join", conversationRoom);
                 joinRoom(auth.user!.username, conversationRoom);
-                const event = new CustomEvent("joinRequest");
+                const event = new CustomEvent("refetchChatList");
                 window.dispatchEvent(event);
             };
 
@@ -49,12 +49,16 @@ function useAuth() {
     }, [auth]);
 
     const signin = useCallback((auth: AuthType) => {
+        socket.connect();
         setAuth(auth);
     }, []);
 
     const logout = useCallback(async () => {
         const { ok } = await authApi.logoutUser();
+
         if (ok) {
+            socket.disconnect();
+            console.log(socket.connected);
             setAuth({
                 status: "unauthenticated",
                 user: null,
