@@ -3,7 +3,7 @@ import { useAuthContext } from "../auth/AuthContext";
 import socket, { sendMessage } from "@/lib/socket";
 import type { UserType } from "../auth/authTypes";
 import ProfilePicture from "@/components/ProfilePicture";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, SendIcon } from "lucide-react";
 import useChat from "./useChat";
 import ChatMessagesSection from "./ChatMessagesSection";
 import type { MessageSocketType } from "./chatTypes";
@@ -78,27 +78,32 @@ function ChatRoom({
                         {recipientUser.display_name ?? recipientUser.username}
                     </h1>
                 </div>
-                <div>
-                    messages history here
-                    {!conversationRoom ? (
-                        <h1>spark a conversation</h1>
-                    ) : (
-                        <ChatMessagesSection messages={messages} />
-                    )}
-                </div>
-                <form onSubmit={onSendSubmit}>
+                <div className=" bg-base-200 rounded-sm p-1 flex flex-col gap-5">
                     <div>
-                        <label>message</label>
+                        {!conversationRoom ? (
+                            <h1 className="text-center mt-3">
+                                spark a conversation
+                            </h1>
+                        ) : (
+                            <ChatMessagesSection messages={messages} />
+                        )}
+                    </div>
+                    <form
+                        onSubmit={onSendSubmit}
+                        className="flex gap-3 items-center px-2"
+                    >
                         <input
                             type="text"
                             value={message}
-                            className="input"
+                            className="input input-sm"
                             onChange={(e) => setMessage(e.target.value)}
                             required
                         />
-                    </div>
-                    <button className="btn btn-primary">send</button>
-                </form>
+                        <button className="opacity-80">
+                            <SendIcon size={30} />
+                        </button>
+                    </form>
+                </div>
             </div>
         </>
     );
