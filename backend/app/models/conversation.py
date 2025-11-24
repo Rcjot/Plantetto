@@ -149,6 +149,14 @@ class Conversations() :
              ORDER BY m.created_at DESC
              LIMIT 1
             ) AS recent_message,
+            (SELECT
+                m.created_at
+             FROM messages m
+             JOIN users sender ON sender.id = m.sender_id
+             WHERE conversation_uuid = c.uuid     
+             ORDER BY m.created_at DESC
+             LIMIT 1
+            ) AS recent_message_date,
             cp1.last_read_message_id
         FROM conversations c
         JOIN conversation_participants cp1
@@ -157,6 +165,7 @@ class Conversations() :
             ON cp2.conversation_uuid = c.uuid AND cp2.user_id != %s
         JOIN users u
             ON cp2.user_id = u.id 
+        ORDER BY recent_message_date DESC
         """
         
         cursor.execute(sql,(current_user_id, current_user_id, current_user_id)) 

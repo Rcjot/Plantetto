@@ -19,14 +19,19 @@ function useConversationRooms() {
     }, [fetchConversationRooms]);
 
     useEffect(() => {
-        // passed from useAuth when a request is joined ( new conversation initiated by other users )
+        // event passed from useAuth when a request is joined ( new conversation initiated by other users )
+        // event passed from receiving new messages
         const handler = () => {
             fetchConversationRooms();
         };
-        window.addEventListener("joinRequest", handler as EventListener);
+        window.addEventListener("refetchChatList", handler as EventListener);
+        console.log("refetching!");
 
         return () =>
-            window.removeEventListener("joinRequest", handler as EventListener);
+            window.removeEventListener(
+                "refetchChatList",
+                handler as EventListener
+            );
     }, [fetchConversationRooms]);
 
     return { conversationRooms };

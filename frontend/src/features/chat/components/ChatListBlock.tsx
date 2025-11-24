@@ -30,6 +30,8 @@ function ChatListBlock({
                 ? "you: " + data.content
                 : data.content;
             setRecentMessage(content);
+            const event = new CustomEvent("refetchChatList");
+            window.dispatchEvent(event);
         };
 
         socket.on(listenRoom, handler);
