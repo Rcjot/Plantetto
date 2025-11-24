@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import type { MessageType } from "../chatTypes";
+import defaultpfp from "@/assets/defaultpfp.png";
 
 function ChatBubbleRecipient({ message }: { message: MessageType }) {
     return (
@@ -12,7 +13,7 @@ function ChatBubbleRecipient({ message }: { message: MessageType }) {
                     <div className="w-10 rounded-full">
                         <img
                             alt="Tailwind CSS chat bubble component"
-                            src={message.sender.pfp_url}
+                            src={message.sender.pfp_url ?? defaultpfp}
                         />
                     </div>
                 </div>
