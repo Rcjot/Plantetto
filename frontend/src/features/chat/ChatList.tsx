@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import type { UserType } from "../auth/authTypes";
 import type { ConversationRoomType } from "./chatTypes";
 import ChatListBlock from "./components/ChatListBlock";
@@ -14,10 +13,6 @@ function ChatList({
     setCurrentRecipient,
     toggleListState,
 }: ChatListProps) {
-    useEffect(() => {
-        console.log("visited");
-    });
-
     return (
         <div className="flex flex-col gap-10">
             <h1 className="text-xl font-[600]">Chats</h1>

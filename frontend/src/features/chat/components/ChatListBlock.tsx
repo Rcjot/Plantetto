@@ -1,3 +1,4 @@
+import { useAuthContext } from "@/features/auth/AuthContext";
 import type { ConversationRoomType, MessageSocketType } from "../chatTypes";
 import ProfilePicture from "@/components/ProfilePicture";
 import type { UserType } from "@/features/auth/authTypes";
@@ -16,17 +17,24 @@ function ChatListBlock({
     toggleListState,
 }: ChatListBlockType) {
     const [recentMessage, setRecentMessage] = useState("some initial");
+    const { auth } = useAuthContext()!;
 
     useEffect(() => {
+        const listenRoom = `new_message_${room.uuid}`;
         const handler = (data: MessageSocketType) => {
-            setRecentMessage(data.content);
+            const current_user_is_sender =
+                data.sender_username === auth.user?.username;
+            const content = current_user_is_sender
+                ? "you: " + data.content
+                : data.content;
+            setRecentMessage(content);
         };
-        socket.on(room.uuid, handler);
+        socket.on(listenRoom, handler);
 
         return () => {
-            socket.off(room.uuid, handler);
+            socket.off(listenRoom, handler);
         };
-    }, [room]);
+    }, [room, auth]);
 
     return (
         <div
