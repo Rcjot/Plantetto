@@ -11,12 +11,12 @@ from flask_login import login_user, login_required, current_user, logout_user
 def get_conversation_with_user(username) :
     recipient_username = username
     recipient_id_res = Users.get_id_uuid_by_username(recipient_username)
-    res = Conversations.check_conversation_exists(recipient_id_res["id"], current_user.get_id())
+    res = Conversations.get_conversation_with_user(recipient_id=recipient_id_res["id"],current_user_id=current_user.get_id())
 
     if res is None :
         return jsonify(conversation_room=None)
 
-    return jsonify(conversation_room=res['uuid'])
+    return jsonify(conversation_room=res)
 
 @chat_bp.route("/rooms")
 @login_required
@@ -37,3 +37,23 @@ def get_conversation_messages(conversation_uuid) :
     messages = Messages.all_under_conversation(current_user_id, conversation_uuid)
 
     return jsonify(messages=messages)
+
+@chat_bp.route("/room/<uuid:conversation_uuid>/participants")
+@login_required
+def get_conversation_participants(conversation_uuid) :
+    conversation_uuid = str(conversation_uuid)
+
+    participants = Conversations.get_all_conversation_participants(conversation_uuid)
+
+    return jsonify(participants=participants)
+
+
+@chat_bp.route("/room/<uuid:conversation_uuid>")
+@login_required
+def get_conversation_by_uuid(conversation_uuid) :
+    conversation_uuid = str(conversation_uuid)
+    current_user_id = current_user.get_id()
+
+    conversation_room = Conversations.get_conversation_by_uuid(conversation_uuid, current_user_id)
+
+    return jsonify(conversation_room=conversation_room)

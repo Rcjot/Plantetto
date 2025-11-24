@@ -6,11 +6,11 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { ArrowLeft, SendIcon } from "lucide-react";
 import useChat from "./useChat";
 import ChatMessagesSection from "./ChatMessagesSection";
-import type { MessageSocketType } from "./chatTypes";
+import type { ConversationRoomType, MessageSocketType } from "./chatTypes";
 
 interface ChatRoomProps {
     recipientUser: UserType | null;
-    conversationRoom: string | null;
+    conversationRoom: ConversationRoomType | null;
     toggleListState: () => void;
 }
 
@@ -20,18 +20,20 @@ function ChatRoom({
     toggleListState,
 }: ChatRoomProps) {
     const { auth } = useAuthContext()!;
-    const { messages, setMessages } = useChat(conversationRoom);
+    const { messages, setMessages } = useChat(
+        conversationRoom ? conversationRoom.uuid : null
+    );
     const [message, setMessage] = useState<string>("");
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        if (auth.user && recipientUser) {
+        if (auth.user && recipientUser && conversationRoom) {
             sendMessage(
                 auth.user,
                 auth.user.username,
                 recipientUser.username,
                 message,
-                conversationRoom
+                conversationRoom.uuid ?? null
             );
             setMessage("");
         }
@@ -39,12 +41,13 @@ function ChatRoom({
 
     useEffect(() => {
         if (!conversationRoom) return;
-        const listenRoom = `new_message_${conversationRoom}`;
-        console.log("listening to new messages");
+        const listenRoom = `new_message_${conversationRoom.uuid}`;
         const handler = (data: MessageSocketType) => {
             const newMessage = {
+                id: data.id,
                 content: data.content,
                 created_at: data.created_at,
+                conversation_uuid: data.conversation_uuid,
                 current_user_is_sender:
                     data.sender_username === auth.user?.username,
                 sender: data.sender,
@@ -87,7 +90,10 @@ function ChatRoom({
                                 spark a conversation
                             </h1>
                         ) : (
-                            <ChatMessagesSection messages={messages} />
+                            <ChatMessagesSection
+                                room={conversationRoom}
+                                messages={messages}
+                            />
                         )}
                     </div>
                     <form

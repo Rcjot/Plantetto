@@ -1,21 +1,54 @@
 import { useEffect, useRef } from "react";
-import type { MessageType } from "./chatTypes";
+import type { ConversationRoomType, MessageType } from "./chatTypes";
 import ChatBubbleRecipient from "./components/ChatBubbleRecipient";
 import ChatBubbleSender from "./components/ChatBubbleSender";
 import dayjs from "dayjs";
+import { readMessage } from "@/lib/socket";
+import { useAuthContext } from "../auth/AuthContext";
 
 interface ChatMessagesSectionProps {
     messages: MessageType[];
+    room: ConversationRoomType;
 }
-function ChatMessagesSection({ messages }: ChatMessagesSectionProps) {
+function ChatMessagesSection({ messages, room }: ChatMessagesSectionProps) {
     const bottomRef = useRef<HTMLDivElement>(null);
+    const { auth } = useAuthContext()!;
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({
-            behavior: "instant",
+            behavior: "smooth",
             block: "nearest",
         });
     }, [messages]);
+
+    useEffect(() => {
+        if (!bottomRef.current) return;
+        const observedRef = bottomRef.current;
+
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            const lastMessage = messages[messages.length - 1];
+
+            if (entry.isIntersecting && auth.user) {
+                if (room.last_read_message_id === lastMessage.id) {
+                    return;
+                }
+                readMessage(
+                    auth.user,
+                    auth.user?.username,
+                    lastMessage.id,
+                    lastMessage.conversation_uuid
+                );
+            }
+        });
+
+        observer.observe(bottomRef.current);
+
+        return () => {
+            if (observedRef) observer.unobserve(observedRef);
+            observer.disconnect();
+        };
+    }, [messages, auth, room]);
 
     let oldDateDay = 0;
 
@@ -25,9 +58,8 @@ function ChatMessagesSection({ messages }: ChatMessagesSectionProps) {
                 const localDateDay = dayjs(message.created_at).get("date");
                 const isSameDay = oldDateDay === localDateDay;
                 oldDateDay = localDateDay;
-
                 return (
-                    <div key={message.created_at}>
+                    <div key={message.id}>
                         {!isSameDay && (
                             <div className="flex justify-center items-center my-4">
                                 <div className="flex-1 mr-4 border-t border-neutral opacity-50" />
@@ -47,7 +79,7 @@ function ChatMessagesSection({ messages }: ChatMessagesSectionProps) {
                     </div>
                 );
             })}
-            <div ref={bottomRef} />
+            <div className="min-w-10 min-h-5 bg-none" ref={bottomRef} />
         </div>
     );
 }

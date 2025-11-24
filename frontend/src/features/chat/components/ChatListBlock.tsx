@@ -19,6 +19,8 @@ function ChatListBlock({
     const [recentMessage, setRecentMessage] = useState("");
     const { auth } = useAuthContext()!;
 
+    const unreadState = room.last_read_message_id < room.recent_message.id;
+
     useEffect(() => {
         const listenRoom = `new_message_${room.uuid}`;
         const handler = (data: MessageSocketType) => {
@@ -65,9 +67,16 @@ function ChatListBlock({
                 <h1>
                     {room.recipient.display_name ?? room.recipient.username}
                 </h1>
-                <p className="text-gray-600 truncate max-w-40">
-                    {recentMessage}
-                </p>
+                <div className="flex items-center gap-3 ">
+                    {unreadState && (
+                        <div className="rounded-full h-3 w-3 bg-secondary opacity-30" />
+                    )}
+                    <p
+                        className={`text-gray-600 truncate max-w-40 ${unreadState && "font-[650]"}`}
+                    >
+                        {recentMessage}
+                    </p>
+                </div>
             </div>
         </div>
     );

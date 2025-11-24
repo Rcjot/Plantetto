@@ -7,7 +7,9 @@ import type {
 async function getConversationRoom(username: string) {
     try {
         const { data } = await axios.get(`chat/room/${username}`);
-        return { ok: true, conversationRoom: data["conversation_room"] };
+        const conversation_room: ConversationRoomType =
+            data["conversation_room"];
+        return { ok: true, conversationRoom: conversation_room };
     } catch {
         return { ok: false, conversationRoom: null };
     }
@@ -36,8 +38,20 @@ async function getConversationMessages(conversationRoomUuid: string) {
     }
 }
 
+async function getConversationByUuid(conversationRoomUuid: string) {
+    try {
+        const { data } = await axios.get(`chat/room/${conversationRoomUuid}`);
+        const conversationRoom: ConversationRoomType =
+            data["conversation_room"];
+        return { ok: true, conversationRoom: conversationRoom };
+    } catch {
+        return { ok: false, conversationRoom: null };
+    }
+}
+
 export default {
     getConversationRoom,
     getConversationRooms,
     getConversationMessages,
+    getConversationByUuid,
 };

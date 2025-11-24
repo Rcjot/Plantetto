@@ -16,7 +16,7 @@ class Messages() :
         sql = """INSERT INTO messages
         (content, sender_id, conversation_uuid) 
         VALUES (%s, %s, %s)
-        RETURNING id, created_at
+        RETURNING id, created_at, conversation_uuid
         """
         cursor.execute(sql, (self.content, self.sender_id, self.conversation_uuid))
         
@@ -34,6 +34,7 @@ class Messages() :
 
         sql = """
         SELECT
+            m.id,
             m.content,
             m.created_at,
             JSON_BUILD_OBJECT(
@@ -42,6 +43,7 @@ class Messages() :
                 'username', sender.username,
                 'display_name', sender.display_name
             ) AS sender,
+            m.conversation_uuid,
             (sender.id = %s) AS current_user_is_sender
         FROM messages m
         JOIN users sender ON sender.id = m.sender_id

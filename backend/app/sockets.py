@@ -67,11 +67,12 @@ def handle_chat_message(data):
 
     new_message = Messages(content=message, conversation_uuid=conversation_room, sender_id=sender_id)
     res = new_message.add()
-
     payload = {
+        "id" : res["id"],
         "sender_username" : sender_username,
         "sender": sender_obj,
         "content": message,
+        "conversation_uuid" : res["conversation_uuid"],
         "created_at" : str(res["created_at"])
     } 
 
@@ -99,3 +100,18 @@ def join_rooms(username) :
     for room in rooms:
         print('user', current_user_id, 'joined', room['uuid'])
         join_room(room['uuid'])
+
+@socketio.on("read_message") 
+def read_message(data) :
+    user_username = data['username']
+    conversation_uuid = data['conversation_uuid']
+    message_id = data['message_id']
+
+
+    user_res = Users.get_id_uuid_by_username(user_username)
+
+    user_id = user_res['id']
+
+    Conversations.patch_last_read_id(message_id, user_id, conversation_uuid)
+
+

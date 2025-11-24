@@ -28,4 +28,18 @@ export function sendMessage(
     });
 }
 
+export function readMessage(
+    user: UserType,
+    username: string,
+    message_id: number,
+    conversation_uuid: string
+) {
+    socket.emit("read_message", {
+        user: user,
+        username: username,
+        message_id: message_id,
+        conversation_uuid: conversation_uuid,
+    });
+}
+
 export default socket;

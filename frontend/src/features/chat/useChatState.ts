@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import chatApi from "@/api/chatApi";
 import type { UserType } from "../auth/authTypes";
 import socket from "@/lib/socket";
+import type { ConversationRoomType } from "./chatTypes";
 
 function useChatState(
     setIsListState: React.Dispatch<React.SetStateAction<boolean>>
@@ -11,9 +12,8 @@ function useChatState(
     const [currentRecipient, setCurrentRecipient] = useState<UserType | null>(
         null
     );
-    const [conversationRoom, setConversationRoom] = useState<string | null>(
-        null
-    );
+    const [conversationRoom, setConversationRoom] =
+        useState<ConversationRoomType | null>(null);
     // conversationRoom will base on currentRecipient
 
     useEffect(() => {
@@ -32,8 +32,10 @@ function useChatState(
     }, [setIsListState]);
 
     useEffect(() => {
-        const handler = (newConversationUuid: string) => {
-            setConversationRoom(newConversationUuid);
+        const handler = async (newConversationUuid: string) => {
+            const { conversationRoom } =
+                await chatApi.getConversationByUuid(newConversationUuid);
+            setConversationRoom(conversationRoom);
         };
 
         socket.on("conversation_created", handler);
