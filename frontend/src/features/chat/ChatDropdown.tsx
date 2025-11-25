@@ -1,7 +1,7 @@
 import ChatRoom from "@/features/chat/ChatRoom";
 import chat_icon from "@/assets/icons/chat.svg";
 import { useState, useRef } from "react";
-import useChatState from "./useChatState";
+import useChatState from "./hooks/useChatState";
 import ChatList from "./ChatList";
 
 function ChatDropdown() {

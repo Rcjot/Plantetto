@@ -15,14 +15,22 @@ async function getConversationRoom(username: string) {
     }
 }
 
-async function getConversationRooms() {
+async function getConversationRooms(search: string, nextCursor: string | null) {
     try {
-        const { data } = await axios.get(`chat/rooms`);
+        const { data } = await axios.get(
+            `chat/rooms?search=${search}&cursor=${nextCursor}`
+        );
         const conversationRooms: ConversationRoomType[] =
             data["conversation_rooms"];
-        return { ok: true, conversationRooms: conversationRooms };
+        const nextCursorRes: string | null = data["next_cursor"];
+
+        return {
+            ok: true,
+            conversationRooms: conversationRooms,
+            nextCursor: nextCursorRes,
+        };
     } catch {
-        return { ok: false, conversationRooms: [] };
+        return { ok: false, conversationRooms: [], nextCursor: null };
     }
 }
 
@@ -35,7 +43,7 @@ async function getConversationMessages(
             `chat/room/${conversationRoomUuid}/messages?cursor=${nextCursor}`
         );
         const messages: MessageType[] = data["messages"];
-        const nextCursorRes: number = data["next_cursor"];
+        const nextCursorRes: number | null = data["next_cursor"];
         return { ok: true, messages: messages, nextCursor: nextCursorRes };
     } catch {
         return { ok: false, messages: [], nextCursor: null };

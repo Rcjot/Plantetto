@@ -4,7 +4,7 @@ import socket, { sendMessage } from "@/lib/socket";
 import type { UserType } from "../auth/authTypes";
 import ProfilePicture from "@/components/ProfilePicture";
 import { ArrowLeft, SendIcon } from "lucide-react";
-import useChat from "./useChat";
+import useChat from "./hooks/useChat";
 import ChatMessagesSection from "./ChatMessagesSection";
 import type { ConversationRoomType, MessageSocketType } from "./chatTypes";
 

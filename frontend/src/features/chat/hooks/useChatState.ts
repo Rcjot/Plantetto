@@ -1,8 +1,8 @@
 import { useRef, useEffect, useState } from "react";
 import chatApi from "@/api/chatApi";
-import type { UserType } from "../auth/authTypes";
+import type { UserType } from "../../auth/authTypes";
 import socket from "@/lib/socket";
-import type { ConversationRoomType } from "./chatTypes";
+import type { ConversationRoomType } from "../chatTypes";
 
 function useChatState(
     setIsListState: React.Dispatch<React.SetStateAction<boolean>>
@@ -36,6 +36,7 @@ function useChatState(
             console.log("create convo", newConversationUuid);
             const { conversationRoom } =
                 await chatApi.getConversationByUuid(newConversationUuid);
+
             setConversationRoom(conversationRoom);
         };
 
