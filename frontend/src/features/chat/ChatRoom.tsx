@@ -52,7 +52,8 @@ function ChatRoom({
                     data.sender_username === auth.user?.username,
                 sender: data.sender,
             };
-            setMessages((prev) => [...(prev ?? []), newMessage]);
+            setMessages((prev) => [newMessage, ...(prev ?? [])]);
+            // messages are fetched in descending order
         };
         socket.on(listenRoom, handler);
 

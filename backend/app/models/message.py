@@ -28,7 +28,7 @@ class Messages() :
         return res
 
     @classmethod
-    def all_under_conversation(cls, current_user_id, conversation_uuid) :
+    def all_under_conversation(cls, current_user_id, conversation_uuid, cursor_id, limit) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -47,10 +47,24 @@ class Messages() :
             (sender.id = %s) AS current_user_is_sender
         FROM messages m
         JOIN users sender ON sender.id = m.sender_id
-        WHERE conversation_uuid = %s        
-        ORDER BY m.created_at ASC
+        WHERE conversation_uuid = %s
         """
-        cursor.execute(sql,(current_user_id, conversation_uuid,))
+        params = [current_user_id, conversation_uuid,]
+        if cursor_id :
+            sql +=  """
+                    AND m.id < %s
+                    ORDER BY m.created_at DESC
+                    LIMIT %s
+                    """
+            params += [cursor_id]
+        else : 
+            sql +=  """
+                    ORDER BY m.created_at DESC
+                    LIMIT %s
+                    """
+        params += [limit]
+
+        cursor.execute(sql, params)
         
         res = cursor.fetchall()
 
