@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { ConversationRoomType, MessageType } from "./chatTypes";
 import ChatBubbleRecipient from "./components/ChatBubbleRecipient";
 import ChatBubbleSender from "./components/ChatBubbleSender";
@@ -13,6 +13,9 @@ interface ChatMessagesSectionProps {
 function ChatMessagesSection({ messages, room }: ChatMessagesSectionProps) {
     const bottomRef = useRef<HTMLDivElement>(null);
     const { auth } = useAuthContext()!;
+    const [sessionLastReadMessageId, setSessionLastReadMessageId] = useState(
+        room.last_read_message_id
+    );
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({
@@ -30,14 +33,12 @@ function ChatMessagesSection({ messages, room }: ChatMessagesSectionProps) {
             const MostRecentMessage = messages[0];
 
             if (entry.isIntersecting && auth.user) {
-                if (room.last_read_message_id === MostRecentMessage.id) {
-                    console.log(
-                        "hello",
-                        room.last_read_message_id,
-                        MostRecentMessage.id
-                    );
+                // we keep track of current sessions last read id since room.last_read_message_id is not updated on message sent or receive.
+                if (sessionLastReadMessageId === MostRecentMessage.id) {
                     return;
                 }
+                setSessionLastReadMessageId(MostRecentMessage.id);
+
                 readMessage(
                     auth.user,
                     auth.user?.username,
@@ -53,7 +54,7 @@ function ChatMessagesSection({ messages, room }: ChatMessagesSectionProps) {
             if (observedRef) observer.unobserve(observedRef);
             observer.disconnect();
         };
-    }, [messages, auth, room]);
+    }, [messages, auth, room, sessionLastReadMessageId]);
 
     let oldDateDay = 0;
 
