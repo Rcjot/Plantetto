@@ -26,15 +26,19 @@ async function getConversationRooms() {
     }
 }
 
-async function getConversationMessages(conversationRoomUuid: string) {
+async function getConversationMessages(
+    conversationRoomUuid: string,
+    nextCursor: number | null
+) {
     try {
         const { data } = await axios.get(
-            `chat/room/${conversationRoomUuid}/messages`
+            `chat/room/${conversationRoomUuid}/messages?cursor=${nextCursor}`
         );
         const messages: MessageType[] = data["messages"];
-        return { ok: true, messages: messages };
+        const nextCursorRes: number = data["next_cursor"];
+        return { ok: true, messages: messages, nextCursor: nextCursorRes };
     } catch {
-        return { ok: false, messages: [] };
+        return { ok: false, messages: [], nextCursor: null };
     }
 }
 

@@ -25,7 +25,6 @@ function useConversationRooms() {
             fetchConversationRooms();
         };
         window.addEventListener("refetchChatList", handler as EventListener);
-        console.log("refetching!");
 
         return () =>
             window.removeEventListener(

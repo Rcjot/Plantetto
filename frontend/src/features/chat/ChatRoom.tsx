@@ -20,7 +20,7 @@ function ChatRoom({
     toggleListState,
 }: ChatRoomProps) {
     const { auth } = useAuthContext()!;
-    const { messages, setMessages } = useChat(
+    const { messages, setMessages, fetchMessages, hasMore, loading } = useChat(
         conversationRoom ? conversationRoom.uuid : null
     );
     const [message, setMessage] = useState<string>("");
@@ -93,7 +93,10 @@ function ChatRoom({
                         ) : (
                             <ChatMessagesSection
                                 room={conversationRoom}
+                                fetchMessages={fetchMessages}
                                 messages={messages}
+                                hasMore={hasMore}
+                                loading={loading}
                             />
                         )}
                     </div>

@@ -9,52 +9,107 @@ import { useAuthContext } from "../auth/AuthContext";
 interface ChatMessagesSectionProps {
     messages: MessageType[];
     room: ConversationRoomType;
+    fetchMessages: () => Promise<void>;
+    hasMore: boolean;
+    loading: boolean;
 }
-function ChatMessagesSection({ messages, room }: ChatMessagesSectionProps) {
+function ChatMessagesSection({
+    messages,
+    room,
+    fetchMessages,
+    hasMore,
+    loading,
+}: ChatMessagesSectionProps) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const prevHeight = useRef(0);
+    const topRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
     const { auth } = useAuthContext()!;
     const [sessionLastReadMessageId, setSessionLastReadMessageId] = useState(
         room.last_read_message_id
     );
+    const initialFetch = useRef(false);
 
     useEffect(() => {
+        if (containerRef.current) {
+            if (prevHeight.current != containerRef.current.scrollHeight) {
+                containerRef.current.scrollTop =
+                    containerRef.current.scrollHeight -
+                    prevHeight.current +
+                    100;
+                // arbitrary number to adjust scroll
+
+                prevHeight.current = containerRef.current.scrollHeight;
+            }
+        }
+    });
+
+    useEffect(() => {
+        if (initialFetch.current) return;
+        initialFetch.current = true;
         bottomRef.current?.scrollIntoView({
-            behavior: "smooth",
+            behavior: "instant",
             block: "nearest",
         });
     }, [messages]);
 
     useEffect(() => {
-        if (!bottomRef.current || messages.length === 0) return;
-        const observedRef = bottomRef.current;
-
+        if (!bottomRef.current || !topRef.current || messages.length === 0)
+            return;
+        const observedTopRef = topRef.current;
+        const observedBotRef = bottomRef.current;
         const observer = new IntersectionObserver((entries) => {
-            const entry = entries[0];
             const MostRecentMessage = messages[0];
 
-            if (entry.isIntersecting && auth.user) {
-                // we keep track of current sessions last read id since room.last_read_message_id is not updated on message sent or receive.
-                if (sessionLastReadMessageId === MostRecentMessage.id) {
-                    return;
-                }
-                setSessionLastReadMessageId(MostRecentMessage.id);
+            entries.forEach((entry) => {
+                if (entry.target === bottomRef.current) {
+                    if (entry.isIntersecting && auth.user) {
+                        // we keep track of current sessions last read id since room.last_read_message_id is not updated on message sent or receive.
+                        if (sessionLastReadMessageId === MostRecentMessage.id) {
+                            return;
+                        }
+                        setSessionLastReadMessageId(MostRecentMessage.id);
 
-                readMessage(
-                    auth.user,
-                    auth.user?.username,
-                    MostRecentMessage.id,
-                    MostRecentMessage.conversation_uuid
-                );
-            }
+                        readMessage(
+                            auth.user,
+                            auth.user?.username,
+                            MostRecentMessage.id,
+                            MostRecentMessage.conversation_uuid
+                        );
+                    }
+                }
+                if (entry.target === topRef.current) {
+                    if (
+                        entry.isIntersecting &&
+                        auth.user &&
+                        hasMore &&
+                        !loading &&
+                        containerRef.current
+                    ) {
+                        // we keep track of current sessions last read id since room.last_read_message_id is not updated on message sent or receive.
+                        fetchMessages();
+                    }
+                }
+            });
         });
 
         observer.observe(bottomRef.current);
+        observer.observe(topRef.current);
 
         return () => {
-            if (observedRef) observer.unobserve(observedRef);
+            if (observedBotRef) observer.unobserve(observedBotRef);
+            if (observedTopRef) observer.unobserve(observedTopRef);
             observer.disconnect();
         };
-    }, [messages, auth, room, sessionLastReadMessageId]);
+    }, [
+        messages,
+        auth,
+        room,
+        sessionLastReadMessageId,
+        fetchMessages,
+        hasMore,
+        loading,
+    ]);
 
     let oldDateDay = 0;
 
@@ -94,7 +149,27 @@ function ChatMessagesSection({ messages, room }: ChatMessagesSectionProps) {
     renderMessages();
 
     return (
-        <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100dvh-350px)] px-2">
+        <div
+            ref={containerRef}
+            className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100dvh-350px)] px-2"
+        >
+            {hasMore ? (
+                <div ref={topRef} className="">
+                    <div className="flex w-full flex-col gap-4 max-w-[580px]">
+                        <div className="flex items-center gap-4 w-full">
+                            <div className="skeleton h-16 w-16 shrink-0 rounded-full"></div>
+                            <div className="flex flex-col gap-4 w-full">
+                                <div className="skeleton h-4 w-full"></div>
+                                <div className="skeleton h-4 w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="self-center text-center">
+                    wishing <br /> for a fruitful <br /> conversation
+                </div>
+            )}
             {rendered}
             <div className="min-w-10 min-h-5 bg-none" ref={bottomRef} />
         </div>

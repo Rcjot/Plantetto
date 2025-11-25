@@ -52,7 +52,6 @@ function useChatState(
                     await chatApi.getConversationRoom(
                         currentRecipient.username
                     );
-                console.log("fetching conversation", conversationRoomRes);
                 setConversationRoom(conversationRoomRes);
             }
         };

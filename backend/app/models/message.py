@@ -62,7 +62,7 @@ class Messages() :
                     ORDER BY m.created_at DESC
                     LIMIT %s
                     """
-        params += [limit]
+        params += [limit+1]
 
         cursor.execute(sql, params)
         

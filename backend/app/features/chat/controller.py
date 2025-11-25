@@ -40,14 +40,18 @@ def get_conversation_rooms() :
 @chat_bp.route("/room/<uuid:conversation_uuid>/messages")
 @login_required
 def get_conversation_messages(conversation_uuid) :
-    limit = request.args.get("limit", default=10, type=int)
+    limit = request.args.get("limit", default=20, type=int)
     cursor_id = request.args.get("cursor", default=None, type=int)
     conversation_uuid = str(conversation_uuid)
     current_user_id = current_user.get_id()
 
     messages = Messages.all_under_conversation(current_user_id, conversation_uuid, cursor_id, limit)
+    has_more = len(messages) > limit
+    messages = messages[:limit]
 
-    return jsonify(messages=messages)
+    return jsonify(messages=messages,
+                   next_cursor = messages[-1]['id'] if has_more else None,
+                   )
 
 @chat_bp.route("/room/<uuid:conversation_uuid>/participants")
 @login_required
