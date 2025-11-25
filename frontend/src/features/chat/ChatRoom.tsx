@@ -20,9 +20,8 @@ function ChatRoom({
     toggleListState,
 }: ChatRoomProps) {
     const { auth } = useAuthContext()!;
-    const { messages, setMessages, fetchMessages, hasMore, loading } = useChat(
-        conversationRoom ? conversationRoom.uuid : null
-    );
+    const { messagesObj, appendMessage, fetchMessages, hasMore, loading } =
+        useChat(conversationRoom ? conversationRoom.uuid : null);
     const [message, setMessage] = useState<string>("");
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -52,7 +51,7 @@ function ChatRoom({
                     data.sender_username === auth.user?.username,
                 sender: data.sender,
             };
-            setMessages((prev) => [newMessage, ...(prev ?? [])]);
+            appendMessage(newMessage);
             // messages are fetched in descending order
         };
         socket.on(listenRoom, handler);
@@ -60,10 +59,10 @@ function ChatRoom({
         return () => {
             socket.off(listenRoom, handler);
         };
-    }, [auth, setMessages, conversationRoom]);
+    }, [auth, appendMessage, conversationRoom]);
     // initially this is not mounted yet, so chatroom has to be opened to receive messages
     // transfer this when working in notifications.
-    if (!recipientUser || !messages) return <div>loading...</div>;
+    if (!recipientUser || !messagesObj) return <div>loading...</div>;
 
     return (
         <>
@@ -94,7 +93,7 @@ function ChatRoom({
                             <ChatMessagesSection
                                 room={conversationRoom}
                                 fetchMessages={fetchMessages}
-                                messages={messages}
+                                messagesObj={messagesObj}
                                 hasMore={hasMore}
                                 loading={loading}
                             />

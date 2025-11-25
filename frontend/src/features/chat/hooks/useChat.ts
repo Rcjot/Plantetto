@@ -2,10 +2,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MessageType } from "../chatTypes";
 import chatApi from "@/api/chatApi";
 
+export interface PassMessageType {
+    messages: MessageType[] | null;
+    changeType: "prepend" | "append";
+}
+
 function useChat(conversationRoomUuid: string | null) {
-    const [messages, setMessages] = useState<MessageType[] | null>(
-        conversationRoomUuid ? null : []
-    );
+    const [messagesObj, setMessages] = useState<PassMessageType>({
+        messages: conversationRoomUuid ? null : [],
+        changeType: "append",
+    });
     // room uuid is null if its fresh convo
 
     const [nextCursor, setNextCursor] = useState<number | null>(null);
@@ -22,6 +28,7 @@ function useChat(conversationRoomUuid: string | null) {
     // while mount message updates are handled with sockets
 
     const fetchMessages = useCallback(async () => {
+        // at default will be prepend
         if (conversationRoomUuid) {
             setLoading(true);
             const { messages: messagesRes, nextCursor: nextCursorRes } =
@@ -29,7 +36,10 @@ function useChat(conversationRoomUuid: string | null) {
                     conversationRoomUuid,
                     nextCursor
                 );
-            setMessages((prev) => [...(prev ?? []), ...messagesRes]);
+            setMessages((prev) => ({
+                messages: [...(prev.messages ?? []), ...messagesRes],
+                changeType: "prepend",
+            }));
             setHasMore(Boolean(nextCursorRes));
             setNextCursor(nextCursorRes);
             setLoading(false);
@@ -46,7 +56,20 @@ function useChat(conversationRoomUuid: string | null) {
         fetchMessages();
     }, [fetchMessages, conversationRoomUuid]);
 
-    return { messages, setMessages, fetchMessages, hasMore, loading };
+    const appendMessage = useCallback((newMessage: MessageType) => {
+        setMessages((prev) => ({
+            messages: [newMessage, ...(prev.messages ?? [])],
+            changeType: "append",
+        }));
+    }, []);
+
+    return {
+        messagesObj,
+        appendMessage,
+        fetchMessages,
+        hasMore,
+        loading,
+    };
 }
 
 export default useChat;

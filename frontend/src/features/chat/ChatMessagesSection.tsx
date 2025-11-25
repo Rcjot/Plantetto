@@ -1,20 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
-import type { ConversationRoomType, MessageType } from "./chatTypes";
+import type { ConversationRoomType } from "./chatTypes";
 import ChatBubbleRecipient from "./components/ChatBubbleRecipient";
 import ChatBubbleSender from "./components/ChatBubbleSender";
 import dayjs from "dayjs";
 import { readMessage } from "@/lib/socket";
 import { useAuthContext } from "../auth/AuthContext";
+import type { PassMessageType } from "./hooks/useChat";
 
 interface ChatMessagesSectionProps {
-    messages: MessageType[];
+    messagesObj: PassMessageType;
     room: ConversationRoomType;
     fetchMessages: () => Promise<void>;
     hasMore: boolean;
     loading: boolean;
 }
 function ChatMessagesSection({
-    messages,
+    messagesObj,
     room,
     fetchMessages,
     hasMore,
@@ -31,45 +32,71 @@ function ChatMessagesSection({
     const initialFetch = useRef(false);
 
     useEffect(() => {
-        if (containerRef.current) {
-            if (prevHeight.current != containerRef.current.scrollHeight) {
-                containerRef.current.scrollTop =
-                    containerRef.current.scrollHeight -
-                    prevHeight.current +
-                    100;
-                // arbitrary number to adjust scroll
+        // read new messages at open of conversation
+        if (
+            initialFetch.current ||
+            !messagesObj.messages ||
+            messagesObj.messages.length === 0 ||
+            !auth.user
+        )
+            return;
+        initialFetch.current = true;
+        const MostRecentMessage = messagesObj.messages[0];
 
-                prevHeight.current = containerRef.current.scrollHeight;
+        setSessionLastReadMessageId(MostRecentMessage.id);
+        readMessage(
+            auth.user,
+            auth.user?.username,
+            MostRecentMessage.id,
+            MostRecentMessage.conversation_uuid
+        );
+    }, [auth, messagesObj]);
+
+    useEffect(() => {
+        const behavior = initialFetch.current ? "smooth" : "instant";
+        if (messagesObj.changeType === "append") {
+            bottomRef.current?.scrollIntoView({
+                behavior: behavior,
+                block: "nearest",
+            });
+        } else {
+            if (containerRef.current) {
+                if (prevHeight.current != containerRef.current.scrollHeight) {
+                    containerRef.current.scrollTop =
+                        containerRef.current.scrollHeight -
+                        prevHeight.current +
+                        100;
+                    // arbitrary number to adjust scroll
+
+                    prevHeight.current = containerRef.current.scrollHeight;
+                }
             }
         }
-    });
+    }, [messagesObj]);
 
     useEffect(() => {
-        if (initialFetch.current) return;
-        initialFetch.current = true;
-        bottomRef.current?.scrollIntoView({
-            behavior: "instant",
-            block: "nearest",
-        });
-    }, [messages]);
-
-    useEffect(() => {
-        if (!bottomRef.current || !topRef.current || messages.length === 0)
+        if (
+            !bottomRef.current ||
+            !topRef.current ||
+            !messagesObj.messages ||
+            messagesObj.messages.length === 0
+        )
             return;
         const observedTopRef = topRef.current;
         const observedBotRef = bottomRef.current;
         const observer = new IntersectionObserver((entries) => {
-            const MostRecentMessage = messages[0];
+            if (!messagesObj.messages) return;
+            const MostRecentMessage = messagesObj.messages[0];
 
             entries.forEach((entry) => {
                 if (entry.target === bottomRef.current) {
                     if (entry.isIntersecting && auth.user) {
                         // we keep track of current sessions last read id since room.last_read_message_id is not updated on message sent or receive.
+
                         if (sessionLastReadMessageId === MostRecentMessage.id) {
                             return;
                         }
                         setSessionLastReadMessageId(MostRecentMessage.id);
-
                         readMessage(
                             auth.user,
                             auth.user?.username,
@@ -86,7 +113,6 @@ function ChatMessagesSection({
                         !loading &&
                         containerRef.current
                     ) {
-                        // we keep track of current sessions last read id since room.last_read_message_id is not updated on message sent or receive.
                         fetchMessages();
                     }
                 }
@@ -102,7 +128,7 @@ function ChatMessagesSection({
             observer.disconnect();
         };
     }, [
-        messages,
+        messagesObj,
         auth,
         room,
         sessionLastReadMessageId,
@@ -118,8 +144,9 @@ function ChatMessagesSection({
     // messages are fetched in descending order, most recent first
     // iterate from the end to render oldest first
     function renderMessages() {
-        for (let i = messages.length - 1; i >= 0; i--) {
-            const message = messages[i];
+        if (!messagesObj.messages) return;
+        for (let i = messagesObj.messages.length - 1; i >= 0; i--) {
+            const message = messagesObj.messages[i];
             const localDateDay = dayjs(message.created_at).get("date");
             const isSameDay = oldDateDay === localDateDay;
             oldDateDay = localDateDay;
