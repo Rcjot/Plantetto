@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ConversationRoomType } from "../chatTypes";
 import chatApi from "@/api/chatApi";
+import { useAuthContext } from "@/features/auth/AuthContext";
+import socket from "@/lib/socket";
 
 function useConversationRooms() {
     const [search, setSearch] = useState("");
@@ -12,20 +14,27 @@ function useConversationRooms() {
     >([]);
     const initialFetch = useRef(false);
 
+    const { auth } = useAuthContext()!;
+
     const fetchConversationRooms = useCallback(
         async (resetCursor = false) => {
             setLoading(true);
-            console.log(resetCursor);
             const modifiedNextCursor = resetCursor ? null : nextCursor;
 
             const {
                 conversationRooms: conversationRoomsRes,
                 nextCursor: nextCursorRes,
             } = await chatApi.getConversationRooms(search, modifiedNextCursor);
-
             setHasMore(Boolean(nextCursorRes));
             setNextCursor(nextCursorRes);
-            setConversationRooms(conversationRoomsRes);
+            if (resetCursor) {
+                setConversationRooms(conversationRoomsRes);
+            } else {
+                setConversationRooms((prev) => [
+                    ...prev,
+                    ...conversationRoomsRes,
+                ]);
+            }
             setLoading(false);
         },
         [nextCursor, search]
@@ -52,11 +61,35 @@ function useConversationRooms() {
             );
     }, [fetchConversationRooms]);
 
-    function onSubmit(resetCursor: boolean) {
-        fetchConversationRooms(resetCursor);
-    }
+    const refetchWithResetCursorIs = useCallback(
+        (resetCursor: boolean) => {
+            fetchConversationRooms(resetCursor);
+        },
+        [fetchConversationRooms]
+    );
 
-    return { conversationRooms, search, setSearch, onSubmit, hasMore, loading };
+    useEffect(() => {
+        if (!auth.user) return;
+        // listens for new messages; can pass off as notifs for chatList
+        const listenRoom = `${auth.user.id}_new_message`;
+        const handler = () => {
+            refetchWithResetCursorIs(true);
+        };
+        socket.on(listenRoom, handler);
+
+        return () => {
+            socket.off(listenRoom, handler);
+        };
+    }, [auth, refetchWithResetCursorIs]);
+
+    return {
+        conversationRooms,
+        search,
+        setSearch,
+        refetchWithResetCursorIs,
+        hasMore,
+        loading,
+    };
 }
 
 export default useConversationRooms;

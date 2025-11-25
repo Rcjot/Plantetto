@@ -77,6 +77,9 @@ def handle_chat_message(data):
     } 
 
     emit(f"new_message_{room_destination}", payload, to=room_destination)
+    
+    emit(f"{recipient_uuid}_new_message", payload, to=recipient_uuid)
+
 
 
 @socketio.on("join")
@@ -96,7 +99,7 @@ def join_rooms(username) :
     user_id_res = Users.get_id_uuid_by_username(username)
     
     current_user_id = user_id_res['id']
-    rooms = Conversations.get_all_conversation_rooms(current_user_id) 
+    rooms = Conversations.get_all_conversation_rooms(current_user_id, limit=-1) 
     for room in rooms:
         print('user', current_user_id, 'joined', room['uuid'])
         join_room(room['uuid'])

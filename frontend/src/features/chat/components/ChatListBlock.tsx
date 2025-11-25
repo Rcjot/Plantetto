@@ -1,8 +1,6 @@
-import { useAuthContext } from "@/features/auth/AuthContext";
-import type { ConversationRoomType, MessageSocketType } from "../chatTypes";
+import type { ConversationRoomType } from "../chatTypes";
 import ProfilePicture from "@/components/ProfilePicture";
 import type { UserType } from "@/features/auth/authTypes";
-import socket from "@/lib/socket";
 import { useEffect, useState } from "react";
 
 interface ChatListBlockType {
@@ -17,29 +15,8 @@ function ChatListBlock({
     toggleListState,
 }: ChatListBlockType) {
     const [recentMessage, setRecentMessage] = useState("");
-    const { auth } = useAuthContext()!;
 
     const unreadState = room.last_read_message_id < room.recent_message.id;
-
-    useEffect(() => {
-        const listenRoom = `new_message_${room.uuid}`;
-        const handler = (data: MessageSocketType) => {
-            const current_user_is_sender =
-                data.sender_username === auth.user?.username;
-            const content = current_user_is_sender
-                ? "you: " + data.content
-                : data.content;
-            setRecentMessage(content);
-            const event = new CustomEvent("refetchChatList");
-            window.dispatchEvent(event);
-        };
-
-        socket.on(listenRoom, handler);
-
-        return () => {
-            socket.off(listenRoom, handler);
-        };
-    }, [room, auth]);
 
     useEffect(() => {
         if (!room.recent_message) return;

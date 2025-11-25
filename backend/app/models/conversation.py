@@ -117,7 +117,7 @@ class Conversations() :
         return result
 
     @classmethod
-    def get_all_conversation_rooms(cls, current_user_id) :
+    def get_all_conversation_rooms(cls, current_user_id, search=None, cursor_timestamp=None, limit=None) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         
@@ -165,10 +165,43 @@ class Conversations() :
             ON cp2.conversation_uuid = c.uuid AND cp2.user_id != %s
         JOIN users u
             ON cp2.user_id = u.id 
-        ORDER BY recent_message_date DESC
         """
+        params = [current_user_id, current_user_id, current_user_id]
+
+        if limit == -1 :
+            sql +=  """
+                    ORDER BY recent_message_date DESC
+                    """
+        else : 
+            search = "%" + search + "%"
         
-        cursor.execute(sql,(current_user_id, current_user_id, current_user_id)) 
+            if cursor_timestamp :
+                print(cursor_timestamp)
+                # tiring to make this better, 
+                # recent_message_date cant be compared as it is not a table column
+                sql +=  """
+                        WHERE (u.username ILIKE %s OR u.display_name ILIKE %s)
+                        AND (SELECT
+                                m.created_at
+                            FROM messages m
+                            JOIN users sender ON sender.id = m.sender_id
+                            WHERE conversation_uuid = c.uuid     
+                            ORDER BY m.created_at DESC
+                            LIMIT 1
+                            ) < %s
+                        ORDER BY recent_message_date DESC
+                        LIMIT %s
+                        """
+                params += [search, search, cursor_timestamp, limit+1]
+            else :
+                sql +=  """
+                        WHERE (u.username ILIKE %s OR u.display_name ILIKE %s)
+                        ORDER BY recent_message_date DESC
+                        LIMIT %s
+                        """
+                params += [search, search, limit+1]
+
+        cursor.execute(sql, params) 
         result = cursor.fetchall()
 
         db.commit()

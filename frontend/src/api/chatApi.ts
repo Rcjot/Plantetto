@@ -15,6 +15,21 @@ async function getConversationRoom(username: string) {
     }
 }
 
+async function getAllConversationRooms() {
+    try {
+        const { data } = await axios.get(`chat/rooms?limit=-1`);
+        const conversationRooms: ConversationRoomType[] =
+            data["conversation_rooms"];
+
+        return {
+            ok: true,
+            conversationRooms: conversationRooms,
+        };
+    } catch {
+        return { ok: false, conversationRooms: [] };
+    }
+}
+
 async function getConversationRooms(search: string, nextCursor: string | null) {
     try {
         const { data } = await axios.get(
@@ -63,6 +78,7 @@ async function getConversationByUuid(conversationRoomUuid: string) {
 
 export default {
     getConversationRoom,
+    getAllConversationRooms,
     getConversationRooms,
     getConversationMessages,
     getConversationByUuid,

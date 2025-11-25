@@ -30,10 +30,21 @@ def get_conversation_with_user(username) :
 @chat_bp.route("/rooms")
 @login_required
 def get_conversation_rooms() :
+    limit = request.args.get("limit", default=20, type=int)
+    search = request.args.get("search", default="", type=str)
+    cursor_timestamp = request.args.get("cursor", default=None, type=str)
+    if cursor_timestamp == "null" :
+        cursor_timestamp = None
     current_user_id = current_user.get_id()
-    conversation_rooms = Conversations.get_all_conversation_rooms(current_user_id)
 
-    return jsonify(conversation_rooms=conversation_rooms)
+    conversation_rooms = Conversations.get_all_conversation_rooms(current_user_id, search, cursor_timestamp, limit)
+
+    has_more = len(conversation_rooms) > limit
+    conversation_rooms = conversation_rooms[:limit]
+
+    return jsonify(conversation_rooms=conversation_rooms,
+                   next_cursor = conversation_rooms[-1]['recent_message_date'] if has_more else None,
+                   )
 
 # no route for adding message since it is handled with sockets
 
