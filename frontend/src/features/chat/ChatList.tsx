@@ -70,7 +70,17 @@ function ChatList({ setCurrentRecipient, toggleListState }: ChatListProps) {
                         />
                     );
                 })}
-
+                {hasMore && (
+                    <div className="flex w-full flex-col gap-4 max-w-[580px]">
+                        <div className="flex items-center gap-4 w-full">
+                            <div className="skeleton h-12 w-12 shrink-0 rounded-full"></div>
+                            <div className="flex flex-col gap-4 w-full">
+                                <div className="skeleton h-4 w-full"></div>
+                                <div className="skeleton h-4 w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div className="min-w-10 min-h-5 bg-none" ref={bottomRef} />
             </div>
         </div>
