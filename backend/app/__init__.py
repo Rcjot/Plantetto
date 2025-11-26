@@ -5,8 +5,10 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 from . import database
 from flask_login import LoginManager
 from .services import cleanup
+from flask_socketio import SocketIO, send
 
 login_manager = LoginManager()
+socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app() :
     app = Flask(__name__, 
@@ -17,6 +19,10 @@ def create_app() :
         SECRET_KEY=SECRET_KEY,
         DATABASE_URL=DATABASE_URL
     )
+
+    socketio.init_app(app)
+
+    from . import sockets
 
 
     cors = CORS(app,
@@ -63,6 +69,9 @@ def create_app() :
 
     from .features.follow import follow_bp
     app.register_blueprint(follow_bp, url_prefix="/api/follow")
+
+    from .features.chat import chat_bp
+    app.register_blueprint(chat_bp, url_prefix="/api/chat")
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :

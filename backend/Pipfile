@@ -15,6 +15,7 @@ email-validator = "*"
 cloudinary = "*"
 apscheduler = "*"
 tzdata = "*"
+flask-socketio = "*"
 
 [dev-packages]
 

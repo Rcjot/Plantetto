@@ -1,0 +1,77 @@
+import type { ConversationRoomType } from "../chatTypes";
+import ProfilePicture from "@/components/ProfilePicture";
+import { useEffect, useState } from "react";
+import type { RoomObjType } from "../hooks/useChatState";
+
+interface ChatListBlockType {
+    room: ConversationRoomType;
+    toggleListState: () => void;
+    setCurrentRoomObj: React.Dispatch<React.SetStateAction<RoomObjType>>;
+}
+
+function ChatListBlock({
+    room,
+    toggleListState,
+    setCurrentRoomObj,
+}: ChatListBlockType) {
+    const [recentMessage, setRecentMessage] = useState("");
+
+    const unreadState = room.last_read_message_id < room.recent_message.id;
+
+    useEffect(() => {
+        if (!room.recent_message) return;
+        const content = room.recent_message.current_user_is_sender
+            ? "you: " + room.recent_message.content
+            : room.recent_message.content;
+        setRecentMessage(content);
+    }, [room]);
+
+    return (
+        <div
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                setCurrentRoomObj({
+                    recipient: room.recipient,
+                    room: room,
+                });
+                // setConversationRoomUuid(room.uuid);
+
+                // since chatListBlock is guaranteed to have already the roomUuid
+                //     we set it directly
+
+                // SetCurrentRecipient based room is only used
+                //      when there is no exisitng conversation yet
+                //      i.e. accessing chat through pfp page and no existing conversation yet
+                // setCurrentRecipient(room.recipient);
+
+                // because it takes time to setup new room (rerender)
+                // setTimeout(() => toggleListState(), 150);
+                toggleListState();
+            }}
+            tabIndex={-1}
+            key={room.uuid}
+            className="flex gap-2 cursor-pointer"
+        >
+            <ProfilePicture src={room.recipient.pfp_url} />
+            <div className="flex flex-col">
+                <h1>
+                    {room.recipient.display_name ?? room.recipient.username}
+                </h1>
+                <div className="flex items-center gap-3 ">
+                    {unreadState && (
+                        <div className="rounded-full h-3 w-3 bg-secondary opacity-30" />
+                    )}
+                    <p
+                        className={`text-gray-600 truncate max-w-40 ${unreadState && "font-[650]"}`}
+                    >
+                        {recentMessage}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default ChatListBlock;
