@@ -15,17 +15,12 @@ interface ChatRoomProps {
 
 function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
     const { auth } = useAuthContext()!;
-    const currentRoomObjUuid = currentRoomObj.room
-        ? currentRoomObj.room.uuid
-        : null;
-    const {
-        messagesObj,
-        appendMessage,
-        fetchMessages,
-        hasMore,
-        loading,
-        conversationRoom,
-    } = useChat(currentRoomObjUuid);
+    const currentRoomObjUuid =
+        currentRoomObj.room && typeof currentRoomObj.room !== "string"
+            ? currentRoomObj.room.uuid
+            : null;
+    const { messagesObj, appendMessage, fetchMessages, hasMore, loading } =
+        useChat(currentRoomObjUuid);
     const [message, setMessage] = useState<string>("");
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -65,12 +60,20 @@ function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
     }, [auth, appendMessage, currentRoomObjUuid]);
     // initially this is not mounted yet, so chatroom has to be opened to receive messages
     // transfer this when working in notifications.
-    if (!currentRoomObj.recipient || !messagesObj) return <div>loading...</div>;
+
+    if (
+        !currentRoomObj.recipient ||
+        !messagesObj ||
+        typeof currentRoomObj === "string"
+    )
+        return <div>loading...</div>;
+    // typeof string cus "" is loading state
 
     // in the case where conversationRoom is null when no conversation room yet
     // we use recipientUsers details in rendering the chat header
     //              for syncing purposes
 
+    const conversationRoom = currentRoomObj.room;
     const currentRecipient = currentRoomObj.recipient;
 
     return (
@@ -90,21 +93,23 @@ function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
                     <ProfilePicture
                         src={
                             conversationRoom
-                                ? conversationRoom.recipient.pfp_url
+                                ? currentRoomObj.recipient.pfp_url
                                 : currentRecipient.pfp_url
                         }
                     />
                     <h1>
                         {conversationRoom
-                            ? (conversationRoom.recipient.display_name ??
-                              conversationRoom.recipient.username)
+                            ? (currentRoomObj.recipient.display_name ??
+                              currentRoomObj.recipient.username)
                             : (currentRecipient.display_name ??
                               currentRecipient.username)}
                     </h1>
                 </div>
                 <div className=" bg-base-200 rounded-sm p-1 flex flex-col gap-5">
                     <div>
-                        {!conversationRoom ? (
+                        {typeof conversationRoom === "string" ? (
+                            <div>loading...</div>
+                        ) : !conversationRoom ? (
                             <h1 className="text-center mt-3">
                                 spark a conversation
                             </h1>

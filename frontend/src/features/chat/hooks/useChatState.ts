@@ -5,7 +5,7 @@ import chatApi from "@/api/chatApi";
 import type { ConversationRoomType } from "../chatTypes";
 export interface RoomObjType {
     recipient: UserType | null;
-    room: ConversationRoomType | null;
+    room: ConversationRoomType | null | string;
 }
 function useChatState(
     setIsListState: React.Dispatch<React.SetStateAction<boolean>>
@@ -14,7 +14,8 @@ function useChatState(
 
     const [currentRoomObj, setCurrentRoomObj] = useState<RoomObjType>({
         recipient: null,
-        room: null,
+        room: "",
+        // loading initial state
     });
     // conversationRoom will base on currentRecipient
 
@@ -58,9 +59,6 @@ function useChatState(
         };
 
         const handler = async (newConversationUuid: string) => {
-            // const { conversationRoom } =
-            //     await chatApi.getConversationByUuid(newConversationUuid);
-
             handleAsync(newConversationUuid);
         };
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ConversationRoomType, MessageType } from "../chatTypes";
+import type { MessageType } from "../chatTypes";
 import chatApi from "@/api/chatApi";
 
 export interface PassMessageType {
@@ -14,12 +14,8 @@ function useChat(conversationRoomUuid: string | null) {
     });
     // room uuid is null if its fresh convo
 
-    // const [nextCursor, setNextCursor] = useState<number | null>(null);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(true);
-
-    const [conversationRoom, setConversationRoom] =
-        useState<ConversationRoomType | null>(null);
 
     const initialFetch = useRef(false);
     const nextCursor = useRef<number | null>(null);
@@ -44,9 +40,7 @@ function useChat(conversationRoomUuid: string | null) {
                     conversationRoomUuid,
                     nextCursor.current
                 );
-            const { conversationRoom: conversationRoomRes } =
-                await chatApi.getConversationByUuid(conversationRoomUuid);
-            setConversationRoom(conversationRoomRes);
+
             setMessages((prev) => ({
                 messages: [...(prev.messages ?? []), ...messagesRes],
                 changeType: "prepend",
@@ -84,7 +78,6 @@ function useChat(conversationRoomUuid: string | null) {
         fetchMessages,
         hasMore,
         loading,
-        conversationRoom,
     };
 }
 
