@@ -79,6 +79,8 @@ def handle_chat_message(data):
     emit(f"new_message_{room_destination}", payload, to=room_destination)
     
     emit(f"{recipient_uuid}_new_message", payload, to=recipient_uuid)
+    Conversations.patch_last_read_id(res["id"], sender_id, conversation_room)
+
 
 
 

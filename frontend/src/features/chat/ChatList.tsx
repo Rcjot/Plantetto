@@ -1,15 +1,15 @@
 import { useEffect, useRef } from "react";
-import type { UserType } from "../auth/authTypes";
 import ChatListBlock from "./components/ChatListBlock";
 import useConversationRooms from "./hooks/useConversationRooms";
 import { Search } from "lucide-react";
+import type { RoomObjType } from "./hooks/useChatState";
 
 interface ChatListProps {
-    setCurrentRecipient: React.Dispatch<React.SetStateAction<UserType | null>>;
+    setCurrentRoomObj: React.Dispatch<React.SetStateAction<RoomObjType>>;
     toggleListState: () => void;
 }
 
-function ChatList({ setCurrentRecipient, toggleListState }: ChatListProps) {
+function ChatList({ toggleListState, setCurrentRoomObj }: ChatListProps) {
     const {
         conversationRooms: conversationRoomsList,
         search,
@@ -64,7 +64,7 @@ function ChatList({ setCurrentRecipient, toggleListState }: ChatListProps) {
                     return (
                         <ChatListBlock
                             room={room}
-                            setCurrentRecipient={setCurrentRecipient}
+                            setCurrentRoomObj={setCurrentRoomObj}
                             toggleListState={toggleListState}
                             key={room.uuid}
                         />

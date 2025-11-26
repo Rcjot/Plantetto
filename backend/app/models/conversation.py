@@ -245,7 +245,7 @@ class Conversations() :
             cp1.last_read_message_id
         FROM conversations c
         JOIN conversation_participants cp1
-            ON cp1.conversation_uuid = c.uuid 
+            ON cp1.conversation_uuid = c.uuid AND cp1.user_id = %s
         JOIN conversation_participants cp2
             ON cp2.conversation_uuid = c.uuid AND cp2.user_id != cp1.user_id
         JOIN users u
@@ -253,7 +253,7 @@ class Conversations() :
         WHERE c.uuid = %s
         """
         
-        cursor.execute(sql,(current_user_id, conversation_uuid)) 
+        cursor.execute(sql,(current_user_id, current_user_id, conversation_uuid)) 
         result = cursor.fetchone()
 
         db.commit()

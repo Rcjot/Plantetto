@@ -1,18 +1,18 @@
 import type { ConversationRoomType } from "../chatTypes";
 import ProfilePicture from "@/components/ProfilePicture";
-import type { UserType } from "@/features/auth/authTypes";
 import { useEffect, useState } from "react";
+import type { RoomObjType } from "../hooks/useChatState";
 
 interface ChatListBlockType {
     room: ConversationRoomType;
-    setCurrentRecipient: React.Dispatch<React.SetStateAction<UserType | null>>;
     toggleListState: () => void;
+    setCurrentRoomObj: React.Dispatch<React.SetStateAction<RoomObjType>>;
 }
 
 function ChatListBlock({
     room,
-    setCurrentRecipient,
     toggleListState,
+    setCurrentRoomObj,
 }: ChatListBlockType) {
     const [recentMessage, setRecentMessage] = useState("");
 
@@ -32,10 +32,23 @@ function ChatListBlock({
                 e.preventDefault();
                 e.stopPropagation();
 
-                setCurrentRecipient(room.recipient);
+                setCurrentRoomObj({
+                    recipient: room.recipient,
+                    room: room,
+                });
+                // setConversationRoomUuid(room.uuid);
+
+                // since chatListBlock is guaranteed to have already the roomUuid
+                //     we set it directly
+
+                // SetCurrentRecipient based room is only used
+                //      when there is no exisitng conversation yet
+                //      i.e. accessing chat through pfp page and no existing conversation yet
+                // setCurrentRecipient(room.recipient);
 
                 // because it takes time to setup new room (rerender)
-                setTimeout(() => toggleListState(), 150);
+                // setTimeout(() => toggleListState(), 150);
+                toggleListState();
             }}
             tabIndex={-1}
             key={room.uuid}

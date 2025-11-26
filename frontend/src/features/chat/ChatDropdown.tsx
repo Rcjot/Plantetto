@@ -6,12 +6,8 @@ import ChatList from "./ChatList";
 
 function ChatDropdown() {
     const [isListState, setIsListState] = useState(true);
-    const {
-        buttonRef,
-        currentRecipient,
-        conversationRoom,
-        setCurrentRecipient,
-    } = useChatState(setIsListState);
+    const { buttonRef, currentRoomObj, setCurrentRoomObj } =
+        useChatState(setIsListState);
 
     const ulDropdownRef = useRef<HTMLUListElement>(null);
 
@@ -40,13 +36,13 @@ function ChatDropdown() {
             >
                 {isListState ? (
                     <ChatList
-                        setCurrentRecipient={setCurrentRecipient}
+                        setCurrentRoomObj={setCurrentRoomObj}
                         toggleListState={toggleListState}
                     />
                 ) : (
                     <ChatRoom
-                        recipientUser={currentRecipient}
-                        conversationRoom={conversationRoom}
+                        key={currentRoomObj.recipient?.id}
+                        currentRoomObj={currentRoomObj}
                         toggleListState={toggleListState}
                     />
                 )}

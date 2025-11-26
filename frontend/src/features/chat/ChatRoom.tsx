@@ -1,46 +1,49 @@
 import { useEffect, useState } from "react";
 import { useAuthContext } from "../auth/AuthContext";
 import socket, { sendMessage } from "@/lib/socket";
-import type { UserType } from "../auth/authTypes";
 import ProfilePicture from "@/components/ProfilePicture";
 import { ArrowLeft, SendIcon } from "lucide-react";
 import useChat from "./hooks/useChat";
 import ChatMessagesSection from "./ChatMessagesSection";
-import type { ConversationRoomType, MessageSocketType } from "./chatTypes";
+import type { MessageSocketType } from "./chatTypes";
+import type { RoomObjType } from "./hooks/useChatState";
 
 interface ChatRoomProps {
-    recipientUser: UserType | null;
-    conversationRoom: ConversationRoomType | null;
     toggleListState: () => void;
+    currentRoomObj: RoomObjType;
 }
 
-function ChatRoom({
-    recipientUser,
-    conversationRoom,
-    toggleListState,
-}: ChatRoomProps) {
+function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
     const { auth } = useAuthContext()!;
-    const { messagesObj, appendMessage, fetchMessages, hasMore, loading } =
-        useChat(conversationRoom ? conversationRoom.uuid : null);
+    const currentRoomObjUuid = currentRoomObj.room
+        ? currentRoomObj.room.uuid
+        : null;
+    const {
+        messagesObj,
+        appendMessage,
+        fetchMessages,
+        hasMore,
+        loading,
+        conversationRoom,
+    } = useChat(currentRoomObjUuid);
     const [message, setMessage] = useState<string>("");
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        if (auth.user && recipientUser) {
+        if (auth.user && currentRoomObj.recipient) {
             sendMessage(
                 auth.user,
                 auth.user.username,
-                recipientUser.username,
+                currentRoomObj.recipient.username,
                 message,
-                conversationRoom ? conversationRoom.uuid : null
+                currentRoomObjUuid
             );
             setMessage("");
         }
     }
-
     useEffect(() => {
-        if (!conversationRoom) return;
-        const listenRoom = `new_message_${conversationRoom.uuid}`;
+        if (!currentRoomObjUuid) return;
+        const listenRoom = `new_message_${currentRoomObjUuid}`;
         const handler = (data: MessageSocketType) => {
             const newMessage = {
                 id: data.id,
@@ -59,10 +62,16 @@ function ChatRoom({
         return () => {
             socket.off(listenRoom, handler);
         };
-    }, [auth, appendMessage, conversationRoom]);
+    }, [auth, appendMessage, currentRoomObjUuid]);
     // initially this is not mounted yet, so chatroom has to be opened to receive messages
     // transfer this when working in notifications.
-    if (!recipientUser || !messagesObj) return <div>loading...</div>;
+    if (!currentRoomObj.recipient || !messagesObj) return <div>loading...</div>;
+
+    // in the case where conversationRoom is null when no conversation room yet
+    // we use recipientUsers details in rendering the chat header
+    //              for syncing purposes
+
+    const currentRecipient = currentRoomObj.recipient;
 
     return (
         <>
@@ -78,9 +87,19 @@ function ChatRoom({
                     <ArrowLeft size={25} />
                 </button>
                 <div className="flex items-center gap-3 font-[700] text-lg  ">
-                    <ProfilePicture src={recipientUser.pfp_url} />
+                    <ProfilePicture
+                        src={
+                            conversationRoom
+                                ? conversationRoom.recipient.pfp_url
+                                : currentRecipient.pfp_url
+                        }
+                    />
                     <h1>
-                        {recipientUser.display_name ?? recipientUser.username}
+                        {conversationRoom
+                            ? (conversationRoom.recipient.display_name ??
+                              conversationRoom.recipient.username)
+                            : (currentRecipient.display_name ??
+                              currentRecipient.username)}
                     </h1>
                 </div>
                 <div className=" bg-base-200 rounded-sm p-1 flex flex-col gap-5">
