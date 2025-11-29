@@ -11,4 +11,13 @@ async function getNotifications() {
     }
 }
 
-export default { getNotifications };
+async function markAllRead() {
+    try {
+        await axios.patch(`/notifications/`);
+        return { ok: true };
+    } catch {
+        return { ok: false };
+    }
+}
+
+export default { getNotifications, markAllRead };

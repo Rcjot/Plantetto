@@ -30,7 +30,8 @@ class Notifications() :
             # upsert duplicate notifications for follows
             sql = """
             UPDATE notifications
-            SET created_at = NOW()
+            SET created_at = NOW(),
+            is_read = FALSE
             WHERE 
             notification_type = %s
             AND user_id = %s
@@ -108,3 +109,20 @@ class Notifications() :
         return notifications
 
 
+    @classmethod
+    def mark_all_read(cls, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+
+        sql = """
+        UPDATE
+        notifications
+        SET is_read = TRUE
+        WHERE user_id = %s
+        """
+        cursor.execute(sql, (current_user_id,) )
+
+
+        db.commit()
+        cursor.close()
+    

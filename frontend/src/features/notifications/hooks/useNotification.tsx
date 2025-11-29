@@ -11,6 +11,11 @@ function useNotification() {
         setNotifs(notifications);
     }, []);
 
+    async function markAllRead() {
+        await notificationsApi.markAllRead();
+        fetchNotifications();
+    }
+
     useEffect(() => {
         fetchNotifications();
     }, [fetchNotifications]);
@@ -26,7 +31,7 @@ function useNotification() {
         };
     });
 
-    return { notifs };
+    return { notifs, markAllRead };
 }
 
 export default useNotification;

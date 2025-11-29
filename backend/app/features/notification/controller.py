@@ -15,6 +15,15 @@ def get_notifications():
 
 
 
+@notification_bp.route("/", methods=["PATCH"]) 
+@login_required
+def mark_all_notifications_read():
+    current_user_id = current_user.get_id()
+
+    Notifications.mark_all_read(current_user_id)
+    
+    return jsonify(success=True)
+
 
 
     

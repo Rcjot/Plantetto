@@ -3,17 +3,15 @@ import NotificationBlock from "./components/NotificationBlock";
 
 interface NotificationListProps {
     notifications: NotificationType[];
+    children: React.ReactNode;
 }
 
-function NotificationList({ notifications }: NotificationListProps) {
+function NotificationList({ notifications, children }: NotificationListProps) {
     return (
         <>
             <div className="flex flex-1 flex-col gap-5 ">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-xl font-[600]">Notifications</h1>
-                    <button className="cursor-pointer">
-                        <h1 className="text-xs underline">mark all as read</h1>
-                    </button>
+                    {children}
                 </div>
                 {notifications.map((notification) => {
                     return (
