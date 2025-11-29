@@ -74,7 +74,7 @@ class MarketItems() :
         search = "%" + search + "%"
         params = [username, search]
         if (plant_type_id is not None) :
-            sql += " AND p.plant_type_id =%s"
+            sql += "AND p.plant_type_id = %s "
             params.extend([plant_type_id])
 
         sql +="""
@@ -146,17 +146,17 @@ class MarketItems() :
         search = "%" + search + "%"
         params = [search]
         if (plant_type_id is not None) :
-            sql += " AND p.plant_type_id =%s"
+            sql += "AND p.plant_type_id = %s "
             params.extend([plant_type_id])
 
         if sort == "cheapest" :
-            sql += "ORDER BY mi.price ASC"
+            sql += "ORDER BY mi.price ASC "
         elif sort == "expensive" :
-            sql += "ORDER BY mi.price DESC"
+            sql += "ORDER BY mi.price DESC "
         else :
-            sql += "ORDER BY mi.created_at DESC"
+            sql += "ORDER BY mi.created_at DESC "
        
-        sql+= " LIMIT %s OFFSET %s"
+        sql+= "LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
             
@@ -258,3 +258,115 @@ class MarketItems() :
         if result is None :
             return None
         return result
+
+    @classmethod
+    def get_market_item(cls, market_item_uuid):
+        """Get a single market item by UUID with full details"""
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT 
+            mi.uuid,
+            mi.description,
+            mi.price,
+            mi.status,
+            JSON_BUILD_OBJECT(
+                'plant_uuid', p.uuid,
+                'nickname', p.nickname,
+                'description', p.plant_description,
+                'picture_url', p.picture_url,
+                'created_at', p.created_at,
+                'plant_type', plant_types.plant_name
+            ) as plant
+        FROM market_items mi
+        JOIN plants p ON mi.plant_id = p.id
+        JOIN plant_types ON p.plant_type_id = plant_types.id
+        WHERE mi.uuid = %s
+        """
+
+        cursor.execute(sql, (market_item_uuid,))
+        result = cursor.fetchone()
+
+        cursor.close()
+
+        return result
+    
+    @classmethod
+    def get_related_items(cls, market_item_uuid, plant_type_name=None, limit=5):
+        """
+        Get related market items.
+        Priority:
+        1. Same plant type (excluding current item)
+        2. Fill remaining with recent active items
+        """
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        related_items = []
+
+        if plant_type_name:
+            same_type_sql = """
+            SELECT 
+                mi.uuid,
+                description,
+                price,
+                status,
+                JSON_BUILD_OBJECT(
+                    'plant_uuid', p.uuid,
+                    'nickname', p.nickname,
+                    'description', p.plant_description,
+                    'picture_url', p.picture_url,
+                    'created_at', p.created_at,
+                    'plant_type', plant_types.plant_name
+                ) AS plant
+            FROM market_items mi
+            JOIN plants p ON mi.plant_id = p.id
+            JOIN plant_types ON p.plant_type_id = plant_types.id
+            WHERE mi.status = 'active'
+            AND mi.uuid != %s
+            AND plant_types.plant_name = %s
+            ORDER BY mi.created_at DESC
+            LIMIT %s
+            """
+
+            cursor.execute(same_type_sql, (market_item_uuid, plant_type_name, limit * 2))
+            related_items = cursor.fetchall()
+
+        if len(related_items) < limit:
+            existing_uuids = [item["uuid"] for item in related_items]
+            existing_uuids.append(market_item_uuid)
+
+            remaining_needed = limit - len(related_items)
+
+            fill_sql = """
+            SELECT 
+                mi.uuid,
+                description,
+                price,
+                status,
+                JSON_BUILD_OBJECT(
+                    'plant_uuid', p.uuid,
+                    'nickname', p.nickname,
+                    'description', p.plant_description,
+                    'picture_url', p.picture_url,
+                    'created_at', p.created_at,
+                    'plant_type', plant_types.plant_name
+                ) AS plant
+            FROM market_items mi
+            JOIN plants p ON mi.plant_id = p.id
+            JOIN plant_types ON p.plant_type_id = plant_types.id
+            WHERE mi.status = 'active'
+            AND mi.uuid NOT IN %s
+            ORDER BY mi.created_at DESC
+            LIMIT %s
+            """
+
+            cursor.execute(fill_sql, (tuple(existing_uuids), remaining_needed))
+            additional_items = cursor.fetchall()
+
+            related_items.extend(additional_items)
+
+        cursor.close()
+
+        return related_items[:limit]

@@ -107,3 +107,50 @@ def delete_guide(market_item_uuid) :
         return jsonify(success=True, message="delete guide successful")
     else :
         return jsonify(success=False, message="delete guide failed"), 404
+    
+@market_bp.route("/<uuid:market_item_uuid>")
+def get_market_item(market_item_uuid):
+    market_item_uuid = str(market_item_uuid)
+    
+    try:
+        result = MarketItems.get_market_item(market_item_uuid)
+        
+        if result is None:
+            return jsonify(success=False, message="market item dont exist"), 404
+        
+        return jsonify(success=True, market_item=result)
+    except Exception as e:
+        return jsonify(success=False, message="server error"), 500
+    
+@market_bp.route("/<uuid:market_item_uuid>/related")
+def get_related_items(market_item_uuid):
+    market_item_uuid = str(market_item_uuid)
+    limit = 5
+    
+    try:
+        current_item = MarketItems.get_market_item(market_item_uuid)
+        
+        if not current_item:
+            return jsonify(success=False, message="Item not found"), 404
+        
+        plant_type_name = current_item.get('plant', {}).get('plant_type')
+        
+        if not plant_type_name:
+            related = MarketItems.get_related_items(
+                market_item_uuid=market_item_uuid,
+                plant_type_name=None,
+                limit=limit
+            )
+            return jsonify(success=True, items=related)
+        
+        related = MarketItems.get_related_items(
+            market_item_uuid=market_item_uuid,
+            plant_type_name=plant_type_name,
+            limit=limit
+        )
+        
+        return jsonify(success=True, items=related)
+        
+    except Exception as e:
+        print(f"Error in get_related_items: {e}")
+        return jsonify(success=False, message="Server error"), 500
