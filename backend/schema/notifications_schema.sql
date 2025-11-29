@@ -6,9 +6,20 @@ CREATE TABLE notifications (
         CHECK (notification_type IN ('post', 'message', 'follow', 'guide', 'comment_post', 'comment_guide', 'like_post')),
     is_read BOOLEAN DEFAULT FALSE,
     payload JSONB NULL,
+    entity_id BIGINT NULL,
     user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    actor_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE UNIQUE INDEX uniq_follow
+ON notifications (user_id, actor_id, notification_type)
+WHERE notification_type = 'follow';
+
+CREATE UNIQUE INDEX uniq_like
+ON notifications (user_id, actor_id, entity_id, notification_type)
+WHERE notification_type = 'like';
 
 
 -- post redirect link : post link

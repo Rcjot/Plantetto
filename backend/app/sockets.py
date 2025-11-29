@@ -137,7 +137,10 @@ def notify_follow(data) :
     follower_user = data['follower']
     following_user = data['following']
 
-    print(data)
+    follower_res = Users.get_id_uuid_by_username(follower_user['username'])
+    follower_id = follower_res['id']
+
+
 
     following_res = Users.get_id_uuid_by_username(following_user['username'])
     following_id = following_res['id']
@@ -148,6 +151,7 @@ def notify_follow(data) :
     })
 
     new_notif = Notifications(user_id=following_id,
+                              actor_id=follower_id,
                               notification_type="follow", 
                               payload=payload)
     new_notif_payload = new_notif.add()

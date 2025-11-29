@@ -2,12 +2,13 @@ from ..database import get_db
 import psycopg2.extras
 
 class Notifications() :
-    def __init__(self, id=None, notification_type=None, is_read=None, payload=None, user_id=None, created_at=None) :
+    def __init__(self, id=None, notification_type=None, is_read=None, payload=None, user_id=None, actor_id=None, created_at=None) :
         self.id=id
         self.notification_type=notification_type
         self.is_read=is_read
         self.payload=payload
         self.user_id=user_id
+        self.actor_id=actor_id
         self.created_at=created_at
 
     def add(self):
@@ -16,13 +17,29 @@ class Notifications() :
 
         sql = """
         INSERT INTO notifications
-        (notification_type, payload, user_id)
-        VALUES(%s, %s, %s)
+        (notification_type, payload, user_id, actor_id)
+        VALUES(%s, %s, %s, %s)
+        ON CONFLICT DO NOTHING
         RETURNING id, notification_type, is_read, payload, user_id, created_at
         """
-        cursor.execute(sql, (self.notification_type, self.payload, self.user_id))
+        cursor.execute(sql, (self.notification_type, self.payload, self.user_id, self.actor_id))
 
         id_res = cursor.fetchone()
+        
+        if id_res is None :
+            # upsert duplicate notifications for follows
+            sql = """
+            UPDATE notifications
+            SET created_at = NOW()
+            WHERE 
+            notification_type = %s
+            AND user_id = %s
+            AND actor_id = %s
+            RETURNING id, notification_type, is_read, payload, user_id, created_at
+            """
+            cursor.execute(sql, (self.notification_type, self.user_id, self.actor_id))
+
+            id_res = cursor.fetchone()
 
         db.commit()
         cursor.close()
