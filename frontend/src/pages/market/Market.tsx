@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MarketCard from "@/features/market/MarketCard";
 import CreateListingModal from "@/features/market/CreateListingModal";
@@ -12,7 +12,8 @@ function Market() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [marketItems, setMarketItems] = useState<MarketItemType[]>([]);
-    const [search, setSearch] = useState("");
+    const [searchInput, setSearchInput] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [categoryMap, setCategoryMap] = useState<
@@ -22,13 +23,19 @@ function Market() {
     const status = "active";
     const [meta, setMeta] = useState<MetaDataType | null>(null);
 
+    const initialFetchDone = useRef(false);
+
     useEffect(() => {
         const fetchMarketItems = async () => {
+            if (!initialFetchDone.current) {
+                initialFetchDone.current = true;
+            }
+
             setLoading(true);
             const plant_type_id = categoryMap[selectedCategory];
 
             const res = await marketApi.getMarket(
-                search,
+                searchQuery,
                 plant_type_id,
                 page,
                 sort,
@@ -47,7 +54,7 @@ function Market() {
         };
 
         fetchMarketItems();
-    }, [search, page, selectedCategory, categoryMap, sort, status]);
+    }, [searchQuery, page, selectedCategory, categoryMap, sort, status]);
 
     const renderPageButtons = () => {
         if (!meta) return null;
@@ -71,7 +78,13 @@ function Market() {
     };
 
     const handleItemClick = (item: MarketItemType) => {
-        navigate(`/market/${item.uuid}`, { state: { item } });
+        navigate(`/market/${item.uuid}`);
+    };
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setSearchQuery(searchInput);
+        setPage(1);
     };
 
     return (
@@ -94,16 +107,16 @@ function Market() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 w-full">
+                    <form
+                        onSubmit={handleSearchSubmit}
+                        className="flex flex-col sm:flex-row gap-3 w-full"
+                    >
                         <input
                             type="text"
-                            placeholder="Search plants..."
+                            placeholder="Search plants... (Press Enter to search)"
                             className="input input-bordered flex-1 bg-white border-gray-200"
-                            value={search}
-                            onChange={(e) => {
-                                setSearch(e.target.value);
-                                setPage(1);
-                            }}
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
                         />
                         <select
                             value={sort}
@@ -114,7 +127,7 @@ function Market() {
                             <option value="cheapest">Cheapest</option>
                             <option value="expensive">Most Expensive</option>
                         </select>
-                    </div>
+                    </form>
 
                     <FilterScroll
                         setPage={setPage}
