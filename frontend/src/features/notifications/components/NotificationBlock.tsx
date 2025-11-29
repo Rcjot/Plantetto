@@ -5,12 +5,18 @@ import type {
     PayloadType,
 } from "../notificationTypes";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationBlockProps {
     notification: NotificationType;
+    markNotificationRead: (notifId: number) => Promise<void>;
 }
 
-function NotificationBlock({ notification }: NotificationBlockProps) {
+function NotificationBlock({
+    notification,
+    markNotificationRead,
+}: NotificationBlockProps) {
+    const navigate = useNavigate();
     let content;
     const notification_type = notification.notification_type;
     if (notification_type === "follow") {
@@ -19,7 +25,13 @@ function NotificationBlock({ notification }: NotificationBlockProps) {
 
         content = (
             <>
-                <div className="flex gap-3">
+                <div
+                    className="flex gap-3 cursor-pointer"
+                    onClick={() => {
+                        navigate(`/${actor.username}`);
+                        markNotificationRead(notification.id);
+                    }}
+                >
                     <ProfilePicture src={actor.pfp_url} />
                     <div>
                         <h1 className="text-sm">
@@ -45,7 +57,13 @@ function NotificationBlock({ notification }: NotificationBlockProps) {
         const actor = payload.actor;
         content = (
             <>
-                <div className="flex gap-3">
+                <div
+                    className="flex gap-3"
+                    onClick={() => {
+                        navigate(`/${actor.username}`);
+                        markNotificationRead(notification.id);
+                    }}
+                >
                     <ProfilePicture src={actor.pfp_url} />
                     <div>
                         <h1 className="text-sm">

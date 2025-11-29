@@ -20,4 +20,13 @@ async function markAllRead() {
     }
 }
 
-export default { getNotifications, markAllRead };
+async function markNotificationRead(notificationId: number) {
+    try {
+        await axios.patch(`/notifications/${notificationId}`);
+        return { ok: true };
+    } catch {
+        return { ok: false };
+    }
+}
+
+export default { getNotifications, markAllRead, markNotificationRead };

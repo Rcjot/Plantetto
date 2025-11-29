@@ -24,7 +24,13 @@ def mark_all_notifications_read():
     
     return jsonify(success=True)
 
+@notification_bp.route("/<notification_id>", methods=["PATCH"]) 
+@login_required
+def mark_notification_read(notification_id):
 
+    Notifications.patch_read(notification_id)
+    
+    return jsonify(success=True)
 
     
 
