@@ -103,6 +103,28 @@ async function getMarket(
     }
 }
 
+async function getMarketItem(market_item_uuid: string) {
+    try {
+        const { data } = await axios.get(`/market/${market_item_uuid}`);
+        const marketItem: MarketItemType = data["market_item"];
+        return { ok: true, marketItem: marketItem };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, marketItem: null };
+    }
+}
+
+async function getRelatedItems(market_item_uuid: string) {
+    try {
+        const { data } = await axios.get(`/market/${market_item_uuid}/related`);
+        const relatedItems: MarketItemType[] = data["items"];
+        return { ok: true, items: relatedItems };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, items: [] };
+    }
+}
+
 export default {
     addMarketItem,
     updateMarketItem,
@@ -110,4 +132,6 @@ export default {
     deleteMarketItem,
     getListing,
     getMarket,
+    getMarketItem,
+    getRelatedItems,
 };
