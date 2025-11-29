@@ -62,7 +62,7 @@ export default function MarketItemPage() {
                     </div>
 
                     <button
-                        onClick={() => navigate("/market")}
+                        onClick={() => navigate("/market/")}
                         className="flex items-center gap-2 text-base-content hover:text-primary transition-colors"
                     >
                         <ChevronLeft className="w-5 h-5" />

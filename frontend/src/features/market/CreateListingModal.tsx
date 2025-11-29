@@ -21,6 +21,7 @@ import {
 import { useAuthContext } from "@/features/auth/AuthContext";
 import diariesApi from "@/api/diariesApi";
 import marketApi from "@/api/marketApi";
+import plantsApi from "@/api/plantsApi";
 import type { PlantOptionType } from "@/features/garden/gardenTypes";
 
 export default function CreateListingModal({
@@ -31,6 +32,11 @@ export default function CreateListingModal({
     const [open, setOpen] = useState(false);
     const [plantOptions, setPlantOptions] = useState<PlantOptionType[]>([]);
     const [selectedPlantId, setSelectedPlantId] = useState<string>("");
+    const [selectedPlantPreview, setSelectedPlantPreview] = useState<{
+        picture_url: string;
+        nickname: string;
+        plant_type: string;
+    } | null>(null);
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,11 +63,37 @@ export default function CreateListingModal({
         if (open) {
             loadPlantOptions();
             setSelectedPlantId("");
+            setSelectedPlantPreview(null);
             setDescription("");
             setPrice("");
             setErrors({});
         }
     }, [open, auth.user]);
+
+    useEffect(() => {
+        async function loadPlantPreview() {
+            if (!selectedPlantId) {
+                setSelectedPlantPreview(null);
+                return;
+            }
+
+            const selectedOption = plantOptions.find(
+                (plant) => plant.id === selectedPlantId
+            );
+            if (!selectedOption) return;
+
+            const res = await plantsApi.fetchPlant(selectedOption.uuid);
+            if (res.ok && res.plant) {
+                setSelectedPlantPreview({
+                    picture_url: res.plant.picture_url,
+                    nickname: res.plant.nickname,
+                    plant_type: res.plant.plant_type,
+                });
+            }
+        }
+
+        loadPlantPreview();
+    }, [selectedPlantId, plantOptions]);
 
     const handleSubmit = async () => {
         if (!selectedPlantId || !price) {
@@ -143,6 +175,29 @@ export default function CreateListingModal({
                             </p>
                         )}
                     </div>
+
+                    {selectedPlantPreview && (
+                        <div className="rounded-lg border border-gray-200 p-4 bg-base-200">
+                            <p className="text-sm font-medium text-gray-600 mb-2">
+                                Preview
+                            </p>
+                            <div className="flex gap-3 items-center">
+                                <img
+                                    src={selectedPlantPreview.picture_url}
+                                    alt={selectedPlantPreview.nickname}
+                                    className="w-20 h-20 rounded-lg object-cover"
+                                />
+                                <div>
+                                    <p className="font-semibold">
+                                        {selectedPlantPreview.nickname}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        {selectedPlantPreview.plant_type}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* price */}
                     <div className="space-y-2">

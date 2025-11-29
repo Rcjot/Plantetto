@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MarketCard from "@/features/market/MarketCard";
 import CreateListingModal from "@/features/market/CreateListingModal";
+import EditListingModal from "@/features/market/EditListingModal";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import marketApi from "@/api/marketApi";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import type { MetaDataType } from "@/api/plantsApi";
@@ -24,33 +26,43 @@ function MyListings() {
     const [status, setStatus] = useState<string>("all");
     const [meta, setMeta] = useState<MetaDataType | null>(null);
 
+    // Modal states
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [markAsSoldDialogOpen, setMarkAsSoldDialogOpen] = useState(false);
+    const [markAsActiveDialogOpen, setMarkAsActiveDialogOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<MarketItemType | null>(
+        null
+    );
+    const [actionLoading, setActionLoading] = useState(false);
+
+    const fetchListings = async () => {
+        if (!auth.user?.username) return;
+
+        setLoading(true);
+        const plant_type_id = categoryMap[selectedCategory];
+
+        const res = await marketApi.getListing(
+            auth.user.username,
+            search,
+            plant_type_id,
+            page,
+            sort,
+            status
+        );
+
+        if (res.ok && res.board) {
+            setListings(res.board);
+            setMeta(res.meta_data);
+        } else {
+            setListings([]);
+            setMeta(null);
+        }
+
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const fetchListings = async () => {
-            if (!auth.user?.username) return;
-
-            setLoading(true);
-            const plant_type_id = categoryMap[selectedCategory];
-
-            const res = await marketApi.getListing(
-                auth.user.username,
-                search,
-                plant_type_id,
-                page,
-                sort,
-                status
-            );
-
-            if (res.ok && res.board) {
-                setListings(res.board);
-                setMeta(res.meta_data);
-            } else {
-                setListings([]);
-                setMeta(null);
-            }
-
-            setLoading(false);
-        };
-
         fetchListings();
     }, [auth.user, search, page, selectedCategory, categoryMap, sort, status]);
 
@@ -81,6 +93,62 @@ function MyListings() {
         });
     };
 
+    const handleEdit = (item: MarketItemType) => {
+        setSelectedItem(item);
+        setEditModalOpen(true);
+    };
+
+    const handleDelete = (item: MarketItemType) => {
+        setSelectedItem(item);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleMarkAsSold = (item: MarketItemType) => {
+        setSelectedItem(item);
+        setMarkAsSoldDialogOpen(true);
+    };
+
+    const handleMarkAsActive = (item: MarketItemType) => {
+        setSelectedItem(item);
+        setMarkAsActiveDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedItem) return;
+        setActionLoading(true);
+        const res = await marketApi.deleteMarketItem(selectedItem.uuid);
+        if (res.ok) {
+            fetchListings();
+        }
+        setActionLoading(false);
+    };
+
+    const confirmMarkAsSold = async () => {
+        if (!selectedItem) return;
+        setActionLoading(true);
+        const res = await marketApi.patchMarketItemStatus(
+            selectedItem.uuid,
+            "sold"
+        );
+        if (res.ok) {
+            fetchListings();
+        }
+        setActionLoading(false);
+    };
+
+    const confirmMarkAsActive = async () => {
+        if (!selectedItem) return;
+        setActionLoading(true);
+        const res = await marketApi.patchMarketItemStatus(
+            selectedItem.uuid,
+            "active"
+        );
+        if (res.ok) {
+            fetchListings();
+        }
+        setActionLoading(false);
+    };
+
     return (
         <div className="bg-base-200 pr-1">
             {/* top controls */}
@@ -95,14 +163,7 @@ function MyListings() {
                             >
                                 Browse Marketplace
                             </button>
-                            <CreateListingModal
-                                onSuccess={() => {
-                                    setPage(1);
-                                    // Trigger refetch by updating a state
-                                    setSearch(search + " ");
-                                    setSearch(search.trim());
-                                }}
-                            />
+                            <CreateListingModal onSuccess={fetchListings} />
                         </div>
                     </div>
 
@@ -167,8 +228,13 @@ function MyListings() {
                                 image={item.plant.picture_url}
                                 title={item.plant.nickname}
                                 price={item.price}
+                                status={item.status}
                                 onClick={() => handleListingClick(item)}
                                 showActions={true}
+                                onEdit={() => handleEdit(item)}
+                                onDelete={() => handleDelete(item)}
+                                onMarkAsSold={() => handleMarkAsSold(item)}
+                                onMarkAsActive={() => handleMarkAsActive(item)}
                             />
                         ))}
                     </div>
@@ -201,6 +267,42 @@ function MyListings() {
             </div>
 
             <div className="h-16" />
+
+            {/* modals */}
+            {selectedItem && (
+                <>
+                    <EditListingModal
+                        open={editModalOpen}
+                        onOpenChange={setEditModalOpen}
+                        item={selectedItem}
+                        onSuccess={fetchListings}
+                    />
+
+                    <ConfirmDialog
+                        open={deleteDialogOpen}
+                        setOpen={setDeleteDialogOpen}
+                        onConfirm={confirmDelete}
+                        loading={actionLoading}
+                        text={`Are you sure you want to delete the listing for "${selectedItem.plant.nickname}"?`}
+                    />
+
+                    <ConfirmDialog
+                        open={markAsSoldDialogOpen}
+                        setOpen={setMarkAsSoldDialogOpen}
+                        onConfirm={confirmMarkAsSold}
+                        loading={actionLoading}
+                        text={`Mark "${selectedItem.plant.nickname}" as sold?`}
+                    />
+
+                    <ConfirmDialog
+                        open={markAsActiveDialogOpen}
+                        setOpen={setMarkAsActiveDialogOpen}
+                        onConfirm={confirmMarkAsActive}
+                        loading={actionLoading}
+                        text={`Mark "${selectedItem.plant.nickname}" as active?`}
+                    />
+                </>
+            )}
         </div>
     );
 }
