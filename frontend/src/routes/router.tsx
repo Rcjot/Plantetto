@@ -14,6 +14,8 @@ import GuidesEditor from "@/pages/guides/GuidesEditor";
 import GuidesBoard from "@/pages/guides/GuidesBoard";
 import GuidesView from "@/pages/guides/GuidesView";
 import Explore from "@/pages/explore/Explore";
+import Market from "@/pages/market/Market";
+import MarketItemPage from "@/pages/market/MarketItemPage";
 
 function getRoutes() {
     return [
@@ -70,7 +72,11 @@ function getRoutes() {
                         },
                         {
                             path: "/market",
-                            element: <ComingSoon />,
+                            element: <Market />,
+                        },
+                        {
+                            path: "/market/:item_uuid",
+                            element: <MarketItemPage />,
                         },
                         {
                             path: "/guides",
