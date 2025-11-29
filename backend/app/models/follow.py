@@ -155,3 +155,74 @@ class Follows:
         cursor.close()
         
         return following
+
+    @classmethod 
+    def get_notification_status(cls, current_user_id, following_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = """
+        SELECT 
+            notify_post,
+            notify_guide
+        FROM follows 
+        WHERE follower_id = %s AND following_id = %s
+        """
+        
+        cursor.execute(sql, (current_user_id, following_id))
+        notif_status = cursor.fetchone()
+        cursor.close()
+        
+        return notif_status
+
+    @classmethod
+    def patch_post_notif(cls, current_user_id, username_to_unfollow) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = "SELECT id FROM users WHERE username = %s"
+        cursor.execute(sql, (username_to_unfollow,))
+        user_to_unfollow = cursor.fetchone()
+        
+        if not user_to_unfollow:
+            cursor.close()
+            return False
+        
+        following_id = user_to_unfollow['id']
+        
+        sql = """
+        UPDATE follows 
+        SET notify_post = NOT notify_post
+        WHERE follower_id = %s AND following_id = %s
+        """
+        cursor.execute(sql, (current_user_id, following_id))
+        
+        db.commit()
+        cursor.close()
+        return True
+
+    @classmethod
+    def patch_guide_notif(cls, current_user_id, username_to_unfollow) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = "SELECT id FROM users WHERE username = %s"
+        cursor.execute(sql, (username_to_unfollow,))
+        user_to_unfollow = cursor.fetchone()
+        
+        if not user_to_unfollow:
+            cursor.close()
+            return False
+        
+        following_id = user_to_unfollow['id']
+        
+        sql = """
+        UPDATE follows 
+        SET notify_guide = NOT notify_guide
+        WHERE follower_id = %s AND following_id = %s
+        """
+        cursor.execute(sql, (current_user_id, following_id))
+        
+        db.commit()
+        cursor.close()
+        return True

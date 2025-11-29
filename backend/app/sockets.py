@@ -112,7 +112,8 @@ def join_rooms(username) :
         print('user', current_user_id, 'joined', room['uuid'])
         join_room(room['uuid'])
 
-    # we create notif settings table
+    # we also fetch all followed users that current user has notifications listened to
+
 
     join_room(f"{current_user_uuid}_follow")
 
@@ -160,7 +161,33 @@ def notify_follow(data) :
     print(new_notif_payload)
 
     emit(f"followed", new_notif_payload, to=following_uuid)
-    
+
+
+@socketio.on("post_create")
+def notify_followers_of_post(data) :
+
+    author_user = data['author']
+    author_uuid = author_user['id']
+    post_created = data['post']
+    post_created_uuid = post_created['uuid']
+    post_created_caption = post_created['caption']
+
+    new_post_payload = {
+        "actor" : author_user,
+        "content" : post_created_caption,
+        "entity_uuid" : post_created_uuid
+    }
+
+    emit(f"post_create", new_post_payload, to=f"{author_uuid}_post" )
+    pass
+
+@socketio.on("guide_create")
+def notify_followers_of_guide(data) :
+    pass
+
+# notify post create
+# notify guide create
+
     
 """
 
@@ -190,10 +217,9 @@ rooms
     emitted events : 
         new_message_{room_uuid} 
             : is used to update conversation real time
-
+{user_uuid}_post , room to join when following user
 --            ---
-{user_uuid}_follow , name of room is same as emitted event
-    : is used to notify user for follows
+
 {user_uuid}_post
     : notifies user for posts from following user
 ...

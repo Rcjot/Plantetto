@@ -43,7 +43,6 @@ export function readMessage(
 }
 
 export function followNotify(follower: UserType, following: UserType) {
-    console.log(follower, following);
     socket.emit("follow", { follower: follower, following: following });
 }
 

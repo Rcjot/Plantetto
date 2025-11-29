@@ -19,6 +19,28 @@ async function unfollowUser(username: string) {
         return { ok: false };
     }
 }
+async function patchNotification(username: string, type: "post" | "guide") {
+    try {
+        const { data } = await axios.patch(
+            `/follow/${username}?notif_type=${type}`
+        );
+        return { ok: true, data };
+    } catch (error) {
+        console.error(error);
+        return { ok: false };
+    }
+}
+
+async function getNotifStatus(username: string) {
+    try {
+        const { data } = await axios.get(`/follow/${username}/notifications`);
+
+        return { ok: true, notificationStatus: data["notif_status"] };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, notificationStatus: null };
+    }
+}
 
 async function checkFollowStatus(username: string) {
     try {
@@ -70,4 +92,6 @@ export default {
     getFollowCounts,
     getFollowers,
     getFollowing,
+    patchNotification,
+    getNotifStatus,
 };
