@@ -4,6 +4,9 @@ from flask_login import login_user, login_required, current_user, logout_user
 from .models.conversation import Conversations
 from .models.message import Messages
 from .models.user import Users
+from .models.notifications import Notifications
+import json
+import datetime
 
 @socketio.on("connect") 
 def handle_connect() :
@@ -79,6 +82,8 @@ def handle_chat_message(data):
     emit(f"new_message_{room_destination}", payload, to=room_destination)
     
     emit(f"{recipient_uuid}_new_message", payload, to=recipient_uuid)
+    # can be considered as notification.
+
     Conversations.patch_last_read_id(res["id"], sender_id, conversation_room)
 
 
@@ -98,13 +103,18 @@ def join_rooms(username) :
     # this function assumes that client passed a valid user
     # and that user is authenticated
 
-    user_id_res = Users.get_id_uuid_by_username(username)
+    user_id_uuid_res = Users.get_id_uuid_by_username(username)
     
-    current_user_id = user_id_res['id']
+    current_user_id = user_id_uuid_res['id']
+    current_user_uuid = user_id_uuid_res['uuid']
     rooms = Conversations.get_all_conversation_rooms(current_user_id, limit=-1) 
     for room in rooms:
         print('user', current_user_id, 'joined', room['uuid'])
         join_room(room['uuid'])
+
+    # we create notif settings table
+
+    join_room(f"{current_user_uuid}_follow")
 
 @socketio.on("read_message") 
 def read_message(data) :
@@ -120,3 +130,71 @@ def read_message(data) :
     Conversations.patch_last_read_id(message_id, user_id, conversation_uuid)
 
 
+@socketio.on("follow")
+def notify_follow(data) :
+    # follower user emits this event
+
+    follower_user = data['follower']
+    following_user = data['following']
+
+    print(data)
+
+    following_res = Users.get_id_uuid_by_username(following_user['username'])
+    following_id = following_res['id']
+    following_uuid = following_res['uuid']
+
+    payload = json.dumps({
+        "follower" : follower_user,
+    })
+
+    new_notif = Notifications(user_id=following_id,
+                              notification_type="follow", 
+                              payload=payload)
+    new_notif_payload = new_notif.add()
+    new_notif_payload['created_at'] = new_notif_payload['created_at'].isoformat()
+
+    print(new_notif_payload)
+
+    emit(f"followed", new_notif_payload, to=following_uuid)
+    
+    
+"""
+
+note :
+    we specify uuids in some events because it is to distinguish 
+    the event. 
+
+    Rooms are only there for the user to listen to, user does not automatically
+    distinguish events by the room it came from, it just listens to events
+    from joined rooms.
+
+rooms 
+{user_uuid} , this room is user's personal room, will always listen to these
+    emitted events :
+        {sender_uuid}_new_message 
+            : is used in updating chat list for recent messages
+        request_join
+            : is used when a new conversation is initiated
+            : user is the recipient
+        conversation_created
+            : is used as feedback when a new conversation is created
+            : user is the sender
+        followed
+            : when other user has followed current user, emit follow event
+
+{room_uuid} , room of conversation
+    emitted events : 
+        new_message_{room_uuid} 
+            : is used to update conversation real time
+
+--            ---
+{user_uuid}_follow , name of room is same as emitted event
+    : is used to notify user for follows
+{user_uuid}_post
+    : notifies user for posts from following user
+...
+
+"""
+
+    
+ 

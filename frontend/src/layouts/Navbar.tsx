@@ -1,13 +1,13 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import search_icon from "../assets/icons/search.svg";
-import notification_icon from "../assets/icons/notification.svg";
 import plantetto_icon from "@/assets/icons/plantetto.svg";
 import menu_icon from "../assets/icons/menu.svg";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import ProfilePicture from "@/components/ProfilePicture";
 import WebsiteName from "@/assets/LandingPage/Plantetto-logo.svg";
 import ChatDropdown from "@/features/chat/ChatDropdown";
+import NotificationDropdown from "@/features/notifications/NotificationDropdown";
 
 import {
     Dialog,
@@ -96,15 +96,10 @@ export default function Navbar() {
 
                 {/* right side */}
                 <div className="flex items-center gap-3 sm:gap-5">
-                    <div className="dropdown dropdown-center">
-                        <ChatDropdown />
-                    </div>
+                    <ChatDropdown />
 
-                    <img
-                        src={notification_icon}
-                        alt="Notifications"
-                        className="w-6 h-6 sm:w-7 sm:h-7 cursor-pointer"
-                    />
+                    <NotificationDropdown />
+
                     <div className="dropdown dropdown-end">
                         <div
                             tabIndex={0}

@@ -9,6 +9,7 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { FollowersDialog } from "@/features/follow/FollowersDialog";
 import { FollowingDialog } from "@/features/follow/FollowingDialog";
 import chat_icon from "@/assets/icons/chat.svg";
+import { followNotify } from "@/lib/socket";
 
 function Profile() {
     const [user, setUser] = useState<UserType | "loading" | null>("loading");
@@ -72,7 +73,14 @@ function Profile() {
     }, [username, auth.user, fetchFollowStatus, fetchFollowCounts]);
 
     const handleFollowToggle = async () => {
-        if (!username || isFollowLoading) return;
+        if (
+            !username ||
+            isFollowLoading ||
+            !auth.user ||
+            !user ||
+            user === "loading"
+        )
+            return;
 
         setIsFollowLoading(true);
 
@@ -93,6 +101,7 @@ function Profile() {
                     ...prev,
                     followers_count: prev.followers_count + 1,
                 }));
+                followNotify(auth.user, user);
             }
         }
 
