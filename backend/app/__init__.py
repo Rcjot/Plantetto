@@ -73,6 +73,9 @@ def create_app() :
     from .features.chat import chat_bp
     app.register_blueprint(chat_bp, url_prefix="/api/chat")
 
+    from .features.market import market_bp
+    app.register_blueprint(market_bp, url_prefix="/api/market")
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
         print(e.description)

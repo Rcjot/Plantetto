@@ -3,15 +3,17 @@ import { useNavigate } from "react-router-dom";
 import MarketCard from "@/features/market/MarketCard";
 import CreateListingModal from "@/features/market/CreateListingModal";
 import marketApi from "@/api/marketApi";
-import type { MarketItemType } from "@/features/market/marketTypes";
+import { useAuthContext } from "@/features/auth/AuthContext";
 import type { MetaDataType } from "@/api/plantsApi";
 import FilterScroll from "@/features/garden/FilterScroll";
 import loading_gif from "@/assets/loading_gif.gif";
+import type { MarketItemType } from "@/features/market/marketTypes";
 
-function Market() {
+function MyListings() {
     const navigate = useNavigate();
+    const { auth } = useAuthContext()!;
     const [loading, setLoading] = useState(false);
-    const [marketItems, setMarketItems] = useState<MarketItemType[]>([]);
+    const [listings, setListings] = useState<MarketItemType[]>([]);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -23,11 +25,14 @@ function Market() {
     const [meta, setMeta] = useState<MetaDataType | null>(null);
 
     useEffect(() => {
-        const fetchMarketItems = async () => {
+        const fetchListings = async () => {
+            if (!auth.user?.username) return;
+
             setLoading(true);
             const plant_type_id = categoryMap[selectedCategory];
 
-            const res = await marketApi.getMarket(
+            const res = await marketApi.getListing(
+                auth.user.username,
                 search,
                 plant_type_id,
                 page,
@@ -35,19 +40,19 @@ function Market() {
                 status
             );
 
-            if (res.ok && res.market) {
-                setMarketItems(res.market);
+            if (res.ok && res.board) {
+                setListings(res.board);
                 setMeta(res.meta_data);
             } else {
-                setMarketItems([]);
+                setListings([]);
                 setMeta(null);
             }
 
             setLoading(false);
         };
 
-        fetchMarketItems();
-    }, [search, page, selectedCategory, categoryMap, sort, status]);
+        fetchListings();
+    }, [auth.user, search, page, selectedCategory, categoryMap, sort, status]);
 
     const renderPageButtons = () => {
         if (!meta) return null;
@@ -70,8 +75,10 @@ function Market() {
         return pages;
     };
 
-    const handleItemClick = (item: MarketItemType) => {
-        navigate(`/market/${item.uuid}`, { state: { item } });
+    const handleListingClick = (item: MarketItemType) => {
+        navigate(`/mylistings/${item.uuid}`, {
+            state: { item, isOwner: true },
+        });
     };
 
     return (
@@ -80,16 +87,21 @@ function Market() {
             <div className="bg-base-100 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <h1 className="text-2xl font-bold">Marketplace</h1>
+                        <h1 className="text-2xl font-bold">My Listings</h1>
                         <div className="flex gap-2">
                             <button
                                 className="btn btn-ghost"
-                                onClick={() => navigate("/mylistings")}
+                                onClick={() => navigate("/market")}
                             >
-                                Check your listing
+                                Browse Marketplace
                             </button>
                             <CreateListingModal
-                                onSuccess={() => navigate("/mylistings")}
+                                onSuccess={() => {
+                                    setPage(1);
+                                    // Trigger refetch by updating a state
+                                    setSearch(search + " ");
+                                    setSearch(search.trim());
+                                }}
                             />
                         </div>
                     </div>
@@ -97,7 +109,7 @@ function Market() {
                     <div className="flex flex-col sm:flex-row gap-3 w-full">
                         <input
                             type="text"
-                            placeholder="Search plants..."
+                            placeholder="Search your listings..."
                             className="input input-bordered flex-1 bg-white border-gray-200"
                             value={search}
                             onChange={(e) => {
@@ -111,8 +123,7 @@ function Market() {
                             className="select select-bordered bg-white"
                         >
                             <option value="recent">Recent</option>
-                            <option value="cheapest">Cheapest</option>
-                            <option value="expensive">Most Expensive</option>
+                            <option value="oldest">Oldest</option>
                         </select>
                         <select
                             value={status}
@@ -134,7 +145,7 @@ function Market() {
                 </div>
             </div>
 
-            {/* marketplace grid */}
+            {/* listings grid */}
             <div className="max-w-7xl mx-auto px-4 py-6">
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
@@ -144,20 +155,20 @@ function Market() {
                             className="h-16 w-16"
                         />
                     </div>
-                ) : marketItems.length === 0 ? (
+                ) : listings.length === 0 ? (
                     <p className="text-center text-neutral-400">
-                        No items available.
+                        No listings yet. Create your first listing!
                     </p>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {marketItems.map((item) => (
+                        {listings.map((item) => (
                             <MarketCard
                                 key={item.uuid}
                                 image={item.plant.picture_url}
                                 title={item.plant.nickname}
                                 price={item.price}
-                                status={item.status}
-                                onClick={() => handleItemClick(item)}
+                                onClick={() => handleListingClick(item)}
+                                showActions={true}
                             />
                         ))}
                     </div>
@@ -194,4 +205,4 @@ function Market() {
     );
 }
 
-export default Market;
+export default MyListings;

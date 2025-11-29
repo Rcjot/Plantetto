@@ -16,6 +16,7 @@ import GuidesView from "@/pages/guides/GuidesView";
 import Explore from "@/pages/explore/Explore";
 import Market from "@/pages/market/Market";
 import MarketItemPage from "@/pages/market/MarketItemPage";
+import MyListings from "@/pages/market/MyListings";
 
 function getRoutes() {
     return [
@@ -76,6 +77,14 @@ function getRoutes() {
                         },
                         {
                             path: "/market/:item_uuid",
+                            element: <MarketItemPage />,
+                        },
+                        {
+                            path: "/mylistings",
+                            element: <MyListings />,
+                        },
+                        {
+                            path: "/mylistings/:item_uuid",
                             element: <MarketItemPage />,
                         },
                         {
