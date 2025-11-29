@@ -134,7 +134,7 @@ export default function MarketItemPage() {
                             readOnly
                         />
                         <div className="flex gap-2 w-full sm:w-auto">
-                            {!isOwner && onMarketPage && (
+                            {onMarketPage && (
                                 <button
                                     className="btn btn-ghost btn-sm sm:btn-md flex-1 sm:flex-initial"
                                     onClick={() => navigate("/mylistings")}
@@ -299,9 +299,13 @@ export default function MarketItemPage() {
                             </div>
                         </div>
                     </div>
-
-                    {!isOwner && <RelatedItems marketItemUuid={item_uuid!} />}
                 </div>
+
+                {!window.location.pathname.startsWith("/mylistings") && (
+                    <div className="mt-6">
+                        <RelatedItems marketItemUuid={item_uuid!} />
+                    </div>
+                )}
             </div>
 
             <div className="h-16" />

@@ -35,25 +35,25 @@ export default function RelatedItems({ marketItemUuid }: Props) {
         <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">You may also like</h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-flow-col auto-cols-[minmax(160px,1fr)] gap-4 w-full overflow-x-auto overflow-y-hidden hide-scrollbar h-[280px]">
                 {items.map((item) => (
                     <div
                         key={item.uuid}
-                        className="bg-white rounded-xl shadow p-3 cursor-pointer hover:scale-[1.02] transition"
+                        className="bg-white rounded-xl shadow p-3 cursor-pointer hover:scale-[1.02] transition flex flex-col h-full"
                         onClick={() =>
                             window.location.assign(`/market/${item.uuid}`)
                         }
                     >
                         <img
                             src={item.plant.picture_url}
-                            className="w-full aspect-square rounded-lg object-cover mb-2"
+                            className="w-full aspect-square rounded-lg object-cover mb-2 flex-shrink-0"
                         />
 
                         <p className="font-semibold truncate">
                             {item.description}
                         </p>
 
-                        <p className="text-green-700 font-bold">
+                        <p className="text-green-700 font-bold mt-auto">
                             ₱{item.price.toLocaleString()}
                         </p>
                     </div>
