@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
+import profileApi from "@/api/profileApi";
+import plantsApi from "@/api/plantsApi";
 import type { MarketItemType } from "@/features/market/marketTypes";
+import type { UserType } from "@/features/auth/authTypes";
 import loading_gif from "@/assets/loading_gif.gif";
 
 export default function MarketItemPage() {
@@ -12,7 +15,9 @@ export default function MarketItemPage() {
     const [item, _setItem] = useState<MarketItemType | null>(
         location.state?.item || null
     );
+    const [seller, setSeller] = useState<UserType | null>(null);
     const [loading, setLoading] = useState(!location.state?.item);
+    const isOwner = location.state?.isOwner || false;
 
     useEffect(() => {
         if (!location.state?.item) {
@@ -23,6 +28,38 @@ export default function MarketItemPage() {
             return () => clearTimeout(timer);
         }
     }, [location.state, navigate]);
+
+    useEffect(() => {
+        async function fetchPlantAndSeller() {
+            if (!item?.plant?.plant_uuid) {
+                console.log("[MarketItemPage] No plant_uuid available");
+                return;
+            }
+
+            try {
+                const plantRes = await plantsApi.fetchPlant(
+                    item.plant.plant_uuid
+                );
+
+                if (plantRes.ok && plantRes.plant?.owner?.username) {
+                    const sellerRes = await profileApi.fetchProfileDetails(
+                        plantRes.plant.owner.username
+                    );
+                    if (sellerRes.user) {
+                        setSeller(sellerRes.user);
+                    }
+                } else {
+                    console.log(
+                        "[MarketItemPage] Could not get plant owner info"
+                    );
+                }
+            } catch (error) {
+                console.error("[MarketItemPage] Error fetching seller:", error);
+            }
+        }
+
+        fetchPlantAndSeller();
+    }, [item]);
 
     const relatedItems = [
         {
@@ -118,14 +155,19 @@ export default function MarketItemPage() {
             <div className="max-w-7xl mx-auto px-4 py-6">
                 <div className="bg-base-100 rounded-lg border border-gray-200 overflow-hidden">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-                        <div className="relative w-full">
-                            <div className="rounded-lg overflow-hidden bg-gray-100">
-                                <img
-                                    src={item.plant.picture_url}
-                                    alt={item.plant.nickname}
-                                    className="w-full h-auto object-cover"
-                                />
-                            </div>
+                        <div className="relative w-full h-full bg-gray-200 overflow-hidden rounded-lg">
+                            <div
+                                className="absolute inset-0 bg-center bg-cover blur-lg scale-110 brightness-50"
+                                style={{
+                                    backgroundImage: `url(${item.plant.picture_url})`,
+                                }}
+                            />
+                            <div className="absolute inset-0 bg-black/20" />
+                            <img
+                                src={item.plant.picture_url}
+                                alt={item.plant.nickname}
+                                className="relative z-10 object-contain w-full h-full"
+                            />
                         </div>
 
                         <div className="flex flex-col gap-4">
@@ -184,70 +226,73 @@ export default function MarketItemPage() {
                                 <h2 className="font-semibold text-lg text-base-content mb-3">
                                     Seller Information
                                 </h2>
-                                <div className="flex items-center gap-3">
-                                    <ProfilePicture
-                                        src={item.plant.owner?.pfp_url || null}
-                                    />
-                                    <div className="flex-1">
-                                        <p className="font-semibold">
-                                            {item.plant.owner?.display_name ||
-                                                item.plant.owner?.username ||
-                                                "Unknown"}
-                                        </p>
-                                        <p className="text-sm text-base-content/70">
-                                            @
-                                            {item.plant.owner?.username ||
-                                                "unknown"}
-                                        </p>
-                                    </div>
-                                    {item.plant.owner?.username && (
+                                {seller ? (
+                                    <div className="flex items-center gap-3">
+                                        <ProfilePicture src={seller.pfp_url} />
+                                        <div className="flex-1">
+                                            <p className="font-semibold">
+                                                {seller.display_name ||
+                                                    seller.username}
+                                            </p>
+                                            <p className="text-sm text-base-content/70">
+                                                @{seller.username}
+                                            </p>
+                                        </div>
                                         <button
                                             className="btn btn-success"
                                             onClick={() =>
-                                                navigate(
-                                                    `/${item.plant.owner.username}`
-                                                )
+                                                navigate(`/${seller.username}`)
                                             }
                                         >
                                             View Profile
                                         </button>
-                                    )}
-                                </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-3">
+                                        <div className="skeleton h-12 w-12 rounded-full shrink-0"></div>
+                                        <div className="flex flex-col gap-2 flex-1">
+                                            <div className="skeleton h-4 w-32"></div>
+                                            <div className="skeleton h-3 w-24"></div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* you may also like */}
-                    <div className="border-t bg-base-200 px-6 py-6">
-                        <h2 className="text-xl font-semibold mb-4">
-                            You may also like
-                        </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                            {relatedItems.map((relatedItem) => (
-                                <div
-                                    key={relatedItem.uuid}
-                                    className="cursor-pointer group"
-                                    onClick={() => navigate("/market")}
-                                >
-                                    <div className="rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm">
-                                        <img
-                                            src={relatedItem.image}
-                                            alt={relatedItem.title}
-                                            className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-                                        />
+                    {/* you may also like (not show in my listing) */}
+                    {!isOwner && (
+                        <div className="border-t bg-base-200 px-6 py-6">
+                            <h2 className="text-xl font-semibold mb-4">
+                                You may also like
+                            </h2>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                {relatedItems.map((relatedItem) => (
+                                    <div
+                                        key={relatedItem.uuid}
+                                        className="cursor-pointer group"
+                                        onClick={() => navigate("/market")}
+                                    >
+                                        <div className="rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm">
+                                            <img
+                                                src={relatedItem.image}
+                                                alt={relatedItem.title}
+                                                className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        </div>
+                                        <div className="mt-2 px-1">
+                                            <p className="text-sm font-medium truncate">
+                                                {relatedItem.title}
+                                            </p>
+                                            <p className="text-sm font-bold text-success">
+                                                ₱{relatedItem.price}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="mt-2 px-1">
-                                        <p className="text-sm font-medium truncate">
-                                            {relatedItem.title}
-                                        </p>
-                                        <p className="text-sm font-bold text-success">
-                                            ₱{relatedItem.price}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
