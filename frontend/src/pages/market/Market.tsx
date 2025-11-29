@@ -19,7 +19,7 @@ function Market() {
         Record<string, number | undefined>
     >({});
     const [sort, setSort] = useState<string>("recent");
-    const [status, setStatus] = useState<string>("all");
+    const status = "active";
     const [meta, setMeta] = useState<MetaDataType | null>(null);
 
     useEffect(() => {
@@ -113,15 +113,6 @@ function Market() {
                             <option value="recent">Recent</option>
                             <option value="cheapest">Cheapest</option>
                             <option value="expensive">Most Expensive</option>
-                        </select>
-                        <select
-                            value={status}
-                            onChange={(e) => setStatus(e.target.value)}
-                            className="select select-bordered bg-white"
-                        >
-                            <option value="all">All</option>
-                            <option value="active">Active</option>
-                            <option value="sold">Sold</option>
                         </select>
                     </div>
 
