@@ -147,7 +147,7 @@ def notify_follow(data) :
     following_uuid = following_res['uuid']
 
     payload = json.dumps({
-        "follower" : follower_user,
+        "actor" : follower_user,
     })
 
     new_notif = Notifications(user_id=following_id,

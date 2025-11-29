@@ -95,6 +95,7 @@ class Notifications() :
         FROM notifications
         WHERE user_id = %s
         AND is_read = FALSE
+        ORDER BY created_at DESC
         """
 
         cursor.execute(sql, (current_user_id,) )

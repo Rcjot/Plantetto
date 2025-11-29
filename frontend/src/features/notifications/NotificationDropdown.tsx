@@ -10,6 +10,8 @@ import useNotification from "./hooks/useNotification";
 function NotificationDropdown() {
     const { notifs } = useNotification();
     console.log(notifs);
+
+    if (!notifs) return <div> loading ..</div>;
     return (
         <>
             <DropdownMenu>
@@ -21,7 +23,7 @@ function NotificationDropdown() {
                     />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="border-none bg-base-100 absolute p-4 shadow-xl top-0 w-78 -right-24 h-[calc(100dvh-60px)]">
-                    <NotificationList />
+                    <NotificationList notifications={notifs} />
                 </DropdownMenuContent>
             </DropdownMenu>
         </>
