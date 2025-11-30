@@ -14,6 +14,16 @@ import GuidesEditor from "@/pages/guides/GuidesEditor";
 import GuidesBoard from "@/pages/guides/GuidesBoard";
 import GuidesView from "@/pages/guides/GuidesView";
 import Explore from "@/pages/explore/Explore";
+import Settings from "@/pages/settings/Settings";
+import SettingsAccount from "@/pages/settings/SettingsAccount";
+import SettingsTerms from "@/pages/settings/SettingsTerms";
+import SettingsPrivacy from "@/pages/settings/SettingsPrivacy";
+import SettingsCookies from "@/pages/settings/SettingsCookies";
+import SettingsStandards from "@/pages/settings/SettingsStandards";
+import SettingsThemes from "@/pages/settings/SettingsThemes";
+
+
+
 
 function getRoutes() {
     return [
@@ -98,8 +108,32 @@ function getRoutes() {
                         },
                         {
                             path: "/settings",
-                            element: <ComingSoon />,
+                            element: < Settings />,
                         },
+                        {
+                            path: "/settings/accountsinformation",
+                            element: <SettingsAccount/>
+                        },
+                        {
+                            path: "/settings/settingsthemes",
+                            element: < SettingsThemes />,
+                        },
+                        {
+                            path: "/settings/settingsterms",
+                            element: < SettingsTerms />,
+                        },
+                        {
+                            path: "/settings/settingsprivacy",
+                            element: < SettingsPrivacy />,
+                        },
+                        {
+                            path: "/settings/settingscookies",
+                            element: < SettingsCookies />,
+                        },
+                        {
+                            path: "/settings/settingsstandards",
+                            element: < SettingsStandards />,
+                        }
                     ],
                 },
             ],

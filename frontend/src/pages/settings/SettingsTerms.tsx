@@ -1,0 +1,16 @@
+function SettingsTerms() {
+    return (
+        <div className="flex flex-col gap-7 p-3 sm:p-10">
+            <h1 className="text-2xl font-bold">Terms of Service</h1>
+
+            <div>
+                {/* You can place the account form or details here */}
+                <p className="text-base text-gray-700">
+                    Settings Terms of Service page content goes here.
+                </p>
+            </div>
+        </div>
+    );
+}
+
+export default SettingsTerms;
