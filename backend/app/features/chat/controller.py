@@ -33,11 +33,12 @@ def get_conversation_rooms() :
     limit = request.args.get("limit", default=20, type=int)
     search = request.args.get("search", default="", type=str)
     cursor_timestamp = request.args.get("cursor", default=None, type=str)
+    is_all = request.args.get("is_all", default=True, type=str)
     if cursor_timestamp == "null" :
         cursor_timestamp = None
     current_user_id = current_user.get_id()
 
-    conversation_rooms = Conversations.get_all_conversation_rooms(current_user_id, search, cursor_timestamp, limit)
+    conversation_rooms = Conversations.get_all_conversation_rooms(current_user_id, search, cursor_timestamp, limit, is_all)
 
     has_more = len(conversation_rooms) > limit
     conversation_rooms = conversation_rooms[:limit]

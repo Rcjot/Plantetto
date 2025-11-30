@@ -30,10 +30,14 @@ async function getAllConversationRooms() {
     }
 }
 
-async function getConversationRooms(search: string, nextCursor: string | null) {
+async function getConversationRooms(
+    search: string,
+    nextCursor: string | null,
+    isAll: boolean
+) {
     try {
         const { data } = await axios.get(
-            `chat/rooms?search=${search}&cursor=${nextCursor}`
+            `chat/rooms?search=${search}&cursor=${nextCursor}&is_all=${isAll}`
         );
         const conversationRooms: ConversationRoomType[] =
             data["conversation_rooms"];

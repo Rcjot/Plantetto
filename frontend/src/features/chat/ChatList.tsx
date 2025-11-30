@@ -17,6 +17,8 @@ function ChatList({ toggleListState, setCurrentRoomObj }: ChatListProps) {
         setSearch,
         loading,
         refetchWithResetCursorIs,
+        isAllState,
+        toggleIsAllState,
     } = useConversationRooms();
     const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -58,8 +60,21 @@ function ChatList({ toggleListState, setCurrentRoomObj }: ChatListProps) {
                 />
                 <button className="btn btn-primary btn-xs">search</button>
             </form>
-
-            <div className="flex flex-col gap-3 overflow-y-auto  max-h-[calc(100dvh-200px)]  ">
+            <div className="flex gap-2 h-8 ">
+                <button
+                    className={`btn btn-success flex-1 h-full  ${isAllState && "bg-success/30"}`}
+                    onClick={() => toggleIsAllState(true)}
+                >
+                    All
+                </button>
+                <button
+                    className={`btn btn-success flex-1 h-full  ${!isAllState && "bg-success/30"}`}
+                    onClick={() => toggleIsAllState(false)}
+                >
+                    Unread
+                </button>
+            </div>
+            <div className="flex flex-col gap-3 overflow-y-auto  max-h-[calc(100dvh-300px)]  ">
                 {conversationRoomsList.map((room) => {
                     return (
                         <ChatListBlock
