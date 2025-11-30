@@ -58,7 +58,7 @@ function NotificationBlock({
         content = (
             <>
                 <div
-                    className="flex gap-3"
+                    className="flex gap-3 cursor-pointer"
                     onClick={() => {
                         navigate(`/${actor.username}`);
                         markNotificationRead(notification.id);
@@ -74,6 +74,45 @@ function NotificationBlock({
                             {notification_type === "like_guide"
                                 ? "guide"
                                 : "post"}
+                        </p>
+                    </div>
+                    <div className="ml-auto">
+                        {dayjs(notification.created_at).format("h:mm A")}
+
+                        <br />
+                        <br />
+                        {dayjs(notification.created_at).format("MMM D")}
+                    </div>
+                </div>
+            </>
+        );
+    } else if (notification_type == "post" || notification_type == "guide") {
+        const payload = notification.payload as LikePayloadType;
+        const actor = payload.actor;
+        content = (
+            <>
+                <div
+                    className="flex gap-3 cursor-pointer"
+                    onClick={() => {
+                        if (notification_type == "post") {
+                            navigate(
+                                `/home/${actor.username}/${payload.entity_uuid}`
+                            );
+                        } else {
+                            navigate(`/guides/${payload.entity_uuid}`);
+                        }
+                        markNotificationRead(notification.id);
+                    }}
+                >
+                    <ProfilePicture src={actor.pfp_url} />
+                    <div>
+                        <h1 className="text-sm">
+                            {actor.display_name ?? actor.username}
+                        </h1>
+                        <p className="text-xs">
+                            {notification_type === "guide"
+                                ? "has published a new guide"
+                                : "has sprouted a new post"}
                         </p>
                     </div>
                     <div className="ml-auto">
