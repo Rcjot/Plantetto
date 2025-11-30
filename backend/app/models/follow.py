@@ -157,6 +157,56 @@ class Follows:
         return following
 
     @classmethod 
+    def get_notified_posts(cls, username) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = """
+        SELECT 
+            u.uuid as id,
+            u.username,
+            u.display_name,
+            u.pfp_url
+        FROM follows f
+        JOIN users u ON f.following_id = u.id
+        JOIN users target ON f.follower_id = target.id
+        WHERE target.username = %s
+        AND f.notify_post = TRUE
+        ORDER BY f.created_at DESC
+        """
+        
+        cursor.execute(sql, (username,))
+        following = cursor.fetchall()
+        cursor.close()
+        
+        return following
+    
+    @classmethod 
+    def get_notified_guides(cls, username) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = """
+        SELECT 
+            u.uuid as id,
+            u.username,
+            u.display_name,
+            u.pfp_url
+        FROM follows f
+        JOIN users u ON f.following_id = u.id
+        JOIN users target ON f.follower_id = target.id
+        WHERE target.username = %s
+        AND f.notify_guide = TRUE
+        ORDER BY f.created_at DESC
+        """
+        
+        cursor.execute(sql, (username,))
+        following = cursor.fetchall()
+        cursor.close()
+        
+        return following
+    
+    @classmethod 
     def get_notification_status(cls, current_user_id, following_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)

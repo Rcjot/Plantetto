@@ -126,3 +126,37 @@ class Notifications() :
         db.commit()
         cursor.close()
     
+    @classmethod
+    def generate_notifications_post(cls, entity_id, caption, actor, entity_uuid, actor_id ) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+
+        payload = {
+            "content": caption,
+            "actor" : actor,
+            "entity_uuid" : entity_uuid
+        }
+
+        sql = """
+        INSERT INTO notifications
+        (notification_type, entity_id, payload, user_id, actor_id)
+        SELECT 
+        'post',
+        %s,
+        %s,
+        follower_id,
+        %s
+        FROM follows 
+        WHERE following_id = %s
+        AND notify_post = TRUE
+        RETURNING payload
+        """
+
+        cursor.execute(sql, (entity_id, psycopg2.extras.Json(payload), actor_id, actor_id))
+
+        payload = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+        return payload

@@ -5,6 +5,7 @@ from .models.conversation import Conversations
 from .models.message import Messages
 from .models.user import Users
 from .models.notifications import Notifications
+from .models.follow import Follows
 import json
 import datetime
 
@@ -113,7 +114,15 @@ def join_rooms(username) :
         join_room(room['uuid'])
 
     # we also fetch all followed users that current user has notifications listened to
+    following_posts_users = Follows.get_notified_posts(username)
+    following_guides_users = Follows.get_notified_guides(username)
 
+    for following in following_posts_users :
+        print('user', username, 'joined', f"{following['id']}_post")
+        join_room(f"{following['id']}_post")
+    for following in following_guides_users :
+        print('user', username, 'joined', f"{following['id']}_guide")
+        join_room(f"{following['id']}_guide")
 
     join_room(f"{current_user_uuid}_follow")
 
@@ -160,30 +169,16 @@ def notify_follow(data) :
 
     print(new_notif_payload)
 
-    emit(f"followed", new_notif_payload, to=following_uuid)
+    emit(f"notify", new_notif_payload, to=following_uuid)
+# above notify follow could have also been a callback called after follow user http request finishes
+            # if it works it works
 
+def notify_followers_of_post(author_uuid, new_post_payload) :
+    socketio.emit(f"notify", new_post_payload, to=f"{author_uuid}_post" )
 
-@socketio.on("post_create")
-def notify_followers_of_post(data) :
+def notify_followers_of_guide(author_uuid, new_guide_payload) :
+    socketio.emit(f"notify", new_guide_payload, to=f"{author_uuid}_guide" )
 
-    author_user = data['author']
-    author_uuid = author_user['id']
-    post_created = data['post']
-    post_created_uuid = post_created['uuid']
-    post_created_caption = post_created['caption']
-
-    new_post_payload = {
-        "actor" : author_user,
-        "content" : post_created_caption,
-        "entity_uuid" : post_created_uuid
-    }
-
-    emit(f"post_create", new_post_payload, to=f"{author_uuid}_post" )
-    pass
-
-@socketio.on("guide_create")
-def notify_followers_of_guide(data) :
-    pass
 
 # notify post create
 # notify guide create

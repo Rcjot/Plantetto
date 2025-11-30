@@ -29,12 +29,13 @@ function useNotification() {
 
     useEffect(() => {
         const handler = () => {
+            console.log("hey");
             fetchNotifications();
         };
-        socket.on("followed", handler);
+        socket.on("notify", handler);
 
         return () => {
-            socket.off("followed", handler);
+            socket.off("notify", handler);
         };
     });
 

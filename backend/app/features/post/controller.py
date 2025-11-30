@@ -5,6 +5,8 @@ from ...services import cloudinary
 from ...models.post import Posts
 from ...models.media import Media
 from ...models.planttag import PlantTags
+from ...models.notifications import Notifications
+from ...sockets import notify_followers_of_post
 from .forms import PostForm
 from .forms import PostEditForm
 import json
@@ -130,6 +132,20 @@ def create_post():
                 new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
                 new_planttag.add()
             new_post['planttags'] = form.parsed_planttags
+
+            actor = current_user.get_json()
+
+            payload = Notifications.generate_notifications_post(entity_id=new_post_id,
+                                                      caption=caption,
+                                                      actor=actor,
+                                                      entity_uuid=new_post_uuid,
+                                                      actor_id=current_user_id
+                                                      )
+            
+            notify_followers_of_post(author_uuid=current_user.get_uuid(),
+                                     new_post_payload=payload
+                                      )
+
             return jsonify(success=True,
                            post_uuid=new_post_uuid,
                            new_post=new_post,
