@@ -19,7 +19,6 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 import { useAuthContext } from "@/features/auth/AuthContext";
-import diariesApi from "@/api/diariesApi";
 import marketApi from "@/api/marketApi";
 import plantsApi from "@/api/plantsApi";
 import type { PlantOptionType } from "@/features/garden/gardenTypes";
@@ -52,9 +51,7 @@ export default function CreateListingModal({
     useEffect(() => {
         async function loadPlantOptions() {
             if (auth.user?.username) {
-                const res = await diariesApi.getUserPlantsOptions(
-                    auth.user.username
-                );
+                const res = await marketApi.getAvailablePlantsForListing();
                 if (res.ok && res.plantOptions) {
                     setPlantOptions(res.plantOptions);
                 }

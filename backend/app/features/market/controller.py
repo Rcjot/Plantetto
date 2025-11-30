@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from flask import request, jsonify
 from .forms import MarketItemForm, UpdateMarketItemForm
 from ...models.market import MarketItems
+from ...models.user import Users
 import math
 
 @market_bp.route("/")
@@ -154,3 +155,17 @@ def get_related_items(market_item_uuid):
     except Exception as e:
         print(f"Error in get_related_items: {e}")
         return jsonify(success=False, message="Server error"), 500
+    
+
+@market_bp.route("/available-plants")
+@login_required
+def get_available_plants():
+    current_user_id = current_user.get_id()
+    user = Users.get_by_id(current_user_id)
+    
+    plants = MarketItems.get_available_plants_for_listing(user.username)
+    
+    return jsonify(
+        success=True,
+        plants=plants
+    )

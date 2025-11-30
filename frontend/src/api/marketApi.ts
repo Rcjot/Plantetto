@@ -1,4 +1,5 @@
 import type { MarketItemType } from "@/features/market/marketTypes";
+import type { PlantOptionType } from "@/features/garden/gardenTypes";
 import axios from "@/lib/axios";
 import { isAxiosError } from "axios";
 
@@ -125,6 +126,17 @@ async function getRelatedItems(market_item_uuid: string) {
     }
 }
 
+async function getAvailablePlantsForListing() {
+    try {
+        const { data } = await axios.get("/market/available-plants");
+        const plantOptions: PlantOptionType[] = data["plants"];
+        return { ok: true, plantOptions: plantOptions };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, plantOptions: [] };
+    }
+}
+
 export default {
     addMarketItem,
     updateMarketItem,
@@ -134,4 +146,5 @@ export default {
     getMarket,
     getMarketItem,
     getRelatedItems,
+    getAvailablePlantsForListing,
 };

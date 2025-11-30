@@ -370,3 +370,27 @@ class MarketItems() :
         cursor.close()
 
         return related_items[:limit]
+
+    @classmethod
+    def get_available_plants_for_listing(cls, username):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        sql = """
+        SELECT 
+            p.id,
+            p.uuid,
+            p.nickname
+        FROM plants p
+        JOIN users ON p.user_id = users.id
+        LEFT JOIN market_items mi ON p.id = mi.plant_id
+        WHERE users.username = %s
+        AND mi.id IS NULL
+        ORDER BY p.created_at DESC
+        """
+        
+        cursor.execute(sql, (username,))
+        plants = cursor.fetchall()
+        cursor.close()
+        
+        return plants
