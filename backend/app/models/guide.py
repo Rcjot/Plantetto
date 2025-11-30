@@ -96,7 +96,7 @@ class Guides() :
         """ + published_date_sql + """
         WHERE uuid = %s
         AND user_id = %s 
-        RETURNING uuid, content, plant_type_id, user_id
+        RETURNING id, title, uuid, content, plant_type_id, user_id
         """
         cursor.execute(sql, (status, guide_uuid, current_user_id))
         result = cursor.fetchone()

@@ -160,3 +160,38 @@ class Notifications() :
         cursor.close()
 
         return payload
+    
+    @classmethod
+    def generate_notifications_guide(cls, entity_id, title, actor, entity_uuid, actor_id ) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+
+        payload = {
+            "content": title,
+            "actor" : actor,
+            "entity_uuid" : entity_uuid
+        }
+
+        sql = """
+        INSERT INTO notifications
+        (notification_type, entity_id, payload, user_id, actor_id)
+        SELECT 
+        'guide',
+        %s,
+        %s,
+        follower_id,
+        %s
+        FROM follows 
+        WHERE following_id = %s
+        AND notify_guide = TRUE
+        RETURNING payload
+        """
+
+        cursor.execute(sql, (entity_id, psycopg2.extras.Json(payload), actor_id, actor_id))
+
+        payload = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+        return payload
