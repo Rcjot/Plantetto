@@ -11,6 +11,7 @@ import { FollowingDialog } from "@/features/follow/FollowingDialog";
 import chat_icon from "@/assets/icons/chat.svg";
 import { followNotify } from "@/lib/socket";
 import { BellRingIcon } from "lucide-react";
+import { joinRoom } from "@/lib/socket";
 
 function Profile() {
     const [user, setUser] = useState<UserType | "loading" | null>("loading");
@@ -249,11 +250,18 @@ function Profile() {
                                             <li>
                                                 <button
                                                     onClick={async () => {
-                                                        await followApi.patchNotification(
-                                                            user.username,
-                                                            "post"
-                                                        );
-                                                        fetchNotifStatus();
+                                                        const { ok } =
+                                                            await followApi.patchNotification(
+                                                                user.username,
+                                                                "post"
+                                                            );
+                                                        if (ok) {
+                                                            joinRoom(
+                                                                "",
+                                                                `${user.id}_post`
+                                                            );
+                                                            fetchNotifStatus();
+                                                        }
                                                     }}
                                                 >
                                                     {notifStatus.notify_post
@@ -264,11 +272,18 @@ function Profile() {
                                             <li>
                                                 <button
                                                     onClick={async () => {
-                                                        await followApi.patchNotification(
-                                                            user.username,
-                                                            "guide"
-                                                        );
-                                                        fetchNotifStatus();
+                                                        const { ok } =
+                                                            await followApi.patchNotification(
+                                                                user.username,
+                                                                "guide"
+                                                            );
+                                                        if (ok) {
+                                                            joinRoom(
+                                                                "",
+                                                                `${user.id}_guide`
+                                                            );
+                                                            fetchNotifStatus();
+                                                        }
                                                     }}
                                                 >
                                                     {notifStatus.notify_guide
