@@ -18,6 +18,9 @@ function NotificationList({
                 <div className="flex justify-between items-center">
                     {children}
                 </div>
+                {notifications.length === 0 && (
+                    <p className="text-center">you're fully caught up! :)</p>
+                )}
                 {notifications.map((notification) => {
                     return (
                         <NotificationBlock

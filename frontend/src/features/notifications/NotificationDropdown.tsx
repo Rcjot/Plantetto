@@ -60,14 +60,16 @@ function NotificationDropdown() {
                         markNotificationRead={markNotificationRead}
                     >
                         <h1 className="text-xl font-[600]">Notifications</h1>
-                        <button
-                            className="cursor-pointer"
-                            onClick={markAllRead}
-                        >
-                            <h1 className="text-xs underline">
-                                mark all as read
-                            </h1>
-                        </button>
+                        {notifs.length > 0 && (
+                            <button
+                                className="cursor-pointer"
+                                onClick={markAllRead}
+                            >
+                                <h1 className="text-xs underline">
+                                    mark all as read
+                                </h1>
+                            </button>
+                        )}
                     </NotificationList>
                 </DropdownMenuContent>
             </DropdownMenu>
