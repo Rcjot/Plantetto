@@ -4,6 +4,7 @@ import notificationsApi from "@/api/notificationsApi";
 import socket from "@/lib/socket";
 import { toast } from "react-toastify";
 import NotifToast from "../components/NotifToast";
+import { useNavigate } from "react-router-dom";
 
 function useNotification() {
     const [notifs, setNotifs] = useState<NotificationType[] | null>(null);
@@ -12,6 +13,8 @@ function useNotification() {
     const [loading, setLoading] = useState(true);
     const initialFetch = useRef(false);
     const nextCursor = useRef<number | null>(null);
+
+    const navigate = useNavigate();
 
     const fetchNotifications = useCallback(async (isReset = false) => {
         setLoading(true);
@@ -65,15 +68,16 @@ function useNotification() {
                 const notification: NotificationType = newNotif[
                     "payload"
                 ] as NotificationType;
-                toast.info(
-                    <NotifToast
-                        notification={notification}
-                        markNotificationRead={markNotificationRead}
-                    />,
-                    {
-                        closeOnClick: true,
-                    }
-                );
+                toast.info(<NotifToast notification={notification} />, {
+                    closeOnClick: true,
+                    icon: false,
+                    onClick: () => {
+                        markNotificationRead(notification.id);
+                        if (notifType == "follow") {
+                            navigate(`/${notification.payload.actor.username}`);
+                        } //put else if here for like and comments
+                    },
+                });
             } else {
                 const notification: EntityPayloadType = newNotif[
                     "payload"
@@ -85,15 +89,24 @@ function useNotification() {
                         notifType
                     );
                 if (notificationRes) {
-                    toast.info(
-                        <NotifToast
-                            notification={notificationRes}
-                            markNotificationRead={markNotificationRead}
-                        />,
-                        {
-                            closeOnClick: true,
-                        }
-                    );
+                    toast.info(<NotifToast notification={notificationRes} />, {
+                        closeOnClick: true,
+                        icon: false,
+                        onClick: () => {
+                            markNotificationRead(notificationRes.id);
+                            const payload =
+                                notificationRes.payload as EntityPayloadType;
+                            if (notifType == "post") {
+                                navigate(
+                                    `/home/${notificationRes.payload.actor.username}/${payload.entity_uuid}`
+                                );
+                            } else if (notifType == "guide") {
+                                navigate(`/guides/${payload.entity_uuid}`);
+                            } else {
+                                navigate(`/home`);
+                            }
+                        },
+                    });
                 }
             }
         };

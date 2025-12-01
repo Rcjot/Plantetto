@@ -6,15 +6,7 @@ function ChatNotifToast({ message }: { message: MessageType }) {
     const sender = message.sender;
     return (
         <>
-            <div
-                className="w-full mr-5 flex gap-3 cursor-pointer justify-"
-                onClick={() => {
-                    const event = new CustomEvent("openChat", {
-                        detail: { user: message.sender },
-                    });
-                    window.dispatchEvent(event);
-                }}
-            >
+            <div className="w-full mr-5 flex gap-3 cursor-pointer justify-">
                 <ProfilePicture src={sender.pfp_url} />
                 <div>
                     <h1 className="text-sm">

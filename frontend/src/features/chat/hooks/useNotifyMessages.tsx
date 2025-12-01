@@ -42,10 +42,16 @@ function useNotifyMessages({ dropdownOpen }: { dropdownOpen: boolean }) {
         const listenRoom = `${auth.user.id}_new_message`;
         const handler = (payload: MessageType) => {
             fetchUnreadCount();
-            console.log(dropdownOpen);
             if (!dropdownOpen) {
                 toast.info(<ChatNotifToast message={payload} />, {
                     closeOnClick: true,
+                    icon: false,
+                    onClick: () => {
+                        const event = new CustomEvent("openChat", {
+                            detail: { user: payload.sender },
+                        });
+                        window.dispatchEvent(event);
+                    },
                 });
             }
         };

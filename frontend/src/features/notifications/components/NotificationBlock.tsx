@@ -1,5 +1,6 @@
 import ProfilePicture from "@/components/ProfilePicture";
 import type {
+    EntityPayloadType,
     LikePayloadType,
     NotificationType,
     PayloadType,
@@ -91,7 +92,7 @@ function NotificationBlock({
         notification_type == "guide" ||
         notification_type == "diary"
     ) {
-        const payload = notification.payload as LikePayloadType;
+        const payload = notification.payload as EntityPayloadType;
         const actor = payload.actor;
         content = (
             <>

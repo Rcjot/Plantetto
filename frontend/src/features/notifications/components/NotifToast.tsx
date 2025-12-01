@@ -1,22 +1,17 @@
 import ProfilePicture from "@/components/ProfilePicture";
 import type {
+    EntityPayloadType,
     LikePayloadType,
     NotificationType,
     PayloadType,
 } from "../notificationTypes";
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
 
 interface NotificationBlockProps {
     notification: NotificationType;
-    markNotificationRead: (notifId: number) => Promise<void>;
 }
 
-function NotifToast({
-    notification,
-    markNotificationRead,
-}: NotificationBlockProps) {
-    const navigate = useNavigate();
+function NotifToast({ notification }: NotificationBlockProps) {
     let content;
     const notification_type = notification.notification_type;
     if (notification_type === "follow") {
@@ -25,13 +20,7 @@ function NotifToast({
 
         content = (
             <>
-                <div
-                    className="flex gap-3 cursor-pointer"
-                    onClick={() => {
-                        navigate(`/${actor.username}`);
-                        markNotificationRead(notification.id);
-                    }}
-                >
+                <div className="flex gap-3 cursor-pointer w-full mr-5">
                     <ProfilePicture src={actor.pfp_url} />
                     <div>
                         <h1 className="text-sm">
@@ -39,7 +28,7 @@ function NotifToast({
                         </h1>
                         <p className="text-xs">has followed you</p>
                     </div>
-                    <div className="ml-auto">
+                    <div className="ml-auto text-xs">
                         {dayjs(notification.created_at).format("h:mm A")}
 
                         <br />
@@ -57,13 +46,7 @@ function NotifToast({
         const actor = payload.actor;
         content = (
             <>
-                <div
-                    className="flex gap-3 cursor-pointer"
-                    onClick={() => {
-                        navigate(`/${actor.username}`);
-                        markNotificationRead(notification.id);
-                    }}
-                >
+                <div className="flex gap-3 cursor-pointer w-full mr-5 w-full mr-5">
                     <ProfilePicture src={actor.pfp_url} />
                     <div>
                         <h1 className="text-sm">
@@ -76,7 +59,7 @@ function NotifToast({
                                 : "post"}
                         </p>
                     </div>
-                    <div className="ml-auto">
+                    <div className="ml-auto text-xs">
                         {dayjs(notification.created_at).format("h:mm A")}
 
                         <br />
@@ -91,25 +74,11 @@ function NotifToast({
         notification_type == "guide" ||
         notification_type == "diary"
     ) {
-        const payload = notification.payload as LikePayloadType;
+        const payload = notification.payload as EntityPayloadType;
         const actor = payload.actor;
         content = (
             <>
-                <div
-                    className="flex gap-3 cursor-pointer"
-                    onClick={() => {
-                        if (notification_type == "post") {
-                            navigate(
-                                `/home/${actor.username}/${payload.entity_uuid}`
-                            );
-                        } else if (notification_type == "guide") {
-                            navigate(`/guides/${payload.entity_uuid}`);
-                        } else {
-                            navigate(`/home`);
-                        }
-                        markNotificationRead(notification.id);
-                    }}
-                >
+                <div className="flex gap-3 cursor-pointer w-full mr-5 ">
                     <ProfilePicture src={actor.pfp_url} />
                     <div>
                         <h1 className="text-sm">
@@ -123,7 +92,7 @@ function NotifToast({
                                   : "added a new diary entry"}
                         </p>
                     </div>
-                    <div className="ml-auto">
+                    <div className="ml-auto text-xs">
                         {dayjs(notification.created_at).format("h:mm A")}
 
                         <br />
@@ -135,13 +104,7 @@ function NotifToast({
         );
     }
 
-    return (
-        <div>
-            <div className="card bg-none card-xs ">
-                <div className="card-body">{content}</div>
-            </div>
-        </div>
-    );
+    return content;
 }
 
 export default NotifToast;
