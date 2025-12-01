@@ -34,7 +34,8 @@ function useNotification() {
     async function markNotificationRead(notificationId: number) {
         setDropdownOpen(false);
         await notificationsApi.markNotificationRead(notificationId);
-        fetchNotifications();
+        nextCursor.current = null;
+        fetchNotifications(true);
     }
 
     useEffect(() => {

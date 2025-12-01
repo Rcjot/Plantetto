@@ -86,7 +86,11 @@ function NotificationBlock({
                 </div>
             </>
         );
-    } else if (notification_type == "post" || notification_type == "guide") {
+    } else if (
+        notification_type == "post" ||
+        notification_type == "guide" ||
+        notification_type == "diary"
+    ) {
         const payload = notification.payload as LikePayloadType;
         const actor = payload.actor;
         content = (
@@ -98,8 +102,10 @@ function NotificationBlock({
                             navigate(
                                 `/home/${actor.username}/${payload.entity_uuid}`
                             );
-                        } else {
+                        } else if (notification_type == "guide") {
                             navigate(`/guides/${payload.entity_uuid}`);
+                        } else {
+                            navigate(`/home`);
                         }
                         markNotificationRead(notification.id);
                     }}
@@ -112,7 +118,9 @@ function NotificationBlock({
                         <p className="text-xs">
                             {notification_type === "guide"
                                 ? "has published a new guide"
-                                : "has sprouted a new post"}
+                                : notification_type === "post"
+                                  ? "has sprouted a new post"
+                                  : "added a new diary entry"}
                         </p>
                     </div>
                     <div className="ml-auto">

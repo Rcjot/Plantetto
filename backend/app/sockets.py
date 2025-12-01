@@ -118,6 +118,7 @@ def join_rooms(username) :
     # we also fetch all followed users that current user has notifications listened to
     following_posts_users = Follows.get_notified_posts(username)
     following_guides_users = Follows.get_notified_guides(username)
+    all_following = Follows.get_following(username)
 
     for following in following_posts_users :
         print('user', username, 'joined', f"{following['id']}_post")
@@ -125,6 +126,10 @@ def join_rooms(username) :
     for following in following_guides_users :
         print('user', username, 'joined', f"{following['id']}_guide")
         join_room(f"{following['id']}_guide")
+    for following in all_following :
+        # join all users to diaries
+        join_room(f"{following['id']}_diary")
+
 
     join_room(f"{current_user_uuid}_follow")
 
@@ -181,6 +186,8 @@ def notify_followers_of_post(author_uuid, new_post_payload) :
 def notify_followers_of_guide(author_uuid, new_guide_payload) :
     socketio.emit(f"notify", new_guide_payload, to=f"{author_uuid}_guide" )
 
+def notify_followers_of_diary(author_uuid, new_diary_payload) :
+    socketio.emit(f"notify", new_diary_payload, to=f"{author_uuid}_diary" )
 
 # notify post create
 # notify guide create

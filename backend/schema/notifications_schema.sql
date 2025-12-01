@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS notifications CASCADE;
 CREATE TABLE notifications (
     id BIGSERIAL PRIMARY KEY,
     notification_type VARCHAR(10) 
-        CHECK (notification_type IN ('post', 'message', 'follow', 'guide', 'comment_post', 'comment_guide', 'like_post', 'like_guide')),
+        CHECK (notification_type IN ('post', 'message', 'follow', 'guide', 'diary', 'comment_post', 'comment_guide', 'like_post', 'like_guide')),
     is_read BOOLEAN DEFAULT FALSE,
     payload JSONB NULL,
     entity_id BIGINT NULL,

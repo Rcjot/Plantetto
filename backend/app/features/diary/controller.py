@@ -3,7 +3,9 @@ from flask_login import login_required, current_user
 from flask import request, jsonify
 from .forms import DiaryForm
 from ...models.diary import Diaries
+from ...models.notifications import Notifications
 from ...services import cloudinary
+from ...sockets import notify_followers_of_diary
 from datetime import date, timedelta
 
 @diary_bp.route("/") 
@@ -32,19 +34,35 @@ def add_diary():
             new_diary = Diaries(note=form.note.data, 
                                 plant_id=form.plant_id.data, 
                                 user_id=current_user_id )
-            uuid_res = new_diary.add()
-            diary_uuid = uuid_res["uuid"]
+            id_uuid_res = new_diary.add()
+            new_diary_uuid = id_uuid_res["uuid"]
+            new_diary_id = id_uuid_res["id"]
+
             if (form.media.data) :
                 media_res = cloudinary.upload_asset(asset=form.media.data, 
-                                                    public_id=f"diary_{diary_uuid}",
+                                                    public_id=f"diary_{new_diary_uuid}",
                                                     media_type=form.media_mimetype,
                                                     folder="diaries/"
                                                     )
-                Diaries.update_media(diary_uuid, media_res["srcURL"], media_type=form.media_mimetype)
+                Diaries.update_media(new_diary_uuid, media_res["srcURL"], media_type=form.media_mimetype)
         except Exception as e :
             print(e)
             return jsonify(success=False, message="something went wrong trying to add plant"), 500
-        return jsonify(success=True, dairy_uuid=diary_uuid)
+        
+        actor = current_user.get_json()
+
+        payload = Notifications.generate_notifications_diary(entity_id=new_diary_id,
+                                                    note=form.note.data,
+                                                    actor=actor,
+                                                    entity_uuid=new_diary_uuid,
+                                                    actor_id=current_user_id
+                                                    )
+        
+        notify_followers_of_diary(author_uuid=current_user.get_uuid(),
+                                    new_diary_payload=payload
+                                    )
+        
+        return jsonify(success=True, dairy_uuid=new_diary_uuid)
     return jsonify(success=False,
                     message="form fields might be invalid",
                     error=error), 400
