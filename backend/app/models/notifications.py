@@ -65,6 +65,37 @@ class Notifications() :
         cursor.close()
     
         return result
+
+    @classmethod
+    def get_notification_with_entity_and_type(cls, current_user_id, entity_uuid, notif_type) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+
+        if notif_type == "post" :
+            x = "posts"
+        elif notif_type == "guide" :
+            x = "guides"
+        elif notif_type == "diary" : 
+            x = "diaries"
+
+        sql = f"""
+                SELECT * 
+                FROM notifications n
+                JOIN {x} x ON n.entity_id = x.id
+                WHERE n.user_id = %s
+                AND x.uuid = %s
+                AND n.notification_type = %s
+                """
+
+        cursor.execute(sql, (current_user_id, entity_uuid, notif_type, ) )
+
+        result = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+    
+        return result
+
     @classmethod
     def patch_read(cls, notif_id) :
         db = get_db()

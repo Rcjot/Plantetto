@@ -20,7 +20,17 @@ def get_notifications():
                    next_cursor = notifications[-1]['id'] if has_more else None,
                    )
 
+@notification_bp.route("/<uuid:entity_uuid>") 
+@login_required
+def get_notification(entity_uuid):
+    entity_uuid = str(entity_uuid)
+    notif_type = request.args.get("notif_type", default=None, type=str)
+    current_user_id = current_user.get_id()
 
+    notification = Notifications.get_notification_with_entity_and_type(current_user_id, entity_uuid, notif_type,)
+
+    
+    return jsonify(success=True, notification=notification)
 
 @notification_bp.route("/", methods=["PATCH"]) 
 @login_required
