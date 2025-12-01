@@ -91,7 +91,6 @@ function useConversationRooms() {
     function toggleIsAllState(isAll: boolean) {
         setIsAllState(isAll);
         refetchWithResetCursorIs(true, isAll);
-        console.log("hey");
     }
 
     return {
