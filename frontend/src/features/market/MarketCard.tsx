@@ -1,0 +1,109 @@
+import { MoreHorizontal } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+interface MarketCardProps {
+    image: string;
+    title: string;
+    price: string;
+    onClick?: () => void;
+    showActions?: boolean;
+    onEdit?: () => void;
+    onDelete?: () => void;
+    onMarkAsSold?: () => void;
+    onMarkAsActive?: () => void;
+    status?: "active" | "sold";
+}
+
+export default function MarketCard({
+    image,
+    title,
+    price,
+    onClick,
+    showActions = false,
+    onEdit,
+    onDelete,
+    onMarkAsSold,
+    onMarkAsActive,
+    status = "active",
+}: MarketCardProps) {
+    return (
+        <div className="max-w-xs w-full cursor-pointer group relative">
+            {showActions && (
+                <div
+                    className="absolute top-2 right-2 z-10"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="btn btn-sm btn-circle bg-white/90 hover:bg-white border-none shadow-md">
+                                <MoreHorizontal className="w-4 h-4" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-base-100">
+                            <DropdownMenuItem
+                                className="hover:!bg-neutral-300 hover:!text-neutral-800 transition-colors duration-200"
+                                onClick={onEdit}
+                            >
+                                Edit
+                            </DropdownMenuItem>
+                            {status === "active" ? (
+                                <DropdownMenuItem
+                                    className="hover:!bg-success hover:!text-white transition-colors duration-200"
+                                    onClick={onMarkAsSold}
+                                >
+                                    Mark as Sold
+                                </DropdownMenuItem>
+                            ) : (
+                                <DropdownMenuItem
+                                    className="hover:!bg-success hover:!text-white transition-colors duration-200"
+                                    onClick={onMarkAsActive}
+                                >
+                                    Mark as Active
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                                className="hover:!bg-yellow-500 hover:!text-white transition-colors duration-200"
+                                onClick={onDelete}
+                            >
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            )}
+
+            <div onClick={onClick}>
+                <div className="relative w-[300px] h-[300px] rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-all">
+                    {/* image */}
+                    <img
+                        src={image}
+                        alt={title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+
+                    {/* status badge */}
+                    {status === "sold" && (
+                        <div className="absolute top-3 left-3">
+                            <span className="badge badge-warning">Sold</span>
+                        </div>
+                    )}
+
+                    {/* bottom overlay */}
+                    <div className="absolute bottom-0 left-0 w-full bg-gray-300/70 backdrop-blur-sm px-3 py-3">
+                        <div className="text-sm font-medium text-gray-800 truncate">
+                            {title}
+                        </div>
+                        <div className="text-lg font-bold text-green-700 mt-1">
+                            ₱{price}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
