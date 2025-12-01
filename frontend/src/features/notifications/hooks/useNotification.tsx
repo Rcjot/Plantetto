@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { NotificationType } from "../notificationTypes";
+import type { EntityPayloadType, NotificationType } from "../notificationTypes";
 import notificationsApi from "@/api/notificationsApi";
 import socket from "@/lib/socket";
+import { toast } from "react-toastify";
+import NotifToast from "../components/NotifToast";
 
 function useNotification() {
     const [notifs, setNotifs] = useState<NotificationType[] | null>(null);
@@ -45,9 +47,55 @@ function useNotification() {
     }, [fetchNotifications]);
 
     useEffect(() => {
-        const handler = () => {
+        const handler = async (newNotif: {
+            payload: NotificationType | EntityPayloadType;
+            notif_type: string;
+        }) => {
             nextCursor.current = null;
             fetchNotifications(true);
+            console.log(newNotif, "newnotif");
+            const notifType = newNotif["notif_type"];
+
+            if (
+                notifType == "follow" ||
+                notifType == "like" ||
+                notifType == "comment_guide" ||
+                notifType == "comment_post"
+            ) {
+                const notification: NotificationType = newNotif[
+                    "payload"
+                ] as NotificationType;
+                toast.info(
+                    <NotifToast
+                        notification={notification}
+                        markNotificationRead={markNotificationRead}
+                    />,
+                    {
+                        closeOnClick: true,
+                    }
+                );
+            } else {
+                const notification: EntityPayloadType = newNotif[
+                    "payload"
+                ] as EntityPayloadType;
+                console.log(notification);
+                const { notification: notificationRes } =
+                    await notificationsApi.getNotification(
+                        notification.entity_uuid,
+                        notifType
+                    );
+                if (notificationRes) {
+                    toast.info(
+                        <NotifToast
+                            notification={notificationRes}
+                            markNotificationRead={markNotificationRead}
+                        />,
+                        {
+                            closeOnClick: true,
+                        }
+                    );
+                }
+            }
         };
         socket.on("notify", handler);
 

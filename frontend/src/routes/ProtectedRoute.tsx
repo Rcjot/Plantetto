@@ -1,4 +1,5 @@
 import { Outlet, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import { useAuthContext } from "@/features/auth/AuthContext";
 
 function ProtectedRoute() {
@@ -8,7 +9,10 @@ function ProtectedRoute() {
         return <div>loading...</div>;
 
     return auth.status === "authenticated" ? (
-        <Outlet />
+        <>
+            <ToastContainer position="bottom-right" stacked />
+            <Outlet />
+        </>
     ) : (
         <Navigate to="/signin" replace />
     );

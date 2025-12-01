@@ -18,6 +18,22 @@ async function getNotifications(nextCursor: number | null) {
     }
 }
 
+async function getNotification(entityUuid: string, notifType: string) {
+    try {
+        const { data } = await axios.get(
+            `/notifications/${entityUuid}?notif_type=${notifType}`
+        );
+        const notification: NotificationType = data["notification"];
+        console.log(notification, entityUuid);
+        return {
+            ok: true,
+            notification: notification,
+        };
+    } catch {
+        return { ok: false, notification: null };
+    }
+}
+
 async function markAllRead() {
     try {
         await axios.patch(`/notifications/`);
@@ -36,4 +52,9 @@ async function markNotificationRead(notificationId: number) {
     }
 }
 
-export default { getNotifications, markAllRead, markNotificationRead };
+export default {
+    getNotifications,
+    getNotification,
+    markAllRead,
+    markNotificationRead,
+};

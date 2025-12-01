@@ -171,26 +171,34 @@ def notify_follow(data) :
                               actor_id=follower_id,
                               notification_type="follow", 
                               payload=payload)
-    new_notif_payload = new_notif.add()
-    new_notif_payload['created_at'] = new_notif_payload['created_at'].isoformat()
+    new_follow_payload = new_notif.add()
+    new_follow_payload['created_at'] = new_follow_payload['created_at'].isoformat()
 
-    print(new_notif_payload)
+    new_notif_payload = {
+        "payload" : new_follow_payload,
+        "notif_type" : "follow"
+    }
+
 
     emit(f"notify", new_notif_payload, to=following_uuid)
 # above notify follow could have also been a callback called after follow user http request finishes
             # if it works it works
 
 def notify_followers_of_post(author_uuid, new_post_payload) :
+    # new_post_payload is {payload: {...}}
+    new_post_payload["notif_type"] = "post"
+
     socketio.emit(f"notify", new_post_payload, to=f"{author_uuid}_post" )
 
 def notify_followers_of_guide(author_uuid, new_guide_payload) :
+    new_guide_payload["notif_type"] = "guide"
+
     socketio.emit(f"notify", new_guide_payload, to=f"{author_uuid}_guide" )
 
 def notify_followers_of_diary(author_uuid, new_diary_payload) :
+    new_diary_payload["notif_type"] ="diary"
     socketio.emit(f"notify", new_diary_payload, to=f"{author_uuid}_diary" )
 
-# notify post create
-# notify guide create
 
     
 """
