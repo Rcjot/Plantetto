@@ -2,8 +2,11 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useCallback, useEffect, useState } from "react";
 import chatApi from "@/api/chatApi";
 import socket from "@/lib/socket";
+import { toast } from "react-toastify";
+import ChatNotifToast from "../components/ChatNotifToast";
+import type { MessageType } from "../chatTypes";
 
-function useNotifyMessages() {
+function useNotifyMessages({ dropdownOpen }: { dropdownOpen: boolean }) {
     const [unreadCount, setUnreadCount] = useState(0);
     const { auth } = useAuthContext()!;
 
@@ -37,15 +40,21 @@ function useNotifyMessages() {
         if (!auth.user) return;
         // listens for new messages; can pass off as notifs for chatList
         const listenRoom = `${auth.user.id}_new_message`;
-        const handler = () => {
+        const handler = (payload: MessageType) => {
             fetchUnreadCount();
+            console.log(dropdownOpen);
+            if (!dropdownOpen) {
+                toast.info(<ChatNotifToast message={payload} />, {
+                    closeOnClick: true,
+                });
+            }
         };
         socket.on(listenRoom, handler);
 
         return () => {
             socket.off(listenRoom, handler);
         };
-    }, [auth, fetchUnreadCount]);
+    }, [auth, fetchUnreadCount, dropdownOpen]);
 
     return { unreadCount, fetchUnreadCount };
 }

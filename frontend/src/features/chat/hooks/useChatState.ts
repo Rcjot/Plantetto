@@ -36,7 +36,7 @@ function useChatState(
 
         const handler = (event: CustomEvent<{ user: UserType }>) => {
             setDropdownOpen(true);
-
+            console.log("hey", event.detail.user);
             handleAsync(event.detail.user);
         };
         window.addEventListener("openChat", handler as EventListener);

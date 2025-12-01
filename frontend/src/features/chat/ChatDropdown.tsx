@@ -16,7 +16,9 @@ function ChatDropdown() {
     const { currentRoomObj, setCurrentRoomObj, dropdownOpen, setDropdownOpen } =
         useChatState(setIsListState);
 
-    const { unreadCount, fetchUnreadCount } = useNotifyMessages();
+    const { unreadCount, fetchUnreadCount } = useNotifyMessages({
+        dropdownOpen: dropdownOpen,
+    });
 
     function toggleListState() {
         setIsListState((prev) => !prev);
