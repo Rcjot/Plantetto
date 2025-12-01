@@ -1,13 +1,20 @@
 import axios from "@/lib/axios";
 import type { NotificationType } from "@/features/notifications/notificationTypes";
 
-async function getNotifications() {
+async function getNotifications(nextCursor: number | null) {
     try {
-        const { data } = await axios.get(`/notifications/`);
+        const { data } = await axios.get(
+            `/notifications/?cursor=${nextCursor}`
+        );
         const notifications: NotificationType[] = data["notifications"];
-        return { ok: true, notifications: notifications };
+        const nextCursorRes: number | null = data["next_cursor"];
+        return {
+            ok: true,
+            notifications: notifications,
+            nextCursor: nextCursorRes,
+        };
     } catch {
-        return { ok: false, notifications: [] };
+        return { ok: false, notifications: [], nextCursor: null };
     }
 }
 

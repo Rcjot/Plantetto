@@ -86,7 +86,7 @@ class Notifications() :
         return id_res
 
     @classmethod 
-    def get_notifications(cls, current_user_id) :
+    def get_notifications(cls, current_user_id, cursor_id=None, limit=None) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
 
@@ -96,10 +96,23 @@ class Notifications() :
         FROM notifications
         WHERE user_id = %s
         AND is_read = FALSE
-        ORDER BY created_at DESC
         """
-
-        cursor.execute(sql, (current_user_id,) )
+        params = [current_user_id]
+        if cursor_id :
+            sql += """
+                    AND id < %s
+                    ORDER BY created_at DESC
+                    LIMIT %s
+                   """
+            params += [cursor_id]
+        else : 
+            sql += """
+                    ORDER BY created_at DESC
+                    LIMIT %s
+                   """
+            
+        params += [limit+1]
+        cursor.execute(sql, params )
 
         notifications = cursor.fetchall()
 

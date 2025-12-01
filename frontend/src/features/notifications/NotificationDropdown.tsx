@@ -14,6 +14,9 @@ function NotificationDropdown() {
         markNotificationRead,
         dropdownOpen,
         setDropdownOpen,
+        hasMore,
+        loading,
+        fetchNotifications,
     } = useNotification();
 
     const notificationIcon = (unread: boolean) => {
@@ -58,6 +61,9 @@ function NotificationDropdown() {
                     <NotificationList
                         notifications={notifs}
                         markNotificationRead={markNotificationRead}
+                        hasMore={hasMore}
+                        loading={loading}
+                        fetchNotifications={fetchNotifications}
                     >
                         <h1 className="text-xl font-[600]">Notifications</h1>
                         {notifs.length > 0 && (

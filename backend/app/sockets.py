@@ -112,6 +112,8 @@ def join_rooms(username) :
     for room in rooms:
         print('user', current_user_id, 'joined', room['uuid'])
         join_room(room['uuid'])
+    # i think its possible to not join them right away, but only join when room is opened in client
+    #       then for new messages: {recipient_uuid}_new_message is already sent for chatList to be rerendered.
 
     # we also fetch all followed users that current user has notifications listened to
     following_posts_users = Follows.get_notified_posts(username)
