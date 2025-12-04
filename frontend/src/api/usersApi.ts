@@ -18,4 +18,19 @@ async function changePassword(changePasswordData: ChangePasswordFields) {
     }
 }
 
-export default { changePassword };
+async function changeEmail(newEmail: string) {
+    try {
+        const { data } = await axios.patch("/users/email", {
+            newEmail: newEmail,
+        });
+        return { ok: true, data };
+    } catch (error) {
+        console.error(error);
+        if (isAxiosError(error) && error.response) {
+            return { ok: false, errors: error.response.data.error };
+        }
+        return { ok: false, errors: { root: "some error occurred" } };
+    }
+}
+
+export default { changePassword, changeEmail };

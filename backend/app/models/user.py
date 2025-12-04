@@ -195,7 +195,8 @@ class Users(UserMixin) :
             'id':str(self.uuid),
             'username':self.username,
             'pfp_url':self.pfp_url,
-            'display_name':self.display_name
+            'display_name':self.display_name,
+            'email': self.email
         }
     
     @classmethod
@@ -275,6 +276,29 @@ class Users(UserMixin) :
         password_hash = hashlib.md5(new_password.encode()).hexdigest()
         
         cursor.execute(sql, (password_hash, current_user_id))
+        result = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+        if not result :
+            return False
+
+        return True
+
+    @classmethod
+    def change_email(cls, current_user_id, new_email) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = """
+                UPDATE users
+                SET 
+                email = %s
+                WHERE id = %s
+                RETURNING *
+              """
+        
+        cursor.execute(sql, (new_email, current_user_id))
         result = cursor.fetchone()
 
         db.commit()
