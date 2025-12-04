@@ -22,9 +22,6 @@ import SettingsCookies from "@/pages/settings/SettingsCookies";
 import SettingsStandards from "@/pages/settings/SettingsStandards";
 import SettingsThemes from "@/pages/settings/SettingsThemes";
 
-
-
-
 function getRoutes() {
     return [
         {
@@ -108,32 +105,32 @@ function getRoutes() {
                         },
                         {
                             path: "/settings",
-                            element: < Settings />,
+                            element: <Settings />,
                         },
                         {
                             path: "/settings/accountsinformation",
-                            element: <SettingsAccount/>
+                            element: <SettingsAccount />,
                         },
                         {
-                            path: "/settings/settingsthemes",
-                            element: < SettingsThemes />,
+                            path: "/settings/themes",
+                            element: <SettingsThemes />,
                         },
                         {
-                            path: "/settings/settingsterms",
-                            element: < SettingsTerms />,
+                            path: "/settings/terms",
+                            element: <SettingsTerms />,
                         },
                         {
-                            path: "/settings/settingsprivacy",
-                            element: < SettingsPrivacy />,
+                            path: "/settings/privacy",
+                            element: <SettingsPrivacy />,
                         },
                         {
-                            path: "/settings/settingscookies",
-                            element: < SettingsCookies />,
+                            path: "/settings/cookies",
+                            element: <SettingsCookies />,
                         },
                         {
-                            path: "/settings/settingsstandards",
-                            element: < SettingsStandards />,
-                        }
+                            path: "/settings/standards",
+                            element: <SettingsStandards />,
+                        },
                     ],
                 },
             ],

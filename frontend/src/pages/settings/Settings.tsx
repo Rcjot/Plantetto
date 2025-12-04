@@ -7,7 +7,6 @@ import PrivacyIcon from "@/assets/icons/privacypolicy.svg";
 import CookiesIcon from "@/assets/icons/cookiespolicy.svg";
 import StandardIcon from "@/assets/icons/communitystandard.svg";
 
-
 function Settings() {
     return (
         <div className="flex flex-col gap-20 p-3 sm:p-10">
@@ -34,7 +33,7 @@ function Settings() {
                 <h2 className="text-lg font-semibold text-gray-700">Display</h2>
 
                 <Link
-                    to="/settings/settingsthemes"
+                    to="/settings/themes"
                     className="flex items-center gap-1 py-0"
                 >
                     <img src={ThemesIcon} className="w-13 h-13" />
@@ -49,7 +48,7 @@ function Settings() {
                 </h2>
 
                 <Link
-                    to="/settings/settingsterms"
+                    to="/settings/terms"
                     className="flex items-center gap-1 py-0"
                 >
                     <img src={TermsIcon} className="w-13 h-13" />
@@ -57,7 +56,7 @@ function Settings() {
                 </Link>
 
                 <Link
-                    to="/settings/settingsprivacy"
+                    to="/settings/privacy"
                     className="flex items-center gap-1 py-0"
                 >
                     <img src={PrivacyIcon} className="w-13 h-13" />
@@ -65,7 +64,7 @@ function Settings() {
                 </Link>
 
                 <Link
-                    to="/settings/settingscookies"
+                    to="/settings/cookies"
                     className="flex items-center gap-1 py-0"
                 >
                     <img src={CookiesIcon} className="w-13 h-13" />
@@ -73,7 +72,7 @@ function Settings() {
                 </Link>
 
                 <Link
-                    to="/settings/settingsstandards"
+                    to="/settings/standards"
                     className="flex items-center gap-1 py-0"
                 >
                     <img src={StandardIcon} className="w-13 h-13" />
