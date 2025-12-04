@@ -100,7 +100,7 @@ const ChangePasswordModal: React.FC<Props> = ({ title, onClose }) => {
                         className="btn btn-primary flex-1 py-3 rounded-xl 
                                    font-medium text-lg"
                     >
-                        {isSubmitting ? "trying..." : "Change Email"}
+                        {isSubmitting ? "trying..." : "Change Password"}
                     </button>
 
                     <button
