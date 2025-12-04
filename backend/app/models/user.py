@@ -260,3 +260,27 @@ class Users(UserMixin) :
             return None
 
         return result
+
+    @classmethod
+    def change_password(cls, current_user_id, new_password) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = """
+                UPDATE users
+                SET 
+                user_password = %s
+                WHERE id = %s
+                RETURNING *
+              """
+        password_hash = hashlib.md5(new_password.encode()).hexdigest()
+        
+        cursor.execute(sql, (password_hash, current_user_id))
+        result = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+        if not result :
+            return False
+
+        return True
