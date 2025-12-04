@@ -35,3 +35,23 @@ def add_comment(post_uuid):
         return jsonify(success=True, comment_uuid=uuid_res["uuid"])
         
     return jsonify(success=False, message="form fields might be invalid", error=form.errors), 400
+
+@comment_post_bp.route("/<uuid:comment_uuid>", methods=["PATCH"], strict_slashes=False)
+@login_required
+def edit_comment(post_uuid, comment_uuid):
+    comment_uuid = str(comment_uuid)
+    data = request.get_json()
+    form = EditCommentPostForm(data=data)
+    
+    if form.validate():
+        current_user_id = current_user.get_id()
+        to_patch_comment = CommentsPosts.patch_content(
+            comment_uuid, 
+            form.content.data,
+            current_user_id
+        )
+        if to_patch_comment:
+            return jsonify(success=True, comment_uuid=comment_uuid)
+        return jsonify(success=False, message="edit comment failed"), 404
+        
+    return jsonify(success=False, message="form fields might be invalid", error=form.errors), 400
