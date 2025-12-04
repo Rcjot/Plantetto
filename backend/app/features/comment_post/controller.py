@@ -55,3 +55,15 @@ def edit_comment(post_uuid, comment_uuid):
         return jsonify(success=False, message="edit comment failed"), 404
         
     return jsonify(success=False, message="form fields might be invalid", error=form.errors), 400
+
+@comment_post_bp.route("/<uuid:comment_uuid>", methods=["DELETE"], strict_slashes=False)
+@login_required
+def delete_comment(post_uuid, comment_uuid):
+    comment_uuid = str(comment_uuid)
+    current_user_id = current_user.get_id()
+    
+    to_delete_comment = CommentsPosts.delete_comment(comment_uuid, current_user_id)
+    
+    if to_delete_comment:
+        return jsonify(success=True, message="delete comment successful")
+    return jsonify(success=False, message="delete comment failed"), 404
