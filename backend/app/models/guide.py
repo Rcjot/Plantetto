@@ -306,6 +306,9 @@ class Guides() :
         guides.created_at,
         guides.published_date,
         guides.last_edit_date,
+        (SELECT COUNT(*) FROM comments_guides
+        WHERE guide_id = guides.id
+        ) AS comment_count,
         thumbnail.image_url AS thumbnail
         """
 
@@ -355,3 +358,21 @@ class Guides() :
             "guides" : guides,
             "meta_data" : meta_data
         })
+
+    @classmethod
+    def get_by_uuid(cls, guide_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT * FROM guides WHERE uuid = %s"
+
+        cursor.execute(sql, (guide_uuid,))
+        result = cursor.fetchone()
+
+        if not result :
+            return None
+
+        return cls(
+            id=result['id'],
+            uuid=result['uuid'],
+        )
