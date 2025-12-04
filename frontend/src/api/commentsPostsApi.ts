@@ -14,17 +14,12 @@ async function getCommentsUnderPost(post_uuid: string) {
     try {
         const { data } = await axios.get(`/posts/${post_uuid}/comments`);
 
-        // The response has { comments: [...], success: true }
-        // NOT { "comments:": [...] }
         let commentsArray = [];
 
         if (data && typeof data === "object") {
-            // Try data.comments first (without colon)
             if (data.comments && Array.isArray(data.comments)) {
                 commentsArray = data.comments;
-            }
-            // Also check for data["comments:"] as fallback
-            else if (data["comments:"] && Array.isArray(data["comments:"])) {
+            } else if (data["comments:"] && Array.isArray(data["comments:"])) {
                 commentsArray = data["comments:"];
             }
         }
@@ -44,7 +39,6 @@ async function addComment(
     parent_uuid: string | null
 ) {
     try {
-        // parent uuid is null if its a comment of the main post
         const { data } = await axios.post(`/posts/${post_uuid}/comments`, {
             content: content,
             parent_uuid: parent_uuid,
