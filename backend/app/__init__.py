@@ -76,6 +76,9 @@ def create_app() :
     from .features.market import market_bp
     app.register_blueprint(market_bp, url_prefix="/api/market")
 
+    from .features.comment_post import comment_post_bp
+    app.register_blueprint(comment_post_bp, url_prefix="/api/posts/<uuid:post_uuid>/comments")
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
         print(e.description)
