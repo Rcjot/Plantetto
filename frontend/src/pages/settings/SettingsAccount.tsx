@@ -1,18 +1,28 @@
 import { useState } from "react";
-import EmailIcon from "@/assets/icons/changeemail.svg";
-import PasswordIcon from "@/assets/icons/changepassword.svg";
 import SettingItem from "@/components/ui/SettingItem";
 import ChangePasswordModal from "@/components/ui/ChangePasswordModal";
 import ChangeEmailModal from "@/components/ui/ChangeEmailModal";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MailCheck } from "lucide-react";
+import { Mail } from "lucide-react";
+import { Shield } from "lucide-react";
 
 function SettingsAccount() {
-    const [modal, setModal] = useState<"email" | "password" | null>(null);
+    const [modal, setModal] = useState<"email" | "password" | "verify" | null>(
+        null
+    );
 
     return (
         <div className="flex flex-col gap-20 p-3 sm:p-10">
-            
-            {/* Page Title */}
-            <h1 className="text-2xl font-bold">Settings</h1>
+            <div className="flex gap-2">
+                <Link to={"/settings"} className="self-start w-fit">
+                    <ArrowLeft size={32} />
+                </Link>
+
+                {/* Page Title */}
+                <h1 className="text-2xl font-bold">Account Information</h1>
+            </div>
 
             {/* Account Info Section */}
             <div className="flex flex-col gap-3">
@@ -22,16 +32,23 @@ function SettingsAccount() {
 
                 <div className="flex flex-col gap-1 max-w-lg">
                     <SettingItem
-                        icon={EmailIcon}
                         label="Change your email address"
                         onClick={() => setModal("email")}
-                    />
-
+                    >
+                        <Mail />
+                    </SettingItem>
                     <SettingItem
-                        icon={PasswordIcon}
                         label="Change your password"
                         onClick={() => setModal("password")}
-                    />
+                    >
+                        <Shield />
+                    </SettingItem>
+                    <SettingItem
+                        label="Verify your email"
+                        onClick={() => setModal("verify")}
+                    >
+                        <MailCheck />
+                    </SettingItem>
                 </div>
 
                 {/* Modals */}
@@ -49,7 +66,6 @@ function SettingsAccount() {
                     />
                 )}
             </div>
-
         </div>
     );
 }
