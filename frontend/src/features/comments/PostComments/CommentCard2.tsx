@@ -1,6 +1,7 @@
 // features/comments/CommentCard.tsx
-import { useState, useRef } from "react"; // ADD useRef import
+import { useState, useRef } from "react";
 import { Ellipsis, Trash2, Pencil, X, Check } from "lucide-react";
+import { Link } from "react-router-dom"; // ADD THIS IMPORT
 import type { CommentType } from "../commentTypes";
 import type { UserType } from "@/features/auth/authTypes";
 import defaultpfp from "@/assets/defaultpfp.png";
@@ -23,9 +24,8 @@ export function CommentCard2({
     const [editContent, setEditContent] = useState(comment.content);
     const [showMenu, setShowMenu] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false); // ADD: Loading state for delete
+    const [isDeleting, setIsDeleting] = useState(false);
 
-    // ADD: Reference to the modal for DaisyUI
     const deleteModalRef = useRef<HTMLDialogElement>(null);
 
     const isOwner = currentUser?.id === comment.author.id;
@@ -69,27 +69,41 @@ export function CommentCard2({
             <div className="flex flex-col w-full">
                 {/* Header Section */}
                 <div className="flex flex-row gap-2 items-center relative">
-                    {/* Avatar */}
-                    <div className="avatar w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                        <img
-                            src={comment.author.pfp_url || defaultpfp}
-                            onError={(e) => (e.currentTarget.src = defaultpfp)}
-                            className="object-cover w-full h-full"
-                            alt="avatar"
-                        />
-                    </div>
+                    {/* Avatar - Make it clickable */}
+                    <Link
+                        to={`/${comment.author.username}`}
+                        className="h-fit w-fit"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="avatar w-8 h-8 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80">
+                            <img
+                                src={comment.author.pfp_url || defaultpfp}
+                                onError={(e) =>
+                                    (e.currentTarget.src = defaultpfp)
+                                }
+                                className="object-cover w-full h-full"
+                                alt="avatar"
+                            />
+                        </div>
+                    </Link>
 
-                    {/* Username & Date */}
+                    {/* Username & Date - FIXED SECTION */}
                     <div className="flex-grow">
-                        <span className="font-semibold text-sm mr-2">
-                            {comment.author.display_name ??
-                                comment.author.username}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                            • {formattedDate}
-                            {comment.last_edit_date != comment.created_at &&
-                                " (edited)"}
-                        </span>
+                        <div className="flex items-center gap-1">
+                            <Link
+                                to={`/${comment.author.username}`}
+                                className="font-semibold text-sm hover:underline cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {comment.author.display_name ||
+                                    comment.author.username}
+                            </Link>
+                            <span className="text-xs text-gray-500">
+                                • {formattedDate}
+                                {comment.last_edit_date != comment.created_at &&
+                                    " (edited)"}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Action Menu (Ellipsis) - Only show if Owner */}
@@ -114,7 +128,6 @@ export function CommentCard2({
                                     >
                                         <Pencil className="h-3 w-3" /> Edit
                                     </button>
-                                    {/* UPDATE: Use openDeleteModal instead of window.confirm */}
                                     <button
                                         onClick={openDeleteModal}
                                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"

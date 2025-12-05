@@ -82,6 +82,7 @@ class CommentsGuides() :
         AND parent.uuid IS %s
         GROUP BY current.uuid, current.content, current.created_at, current.last_edit_date,
          current_author.uuid, current_author.username, current_author.display_name, current_author.pfp_url
+         ORDER BY current.created_at DESC
         """
         cursor.execute(sql, (guide_uuid, parent_uuid))
 
