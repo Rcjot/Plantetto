@@ -132,10 +132,10 @@ export function GuideCommentSection({ guideUuid }: GuideCommentSectionProps) {
     }
 
     return (
-        <div className="flex flex-col gap-2 p-4">
-            <div className="flex flex-row">
+        <div className="flex flex-col gap-2 p-4 content-center">
+            <div className="flex flex-row items-center">
                 <p className="text-2xl font-semibold">Comments</p>
-                <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
+                <span className="bg-gray-100 px-2 rounded-full text-2xl font-medium text-primary">
                     {comments.length}
                 </span>
             </div>
