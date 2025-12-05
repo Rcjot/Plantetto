@@ -12,4 +12,5 @@ export interface GuideType {
     plant_type: PlanttypeType | null;
     author: UserType;
     thumbnail: string | null;
+    comment_count: number;
 }
