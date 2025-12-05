@@ -87,6 +87,7 @@ class CommentsPosts():
     def delete_comment(cls, comment_uuid, current_user_id):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
         sql = """
         DELETE FROM comments_posts AS c 
         USING posts AS p 

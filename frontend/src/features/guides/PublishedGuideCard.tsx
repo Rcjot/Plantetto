@@ -3,6 +3,7 @@ import type { GuideType } from "./guideTypes";
 import defaultPlantPic from "@/assets/plant_placeholder.png";
 import ProfilePicture from "@/components/ProfilePicture";
 import dayjs from "dayjs";
+import { GuideInteractiveButton } from "./GuideInteractiveButton";
 
 interface PublishedGuideCardPropsType {
     guideCard: GuideType;
@@ -18,9 +19,18 @@ function PublishedGuideCard({ guideCard }: PublishedGuideCardPropsType) {
 
     return (
         <>
-            <button
+            {/* Changed from <button> to <div> */}
+            <div
                 className="card bg-base-100 shadow-sm overflow-hidden h-50 cursor-pointer"
                 onClick={() => navigate(`/guides/${guideCard.uuid}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate(`/guides/${guideCard.uuid}`);
+                    }
+                }}
             >
                 <div className="flex gap-3 w-full sm:min-w-100 max-w-100">
                     <div className="h-full flex-1">
@@ -30,7 +40,7 @@ function PublishedGuideCard({ guideCard }: PublishedGuideCardPropsType) {
                             alt="guide thumbnail"
                         />
                     </div>
-                    <div className="flex flex-col flex-2 text-start p-3 ">
+                    <div className="flex flex-col flex-2 text-start p-3">
                         <h1 className="font-bold wrap-anywhere" tabIndex={0}>
                             {displayTitle}
                         </h1>
@@ -80,9 +90,13 @@ function PublishedGuideCard({ guideCard }: PublishedGuideCardPropsType) {
                                 </div>
                             </div>
                         </div>
+                        {/* Added GuideInteractiveButton */}
+                        <div>
+                            <GuideInteractiveButton guide={guideCard} />
+                        </div>
                     </div>
                 </div>
-            </button>
+            </div>
         </>
     );
 }
