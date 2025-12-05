@@ -20,8 +20,8 @@ interface commentType {
 async function getCommentsUnderGuide(guide_uuid: string, parent_uuid?: string) {
     try {
         const url = parent_uuid
-            ? `/guides/${guide_uuid}/comments?parent_uuid=${parent_uuid}` // REMOVED /api/
-            : `/guides/${guide_uuid}/comments`; // REMOVED /api/
+            ? `/guides/${guide_uuid}/comments?parent_uuid=${parent_uuid}`
+            : `/guides/${guide_uuid}/comments`;
 
         const { data } = await axios.get(url);
         const comments: commentType[] =
@@ -40,9 +40,7 @@ async function addComment(
     parent_uuid: string
 ) {
     try {
-        // parent uuid is null if its a comment of the main guide
         const { data } = await axios.post(`/guides/${guide_uuid}/comments`, {
-            // KEEP as is (no /api/)
             content: content,
             parent_uuid: parent_uuid,
         });
@@ -63,7 +61,7 @@ async function patchContent(
 ) {
     try {
         const { data } = await axios.patch(
-            `/guides/${guide_uuid}/comments/${comment_uuid}`, // REMOVED /api/
+            `/guides/${guide_uuid}/comments/${comment_uuid}`,
             {
                 content: content,
             }
@@ -80,9 +78,7 @@ async function patchContent(
 
 async function deleteComment(guide_uuid: string, comment_uuid: string) {
     try {
-        await axios.delete(
-            `/guides/${guide_uuid}/comments/${comment_uuid}` // REMOVED /api/
-        );
+        await axios.delete(`/guides/${guide_uuid}/comments/${comment_uuid}`);
         return { ok: true };
     } catch (error) {
         console.error(error);
