@@ -1,10 +1,10 @@
 import { Heart, Edit2, Trash2, MoreVertical, X, Check } from "lucide-react";
-import { Link } from "react-router-dom"; // ADD THIS IMPORT
 import defaultpfp from "@/assets/defaultpfp.png";
 import type { CommentType } from "../commentTypes";
 import type { UserType } from "@/features/auth/authTypes";
-import { useState, useRef } from "react";
+import { useState, useRef } from "react"; // ADD useRef import
 import commentsGuidesApi from "@/api/commentsGuidesApi";
+import likesApi from "@/api/likesApi";
 
 interface GuideCommentCardProps {
     comment: CommentType;
@@ -26,6 +26,9 @@ export function GuideCommentCard({
     const [showActions, setShowActions] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    const [isLiked, setIsLiked] = useState(comment.liked);
+    const [likeCount, setLikeCount] = useState(comment.like_count);
 
     // ADD: Reference to the modal for DaisyUI
     const deleteModalRef = useRef<HTMLDialogElement>(null);
@@ -84,42 +87,44 @@ export function GuideCommentCard({
         deleteModalRef.current?.close(); // Close modal after deletion
     };
 
+    async function toggleLikeCommentGuide() {
+        const { ok, action } = await likesApi.toggleLikeCommentGuide(
+            comment.uuid
+        );
+        if (ok) {
+            setIsLiked(action === "like");
+            setLikeCount((prev) => {
+                if (action === "like") {
+                    return prev + 1;
+                } else {
+                    return prev - 1;
+                }
+            });
+        }
+    }
     return (
         <div className="flex flex-col mt-2">
             {/* Comment Card */}
             <div className="flex flex-col p-4 rounded-lg relative">
                 {/* Header Section */}
                 <div className="flex flex-row gap-3 items-center mb-3">
-                    {/* Avatar - Make clickable */}
-                    <Link
-                        to={`/${comment.author.username}`}
-                        className="h-fit w-fit"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="avatar w-10 h-10 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
-                            <img
-                                src={comment.author.pfp_url || defaultpfp}
-                                onError={(e) =>
-                                    (e.currentTarget.src = defaultpfp)
-                                }
-                                className="object-cover w-full h-full"
-                                alt={`${comment.author.username}'s profile`}
-                            />
-                        </div>
-                    </Link>
+                    {/* Avatar */}
+                    <div className="avatar w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                        <img
+                            src={comment.author.pfp_url || defaultpfp}
+                            onError={(e) => (e.currentTarget.src = defaultpfp)}
+                            className="object-cover w-full h-full"
+                            alt={`${comment.author.username}'s profile`}
+                        />
+                    </div>
 
                     {/* Username & Date */}
                     <div className="flex flex-col flex-grow">
                         <div className="flex items-center gap-2">
-                            {/* Username - Make clickable */}
-                            <Link
-                                to={`/${comment.author.username}`}
-                                className="font-semibold text-sm hover:underline cursor-pointer"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                {comment.author.display_name ||
+                            <span className="font-semibold text-sm">
+                                {comment.author.display_name ??
                                     comment.author.username}
-                            </Link>
+                            </span>
                         </div>
                         <span className="text-xs text-gray-500">
                             {formattedDate}
@@ -210,10 +215,20 @@ export function GuideCommentCard({
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-1 p-2 hover:bg-gray-100 rounded-full transition-colors">
-                            <Heart className="h-5 w-5 text-gray-500 hover:text-red-500" />
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => toggleLikeCommentGuide()}
+                            className="flex items-center gap-1 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        >
+                            <Heart
+                                className={`h-5 w-5 text-gray-500 hover:text-red-500 ${isLiked && "fill-accent text-red-100"}`}
+                            />
                         </button>
+                        <div className="min-w-[20px] text-center">
+                            <span className="text-sm font-medium text-gray-500">
+                                {likeCount}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
