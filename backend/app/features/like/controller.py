@@ -1,0 +1,79 @@
+from . import like_post_bp, like_guide_bp, like_comment_post_bp, like_comment_guide_bp
+from flask import jsonify, request
+from flask_login import login_required, current_user
+from ...models.like import Likes
+from ...models.post import Posts
+from ...models.guide import Guides
+from ...models.comments_guides import CommentsGuides
+from ...models.comments_posts import CommentsPosts
+
+
+@like_post_bp.route("/", methods=["POST"])
+@login_required
+def toggle_like_post(post_uuid) :
+    post_uuid = str(post_uuid)
+
+    post_res = Posts.get_by_uuid(post_uuid)
+    if post_res :
+        post_id = post_res.id
+
+        current_user_id = current_user.get_id()
+
+        message = Likes.toggle_like_post(current_user_id, post_id)
+
+        return jsonify(success=True, message=f"successfully {message} post", action=message)
+    else :
+        return jsonify(success=False, message=f"resource not found", action=None), 404
+
+@like_guide_bp.route("/", methods=["POST"])
+@login_required
+def toggle_like_guide(guide_uuid) :
+    guide_uuid = str(guide_uuid)
+
+    guide_res = Guides.get_guide_id(guide_uuid)
+    if guide_res :
+        guide_id = guide_res['id']
+
+        current_user_id = current_user.get_id()
+
+        message = Likes.toggle_like_guide(current_user_id, guide_id)
+
+        return jsonify(success=True, message=f"successfully {message} guide", action=message)
+    else :
+        return jsonify(success=False, message=f"resource not found", action=None), 404
+
+
+@like_comment_post_bp.route("/", methods=["POST"])
+@login_required
+def toggle_like_comment_post(comment_uuid) :
+    comment_uuid = str(comment_uuid)
+
+    comment_res = CommentsPosts.get_by_uuid(comment_uuid)
+    if comment_res :
+        comment_id = comment_res.id
+
+        current_user_id = current_user.get_id()
+
+        message = Likes.toggle_like_comment_posts(current_user_id, comment_id)
+
+        return jsonify(success=True, message=f"successfully {message} comment", action=message)
+    else :
+        return jsonify(success=False, message=f"resource not found", action=None), 404
+
+
+@like_comment_guide_bp.route("/", methods=["POST"])
+@login_required
+def toggle_like_comment_guide(comment_uuid) :
+    comment_uuid = str(comment_uuid)
+
+    comment_res = CommentsGuides.get_by_uuid(comment_uuid)
+    if comment_res :
+        comment_id = comment_res.id
+
+        current_user_id = current_user.get_id()
+
+        message = Likes.toggle_like_comment_guides(current_user_id, comment_id)
+
+        return jsonify(success=True, message=f"successfully {message} comment", action=message)
+    else :
+        return jsonify(success=False, message=f"resource not found", action=None), 404
