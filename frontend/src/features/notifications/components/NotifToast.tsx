@@ -72,7 +72,8 @@ function NotifToast({ notification }: NotificationBlockProps) {
     } else if (
         notification_type == "post" ||
         notification_type == "guide" ||
-        notification_type == "diary"
+        notification_type == "diary" ||
+        notification_type == "comment_post"
     ) {
         const payload = notification.payload as EntityPayloadType;
         const actor = payload.actor;
@@ -89,7 +90,9 @@ function NotifToast({ notification }: NotificationBlockProps) {
                                 ? "has published a new guide"
                                 : notification_type === "post"
                                   ? "has sprouted a new post"
-                                  : "added a new diary entry"}
+                                  : notification_type === "diary"
+                                    ? "added a new diary entry"
+                                    : "commented on your post"}
                         </p>
                     </div>
                     <div className="ml-auto text-xs">

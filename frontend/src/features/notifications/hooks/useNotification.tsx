@@ -5,6 +5,7 @@ import socket from "@/lib/socket";
 import { toast } from "react-toastify";
 import NotifToast from "../components/NotifToast";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 function useNotification() {
     const [notifs, setNotifs] = useState<NotificationType[] | null>(null);
@@ -13,6 +14,8 @@ function useNotification() {
     const [loading, setLoading] = useState(true);
     const initialFetch = useRef(false);
     const nextCursor = useRef<number | null>(null);
+
+    const { auth } = useAuthContext()!;
 
     const navigate = useNavigate();
 
@@ -59,12 +62,7 @@ function useNotification() {
             console.log(newNotif, "newnotif");
             const notifType = newNotif["notif_type"];
 
-            if (
-                notifType == "follow" ||
-                notifType == "like" ||
-                notifType == "comment_guide" ||
-                notifType == "comment_post"
-            ) {
+            if (notifType == "follow" || notifType == "like") {
                 const notification: NotificationType = newNotif[
                     "payload"
                 ] as NotificationType;
@@ -102,6 +100,10 @@ function useNotification() {
                                 );
                             } else if (notifType == "guide") {
                                 navigate(`/guides/${payload.entity_uuid}`);
+                            } else if (notifType == "comment_post") {
+                                navigate(
+                                    `/home/${auth.user?.username}/${payload.entity_uuid}`
+                                );
                             } else {
                                 navigate(`/home`);
                             }

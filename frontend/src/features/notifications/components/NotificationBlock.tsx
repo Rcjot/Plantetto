@@ -7,6 +7,7 @@ import type {
 } from "../notificationTypes";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 interface NotificationBlockProps {
     notification: NotificationType;
@@ -18,6 +19,7 @@ function NotificationBlock({
     markNotificationRead,
 }: NotificationBlockProps) {
     const navigate = useNavigate();
+    const { auth } = useAuthContext()!;
     let content;
     const notification_type = notification.notification_type;
     if (notification_type === "follow") {
@@ -90,7 +92,8 @@ function NotificationBlock({
     } else if (
         notification_type == "post" ||
         notification_type == "guide" ||
-        notification_type == "diary"
+        notification_type == "diary" ||
+        notification_type == "comment_post"
     ) {
         const payload = notification.payload as EntityPayloadType;
         const actor = payload.actor;
@@ -105,6 +108,10 @@ function NotificationBlock({
                             );
                         } else if (notification_type == "guide") {
                             navigate(`/guides/${payload.entity_uuid}`);
+                        } else if (notification_type == "comment_post") {
+                            navigate(
+                                `/home/${auth.user?.username}/${payload.entity_uuid}`
+                            );
                         } else {
                             navigate(`/home`);
                         }
@@ -121,7 +128,9 @@ function NotificationBlock({
                                 ? "has published a new guide"
                                 : notification_type === "post"
                                   ? "has sprouted a new post"
-                                  : "added a new diary entry"}
+                                  : notification_type === "diary"
+                                    ? "added a new diary entry"
+                                    : "commented on your post"}
                         </p>
                     </div>
                     <div className="ml-auto">
