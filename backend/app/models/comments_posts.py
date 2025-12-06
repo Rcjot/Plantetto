@@ -31,7 +31,7 @@ class CommentsPosts():
         return uuid_res
     
     @classmethod
-    def all(cls, post_uuid, parent_uuid=None):
+    def all(cls, post_uuid, parent_uuid=None, current_user_id=None):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -46,7 +46,15 @@ class CommentsPosts():
             'username', u.username,
             'display_name', u.display_name,
             'pfp_url', u.pfp_url
-        ) AS author
+        ) AS author,
+        (SELECT COUNT(*) FROM likes_comments_posts 
+        WHERE comment_post_id = c.id
+        ) AS like_count,
+        EXISTS (
+            SELECT l_cp.created_at FROM likes_comments_posts l_cp
+            WHERE l_cp.comment_post_id = c.id
+            AND l_cp.user_id  = %s
+        )  AS liked
         FROM comments_posts AS c
         JOIN users AS u ON c.user_id = u.id
         JOIN posts AS p ON c.post_id = p.id
@@ -54,7 +62,7 @@ class CommentsPosts():
         AND c.parent_id IS NULL  -- Only get top-level comments
         ORDER BY c.created_at DESC
         """
-        cursor.execute(sql, (post_uuid,))
+        cursor.execute(sql, (current_user_id, post_uuid,))
 
         result = cursor.fetchall()
         cursor.close()
