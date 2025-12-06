@@ -153,14 +153,22 @@ class Posts():
             mr.width AS highlight_width,
             mr.height AS highlight_height,
             -- ADDED FROM OTHER REPO: comment_count
-            (SELECT COUNT(*) FROM comments_posts WHERE post_id = sp.id) AS comment_count
+            (SELECT COUNT(*) FROM comments_posts WHERE post_id = sp.id) AS comment_count,
+            -- ADDED FROM OTHER REPO: like_count
+            (SELECT COUNT(*) FROM likes_posts WHERE post_id = sp.id) AS like_count,
+            -- ADDED FROM OTHER REPO: liked (whether current user liked the post)
+            EXISTS (
+                SELECT l_p.created_at FROM likes_posts l_p
+                WHERE l_p.post_id = sp.id
+                AND l_p.user_id = %s
+            ) AS liked
         FROM scored_posts sp
         JOIN users u ON sp.user_id = u.id
         LEFT JOIN media m ON m.post_id = sp.id
         LEFT JOIN max_ratio_media mr ON mr.post_id = sp.id
         """
         
-        params = [current_user_id, current_user_id, current_user_id, current_user_id]
+        params = [current_user_id, current_user_id, current_user_id, current_user_id, current_user_id]
         
         # add cursor filtering
         if cursor_score is not None and cursor_timestamp is not None:
@@ -186,7 +194,7 @@ class Posts():
         return posts
 
     @classmethod
-    def get_post(cls, post_uuid):
+    def get_post(cls, post_uuid, current_user_id=None):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         sql = """
@@ -230,7 +238,23 @@ class Posts():
             max_ratio.width AS highlight_width,
             max_ratio.height AS highlight_height,
             -- ADDED FROM OTHER REPO: comment_count
-            (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count
+            (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count,
+            -- ADDED FROM OTHER REPO: like_count
+            (SELECT COUNT(*) FROM likes_posts WHERE post_id = posts.id) AS like_count
+        """
+        
+        # Conditionally add liked field if current_user_id is provided
+        if current_user_id is not None:
+            sql += """,
+                -- ADDED FROM OTHER REPO: liked (whether current user liked the post)
+                EXISTS (
+                    SELECT l_p.created_at FROM likes_posts l_p
+                    WHERE l_p.post_id = posts.id
+                    AND l_p.user_id = %s
+                ) AS liked
+            """
+        
+        sql += """
         FROM posts
         JOIN users ON posts.user_id = users.id
         LEFT JOIN media ON media.post_id = posts.id
@@ -241,17 +265,22 @@ class Posts():
         GROUP BY posts.id, users.uuid, users.pfp_url, users.username, 
                  users.display_name, max_ratio.width, max_ratio.height
         """
-        cursor.execute(sql, (post_uuid,))
+        
+        if current_user_id is not None:
+            cursor.execute(sql, (current_user_id, post_uuid))
+        else:
+            cursor.execute(sql, (post_uuid,))
+            
         result = cursor.fetchone()
         cursor.close()
 
         return result
 
     @classmethod
-    def explore(cls, limit, search, cursor_timestamp, plant_type) :
+    def explore(cls, limit, search, cursor_timestamp, plant_type, current_user_id=None):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        sql =   """
+        sql = """
                 WITH max_ratio_media AS (
                     SELECT DISTINCT ON (post_id)
                         post_id,
@@ -292,7 +321,23 @@ class Posts():
                     max_ratio.width AS highlight_width,
                     max_ratio.height AS highlight_height,
                     -- ADDED FROM OTHER REPO: comment_count
-                    (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count
+                    (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count,
+                    -- ADDED FROM OTHER REPO: like_count
+                    (SELECT COUNT(*) FROM likes_posts WHERE post_id = posts.id) AS like_count
+                """
+        
+        # Conditionally add liked field if current_user_id is provided
+        if current_user_id is not None:
+            sql += """,
+                    -- ADDED FROM OTHER REPO: liked (whether current user liked the post)
+                    EXISTS (
+                        SELECT l_p.created_at FROM likes_posts l_p
+                        WHERE l_p.post_id = posts.id
+                        AND l_p.user_id = %s
+                    ) AS liked
+            """
+        
+        sql += """
                 FROM posts
                 JOIN users ON posts.user_id = users.id
                 LEFT JOIN media ON media.post_id = posts.id
@@ -302,35 +347,39 @@ class Posts():
                 LEFT JOIN plant_types pty ON p.plant_type_id = pty.id
                 """
         
-        search = "%" + search + "%"
+        search_like = "%" + search + "%"
         condition = """(posts.caption ILIKE %s OR pty.plant_name ILIKE %s 
                     OR users.username ILIKE %s OR users.display_name ILIKE %s) """
-        condition_params = [search] * 4
+        condition_params = [search_like] * 4
 
-        if plant_type :
+        if plant_type:
             condition += "AND pty.plant_name = %s "
-            condition_params += [plant_type]
+            condition_params.append(plant_type)
 
         # Only include posts with visibility = 'everyone'   
         condition += "AND posts.visibility = 'everyone' "
 
-        if cursor_timestamp :
-            sql +=  f"""
+        params = []
+        if current_user_id is not None:
+            params.append(current_user_id)
+        
+        if cursor_timestamp:
+            sql += f"""
                     WHERE posts.created_at < %s
                     AND {condition}
                     GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
                     ORDER BY posts.created_at DESC
                     LIMIT %s
                     """
-            params = [cursor_timestamp] + condition_params + [limit + 1]
-        else : 
-            sql +=  f"""
+            params = params + [cursor_timestamp] + condition_params + [limit + 1]
+        else: 
+            sql += f"""
                     WHERE {condition}
                     GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height
                     ORDER BY posts.created_at DESC
                     LIMIT %s
                     """
-            params = condition_params + [limit + 1]
+            params = params + condition_params + [limit + 1]
 
         cursor.execute(sql, params)
         posts = cursor.fetchall()
@@ -387,7 +436,15 @@ class Posts():
                 max_ratio.width AS highlight_width,
                 max_ratio.height AS highlight_height,
                 -- ADDED FROM OTHER REPO: comment_count
-                (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count
+                (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count,
+                -- ADDED FROM OTHER REPO: like_count
+                (SELECT COUNT(*) FROM likes_posts WHERE post_id = posts.id) AS like_count,
+                -- ADDED FROM OTHER REPO: liked (whether current user liked the post)
+                EXISTS (
+                    SELECT l_p.created_at FROM likes_posts l_p
+                    WHERE l_p.post_id = posts.id
+                    AND l_p.user_id = %s
+                ) AS liked
             FROM posts
             JOIN users ON posts.user_id = users.id
             LEFT JOIN media ON media.post_id = posts.id
@@ -398,7 +455,7 @@ class Posts():
             WHERE posts.user_id != %s
         """
 
-        params = [current_user_id]
+        params = [current_user_id, current_user_id]
 
         if search:
             search_like = f"%{search}%"
