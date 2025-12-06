@@ -6,6 +6,7 @@ import { useState } from "react";
 import { usePostContext } from "./context/PostContext";
 import { useAuthContext } from "../auth/AuthContext";
 import { addRecentPost } from "@/features/recent/recentService";
+import { InteractionButton } from "@/features/posts/InteractionButtons";
 
 function PostCard() {
     const { post, origin = "/home" } = usePostContext()!;
@@ -79,6 +80,10 @@ function PostCard() {
                         <PostCarousel mediaList={post.media} />
                     </button>
                 )}
+
+                <div>
+                    <InteractionButton post={post} />
+                </div>
             </div>
         </div>
     );
