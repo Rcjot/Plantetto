@@ -44,19 +44,19 @@ def add_comment(post_uuid):
             "entity_uuid" : post_uuid
         })
         author_id_uuid_res = Posts.get_post_author_id_uuid(post_uuid)
+        print(author_id_uuid_res['id'], current_user_id)
+        if (str(author_id_uuid_res['id']) != str(current_user_id)) :
+            actor = current_user.get_json()
+            payload = Notifications.generate_notifications_comments_posts(entity_id=form.post_id,
+                                                        content=form.content.data,
+                                                        actor=actor,
+                                                        entity_uuid=post_uuid,
+                                                        actor_id=current_user_id,
+                                                        user_id=author_id_uuid_res['id']
+                                                        )
 
-        actor = current_user.get_json()
-
-        payload = Notifications.generate_notifications_comments_posts(entity_id=form.post_id,
-                                                    content=form.content.data,
-                                                    actor=actor,
-                                                    entity_uuid=post_uuid,
-                                                    actor_id=current_user_id,
-                                                    user_id=author_id_uuid_res['id']
-                                                    )
-
-        notify_post_author(author_id_uuid_res['uuid'], new_notif_payload=payload)
-      
+            notify_post_author(author_id_uuid_res['uuid'], new_notif_payload=payload)
+        
 
         return jsonify(success=True, comment_uuid=uuid_res["uuid"])
         
