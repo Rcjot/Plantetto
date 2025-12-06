@@ -1,0 +1,26 @@
+DROP TABLE IF EXISTS comments_posts CASCADE;
+DROP TABLE IF EXISTS comments_guides CASCADE;
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE comments_posts (
+    id BIGSERIAL PRIMARY KEY,
+    uuid UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
+    content TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    last_edit_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    post_id BIGINT REFERENCES posts(id) ON DELETE CASCADE,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    parent_id BIGINT NULL REFERENCES comments_posts(id) ON DELETE CASCADE
+);
+
+CREATE TABLE comments_guides (
+    id BIGSERIAL PRIMARY KEY,
+    uuid UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
+    content TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    last_edit_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    guide_id BIGINT REFERENCES guides(id) ON DELETE CASCADE,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    parent_id BIGINT NULL REFERENCES comments_guides(id) ON DELETE CASCADE
+);

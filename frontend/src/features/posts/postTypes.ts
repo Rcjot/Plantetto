@@ -17,6 +17,7 @@ export interface PostType {
     planttags: PlantOptionType[];
     highlight_width: number;
     highlight_height: number;
+    comment_count: number;
 }
 
 export interface PostContextType {

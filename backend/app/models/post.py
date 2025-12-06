@@ -25,6 +25,29 @@ class Posts():
         return id_uuid_res
 
     @classmethod
+    def get_by_uuid(cls, post_uuid):
+        """Get post by UUID (for form validation)."""
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT * FROM posts WHERE uuid = %s"
+
+        cursor.execute(sql, (post_uuid,))
+        result = cursor.fetchone()
+
+        if not result:
+            return None
+
+        return cls(
+            id=result['id'],
+            uuid=result['uuid'],
+            caption=result['caption'],
+            visibility=result['visibility'],
+            created_at=result['created_at'],
+            user_id=result['user_id']
+        )
+
+    @classmethod
     def all(cls, limit, cursor_score, cursor_timestamp, current_user_id):
         """
         Fetch posts with priority buckets and visibility rules:
@@ -128,7 +151,9 @@ class Posts():
                 GROUP BY pt.post_id), '[]'
             ) AS planttags,
             mr.width AS highlight_width,
-            mr.height AS highlight_height
+            mr.height AS highlight_height,
+            -- ADDED FROM OTHER REPO: comment_count
+            (SELECT COUNT(*) FROM comments_posts WHERE post_id = sp.id) AS comment_count
         FROM scored_posts sp
         JOIN users u ON sp.user_id = u.id
         LEFT JOIN media m ON m.post_id = sp.id
@@ -203,7 +228,9 @@ class Posts():
                 ) FILTER (WHERE pt.id IS NOT NULL), '[]'
             ) AS planttags,
             max_ratio.width AS highlight_width,
-            max_ratio.height AS highlight_height
+            max_ratio.height AS highlight_height,
+            -- ADDED FROM OTHER REPO: comment_count
+            (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count
         FROM posts
         JOIN users ON posts.user_id = users.id
         LEFT JOIN media ON media.post_id = posts.id
@@ -263,7 +290,9 @@ class Posts():
                         ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                     ) AS planttags,
                     max_ratio.width AS highlight_width,
-                    max_ratio.height AS highlight_height
+                    max_ratio.height AS highlight_height,
+                    -- ADDED FROM OTHER REPO: comment_count
+                    (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count
                 FROM posts
                 JOIN users ON posts.user_id = users.id
                 LEFT JOIN media ON media.post_id = posts.id
@@ -356,7 +385,9 @@ class Posts():
                     ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                 ) AS planttags,
                 max_ratio.width AS highlight_width,
-                max_ratio.height AS highlight_height
+                max_ratio.height AS highlight_height,
+                -- ADDED FROM OTHER REPO: comment_count
+                (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count
             FROM posts
             JOIN users ON posts.user_id = users.id
             LEFT JOIN media ON media.post_id = posts.id
@@ -399,8 +430,6 @@ class Posts():
 
         return posts
 
-    
-    
     @classmethod
     def delete(cls, post_uuid, current_user_id):
         db = get_db()
