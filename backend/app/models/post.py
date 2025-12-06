@@ -431,6 +431,20 @@ class Posts():
         return posts
 
     @classmethod
+    def get_post_author_id_uuid(cls, post_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "SELECT users.id, users.uuid FROM posts JOIN users ON posts.user_id = users.id WHERE posts.uuid = %s "
+        cursor.execute(sql, (post_uuid,))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None:
+            return None
+        return result
+
+    @classmethod
     def delete(cls, post_uuid, current_user_id):
         db = get_db()
         cursor = db.cursor()

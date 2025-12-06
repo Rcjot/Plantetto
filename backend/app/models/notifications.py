@@ -77,6 +77,8 @@ class Notifications() :
             x = "guides"
         elif notif_type == "diary" : 
             x = "diaries"
+        elif notif_type == "comment_post" :
+            x = "posts"
 
         sql = f"""
                 SELECT * 
@@ -274,3 +276,36 @@ class Notifications() :
         cursor.close()
 
         return payload
+    
+    @classmethod
+    def generate_notifications_comments_posts(cls, entity_id, content, actor, entity_uuid, user_id,  actor_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+
+        payload = {
+            "content": content,
+            "actor" : actor,
+            "entity_uuid" : entity_uuid
+        }
+
+        sql = """
+        INSERT INTO notifications
+        (notification_type, entity_id, payload, user_id, actor_id)
+        SELECT 
+        'comment_post',
+        %s,
+        %s,
+        %s,
+        %s
+        RETURNING payload
+        """
+
+        cursor.execute(sql, (entity_id, psycopg2.extras.Json(payload), user_id, actor_id))
+
+        payload = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+        return payload
+    
