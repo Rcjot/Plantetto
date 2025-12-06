@@ -30,12 +30,13 @@ class CommentsGuides() :
 
         return uuid_res
     
-    def all(guide_uuid, parent_uuid) :
+    def all(guide_uuid, parent_uuid, current_user_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         sql = """
         SELECT
+        current.id,
         current.uuid AS uuid,
         current.content AS content,
         current.created_at AS created_at,
@@ -66,7 +67,15 @@ class CommentsGuides() :
                     )
                 )
             ) FILTER (WHERE child.uuid IS NOT NULL) , '[]'
-        ) AS children
+        ) AS children,
+        (SELECT COUNT(*) FROM likes_comments_guides 
+        WHERE likes_comments_guides.comment_guide_id = current.id
+        ) AS like_count,
+        EXISTS (
+            SELECT l_cg.created_at FROM likes_comments_guides l_cg
+            WHERE l_cg.comment_guide_id = current.id
+            AND l_cg.user_id  = %s
+        )  AS liked
         FROM comments_guides AS current
         JOIN users AS current_author 
             ON current.user_id = current_author.id
@@ -80,11 +89,10 @@ class CommentsGuides() :
             ON current.guide_id = guide.id
         WHERE guide.uuid = %s  
         AND parent.uuid IS %s
-        GROUP BY current.uuid, current.content, current.created_at, current.last_edit_date,
+        GROUP BY current.uuid, current.content, current.created_at, current.last_edit_date, current.id,
          current_author.uuid, current_author.username, current_author.display_name, current_author.pfp_url
-         ORDER BY current.created_at DESC
         """
-        cursor.execute(sql, (guide_uuid, parent_uuid))
+        cursor.execute(sql, (current_user_id, guide_uuid, parent_uuid))
 
         result = cursor.fetchall()
         cursor.close()

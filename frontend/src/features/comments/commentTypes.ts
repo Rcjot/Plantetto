@@ -12,6 +12,8 @@ export interface CommentType {
     last_edit_date: string | null;
     author: CommentAuthor;
     parent_uuid?: string | null;
+    like_count: number;
+    liked: boolean;
 }
 
 export interface ApiCommentType {

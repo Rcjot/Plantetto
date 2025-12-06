@@ -13,4 +13,6 @@ export interface GuideType {
     author: UserType;
     thumbnail: string | null;
     comment_count: number;
+    like_count: number;
+    liked: boolean;
 }

@@ -24,41 +24,39 @@ export function GuideCommentSection({ guideUuid }: GuideCommentSectionProps) {
             const result =
                 await commentsGuidesApi.getCommentsUnderGuide(guideUuid);
 
-            console.log("API Result:", result);
-
             if (result.ok) {
                 // Check if result.comments exists
-                const apiComments = result.comments || [];
-                console.log("API Comments:", apiComments);
+                // const apiComments = result.comments || [];
+                // console.log("API Comments:", apiComments);
 
                 // Transform API response to CommentType
-                const transformedComments: CommentType[] = apiComments.map(
-                    (comment: any) => ({
-                        uuid: comment.uuid,
-                        content: comment.content,
-                        created_at: comment.created_at,
-                        last_edit_date: comment.last_edit_date,
-                        author: {
-                            id: comment.author.id,
-                            username: comment.author.username,
-                            display_name:
-                                comment.author.display_name ||
-                                comment.author.username,
-                            pfp_url: comment.author.pfp_url,
-                        },
-                        parent_uuid: comment.parent_uuid,
-                    })
-                );
+                // const transformedComments: CommentType[] = apiComments.map(
+                //     (comment: any) => ({
+                //         uuid: comment.uuid,
+                //         content: comment.content,
+                //         created_at: comment.created_at,
+                //         last_edit_date: comment.last_edit_date,
+                //         author: {
+                //             id: comment.author.id,
+                //             username: comment.author.username,
+                //             display_name:
+                //                 comment.author.display_name ||
+                //                 comment.author.username,
+                //             pfp_url: comment.author.pfp_url,
+                //         },
+                //         parent_uuid: comment.parent_uuid,
+                //     })
+                // );
 
-                console.log("Transformed Comments:", transformedComments);
+                // console.log("Transformed Comments:", transformedComments);
 
                 // Filter to show only top-level comments (no parent)
-                const topLevelComments = transformedComments.filter(
-                    (comment) => !comment.parent_uuid
-                );
+                // const topLevelComments = transformedComments.filter(
+                //     (comment) => !comment.parent_uuid
+                // );
 
-                console.log("Top Level Comments:", topLevelComments);
-                setComments(topLevelComments);
+                // console.log("Top Level Comments:", topLevelComments);
+                setComments(result.comments);
             } else {
                 console.error("API returned not ok:", result);
                 setError("Failed to load comments");
@@ -68,7 +66,6 @@ export function GuideCommentSection({ guideUuid }: GuideCommentSectionProps) {
             setError("An error occurred while loading comments");
         } finally {
             setIsLoading(false);
-            console.log("Loading complete, comments:", comments.length);
         }
     };
 
@@ -132,10 +129,10 @@ export function GuideCommentSection({ guideUuid }: GuideCommentSectionProps) {
     }
 
     return (
-        <div className="flex flex-col gap-2 p-4 content-center">
-            <div className="flex flex-row items-center">
+        <div className="flex flex-col gap-2 p-4">
+            <div className="flex flex-row">
                 <p className="text-2xl font-semibold">Comments</p>
-                <span className="bg-gray-100 px-2 rounded-full text-2xl font-medium text-primary">
+                <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
                     {comments.length}
                 </span>
             </div>

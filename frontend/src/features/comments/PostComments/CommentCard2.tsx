@@ -1,10 +1,10 @@
 // features/comments/CommentCard.tsx
-import { useState, useRef } from "react";
-import { Ellipsis, Trash2, Pencil, X, Check } from "lucide-react";
-import { Link } from "react-router-dom"; // ADD THIS IMPORT
+import { useState, useRef } from "react"; // ADD useRef import
+import { Ellipsis, Trash2, Pencil, X, Check, ThumbsUp } from "lucide-react";
 import type { CommentType } from "../commentTypes";
 import type { UserType } from "@/features/auth/authTypes";
 import defaultpfp from "@/assets/defaultpfp.png";
+import likesApi from "@/api/likesApi";
 
 interface CommentCardProps {
     comment: CommentType;
@@ -24,8 +24,12 @@ export function CommentCard2({
     const [editContent, setEditContent] = useState(comment.content);
     const [showMenu, setShowMenu] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false); // ADD: Loading state for delete
 
+    const [isLiked, setIsLiked] = useState(comment.liked);
+    const [likeCount, setLikeCount] = useState(comment.like_count);
+
+    // ADD: Reference to the modal for DaisyUI
     const deleteModalRef = useRef<HTMLDialogElement>(null);
 
     const isOwner = currentUser?.id === comment.author.id;
@@ -64,46 +68,48 @@ export function CommentCard2({
         deleteModalRef.current?.close(); // Close modal after deletion
     };
 
+    async function toggleLikeComment() {
+        const { ok, action } = await likesApi.toggleLikeCommentPost(
+            comment.uuid
+        );
+        if (ok) {
+            setIsLiked(action === "like");
+            setLikeCount((prev) => {
+                if (action === "like") {
+                    return prev + 1;
+                } else {
+                    return prev - 1;
+                }
+            });
+        }
+    }
+
     return (
         <div className="flex justify-center w-full">
             <div className="flex flex-col w-full">
                 {/* Header Section */}
                 <div className="flex flex-row gap-2 items-center relative">
-                    {/* Avatar - Make it clickable */}
-                    <Link
-                        to={`/${comment.author.username}`}
-                        className="h-fit w-fit"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="avatar w-8 h-8 rounded-full overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80">
-                            <img
-                                src={comment.author.pfp_url || defaultpfp}
-                                onError={(e) =>
-                                    (e.currentTarget.src = defaultpfp)
-                                }
-                                className="object-cover w-full h-full"
-                                alt="avatar"
-                            />
-                        </div>
-                    </Link>
+                    {/* Avatar */}
+                    <div className="avatar w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <img
+                            src={comment.author.pfp_url || defaultpfp}
+                            onError={(e) => (e.currentTarget.src = defaultpfp)}
+                            className="object-cover w-full h-full"
+                            alt="avatar"
+                        />
+                    </div>
 
-                    {/* Username & Date - FIXED SECTION */}
+                    {/* Username & Date */}
                     <div className="flex-grow">
-                        <div className="flex items-center gap-1">
-                            <Link
-                                to={`/${comment.author.username}`}
-                                className="font-semibold text-sm hover:underline cursor-pointer"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                {comment.author.display_name ||
-                                    comment.author.username}
-                            </Link>
-                            <span className="text-xs text-gray-500">
-                                • {formattedDate}
-                                {comment.last_edit_date != comment.created_at &&
-                                    " (edited)"}
-                            </span>
-                        </div>
+                        <span className="font-semibold text-sm mr-2">
+                            {comment.author.display_name ??
+                                comment.author.username}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                            • {formattedDate}
+                            {comment.last_edit_date != comment.created_at &&
+                                " (edited)"}
+                        </span>
                     </div>
 
                     {/* Action Menu (Ellipsis) - Only show if Owner */}
@@ -128,6 +134,7 @@ export function CommentCard2({
                                     >
                                         <Pencil className="h-3 w-3" /> Edit
                                     </button>
+                                    {/* UPDATE: Use openDeleteModal instead of window.confirm */}
                                     <button
                                         onClick={openDeleteModal}
                                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
@@ -170,8 +177,28 @@ export function CommentCard2({
                             </div>
                         </div>
                     ) : (
-                        <div className="text-stone-700 text-sm whitespace-pre-wrap break-words">
-                            {comment.content}
+                        <div className="flex flex-col justify-between ">
+                            <div className="text-stone-700 text-sm whitespace-pre-wrap break-words">
+                                {comment.content}
+                            </div>
+                            <div className="flex flex-row items-center">
+                                <button
+                                    className="btn btn-circle bg-none border-none hover:bg-transparent hover:shadow-none"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleLikeComment();
+                                    }}
+                                >
+                                    <ThumbsUp
+                                        className={`hover:scale-115  hover:text-neutral transition-colors ${isLiked && "fill-success"} `}
+                                    />
+                                </button>
+                                <div className="min-w-[20px] text-center">
+                                    <span className="text-sm font-medium text-gray-500">
+                                        {likeCount}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

@@ -82,6 +82,12 @@ def create_app() :
     from .features.comment_guide import comment_guide_bp
     app.register_blueprint(comment_guide_bp, url_prefix="/api/guides/<uuid:guide_uuid>/comments")
 
+    from .features.like import like_post_bp, like_guide_bp, like_comment_post_bp, like_comment_guide_bp
+    app.register_blueprint(like_post_bp, url_prefix="/api/posts/<uuid:post_uuid>/likes")
+    app.register_blueprint(like_guide_bp, url_prefix="/api/guides/<uuid:guide_uuid>/likes")
+    app.register_blueprint(like_comment_post_bp, url_prefix="/api/posts/comments/<uuid:comment_uuid>/likes")
+    app.register_blueprint(like_comment_guide_bp, url_prefix="/api/guides/comments/<uuid:comment_uuid>/likes")
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
         print(e.description)

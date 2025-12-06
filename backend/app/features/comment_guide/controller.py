@@ -14,7 +14,9 @@ def get_comments(guide_uuid):  # ADD guide_uuid parameter
     parent_uuid = request.args.get("parent_uuid", default=None, type=str)
     guide_uuid = str(guide_uuid)
 
-    comments = CommentsGuides.all(guide_uuid, parent_uuid)
+    current_user_id = current_user.get_id()
+
+    comments = CommentsGuides.all(guide_uuid, parent_uuid, current_user_id)
 
     return jsonify(success=True, comments=comments)
 
