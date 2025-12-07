@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { EntityPayloadType, NotificationType } from "../notificationTypes";
+import type {
+    EntityPayloadType,
+    LikePayloadType,
+    NotificationType,
+} from "../notificationTypes";
 import notificationsApi from "@/api/notificationsApi";
 import socket from "@/lib/socket";
 import { toast } from "react-toastify";
@@ -62,7 +66,7 @@ function useNotification() {
             console.log(newNotif, "newnotif");
             const notifType = newNotif["notif_type"];
 
-            if (notifType == "follow" || notifType == "like") {
+            if (notifType == "follow" || notifType == "like_post") {
                 const notification: NotificationType = newNotif[
                     "payload"
                 ] as NotificationType;
@@ -73,7 +77,13 @@ function useNotification() {
                         markNotificationRead(notification.id);
                         if (notifType == "follow") {
                             navigate(`/${notification.payload.actor.username}`);
-                        } //put else if here for like and comments
+                        } else if (notifType == "like_post") {
+                            const payload =
+                                notification.payload as LikePayloadType;
+                            navigate(
+                                `/home/${notification.payload.actor.username}/${payload.entity_uuid}`
+                            );
+                        }
                     },
                 });
             } else {

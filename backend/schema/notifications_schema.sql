@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS notifications CASCADE;
 CREATE TABLE notifications (
     id BIGSERIAL PRIMARY KEY,
     notification_type VARCHAR(30) 
-        CHECK (notification_type IN ('post', 'message', 'follow', 'guide', 'diary', 'comment_post', 'comment_guide', 'like_post', 'like_guide')),
+        CHECK (notification_type IN ('post', 'message', 'follow', 'guide', 'diary', 'comment_post', 'comment_guide', 'like_post', 'like_guide', 'like_comment_post', 'like_comment_guide')),
     is_read BOOLEAN DEFAULT FALSE,
     payload JSONB NULL,
     entity_id BIGINT NULL,
@@ -19,7 +19,7 @@ WHERE notification_type = 'follow';
 
 CREATE UNIQUE INDEX uniq_like
 ON notifications (user_id, actor_id, entity_id, notification_type)
-WHERE notification_type = 'like';
+WHERE notification_type IN ('like_post', 'like_guide','like_comment_post','like_comment_guide');
 
 
 -- post redirect link : post link

@@ -2,7 +2,7 @@ from ..database import get_db
 import psycopg2.extras
 
 class Notifications() :
-    def __init__(self, id=None, notification_type=None, is_read=None, payload=None, user_id=None, actor_id=None, created_at=None) :
+    def __init__(self, id=None, notification_type=None, is_read=None, payload=None, user_id=None, actor_id=None, created_at=None, entity_id=None) :
         self.id=id
         self.notification_type=notification_type
         self.is_read=is_read
@@ -10,6 +10,7 @@ class Notifications() :
         self.user_id=user_id
         self.actor_id=actor_id
         self.created_at=created_at
+        self.entity_id=entity_id
 
     @classmethod    
     def get_notification(cls, notif_id) :
@@ -276,6 +277,44 @@ class Notifications() :
 
         return payload
     
+    def add_likes_notif(self) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+
+        sql = """
+        INSERT INTO notifications
+        (notification_type, payload, user_id, actor_id, entity_id)
+        VALUES(%s, %s, %s, %s, %s)
+        ON CONFLICT DO NOTHING
+        RETURNING id, notification_type, is_read, payload, user_id, created_at
+        """
+        cursor.execute(sql, (self.notification_type, self.payload, self.user_id, self.actor_id, self.entity_id))
+
+        id_res = cursor.fetchone()
+        
+        if id_res is None :
+            # upsert duplicate notifications for follows
+            sql = """
+            UPDATE notifications
+            SET created_at = NOW(),
+            is_read = FALSE
+            WHERE 
+            notification_type = %s
+            AND user_id = %s
+            AND actor_id = %s
+            AND entity_id = %s
+            
+            RETURNING id, notification_type, is_read, payload, user_id, created_at
+            """
+            cursor.execute(sql, (self.notification_type, self.user_id, self.actor_id, self.entity_id))
+
+            id_res = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+    
+        return id_res
+
     def add(self):
         # for types with no content,
             # likes and follows

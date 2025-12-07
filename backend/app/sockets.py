@@ -207,6 +207,8 @@ def notify_guide_author(author_uuid, new_notif_payload) :
     new_notif_payload['notif_type'] = "comment_guide"
     socketio.emit(f"notify", new_notif_payload, to=f"{author_uuid}" )
     
+def notify_like(author_uuid, new_like_payload) :
+    socketio.emit(f"notify", new_like_payload, to=f"{author_uuid}" )
 
 
     

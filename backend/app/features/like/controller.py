@@ -6,7 +6,9 @@ from ...models.post import Posts
 from ...models.guide import Guides
 from ...models.comments_guides import CommentsGuides
 from ...models.comments_posts import CommentsPosts
-
+from ...models.notifications import Notifications
+from ...sockets import notify_like
+import json
 
 @like_post_bp.route("/", methods=["POST"])
 @login_required
@@ -20,6 +22,30 @@ def toggle_like_post(post_uuid) :
         current_user_id = current_user.get_id()
 
         message = Likes.toggle_like_post(current_user_id, post_id)
+
+        if (message=="like") :
+            #generate notification
+            payload = json.dumps({
+                "actor" : current_user.get_json(),
+                "entity_uuid" : post_uuid
+            })
+
+            author_id_uuid_res = Posts.get_post_author_id_uuid(post_uuid)
+
+            new_notif = Notifications(user_id=author_id_uuid_res['id'],
+                                    actor_id=current_user_id,
+                                    notification_type="like_post", 
+                                    payload=payload, 
+                                    entity_id=post_id)
+            new_like_payload = new_notif.add_likes_notif()
+            new_like_payload['created_at'] = new_like_payload['created_at'].isoformat()
+
+            new_notif_payload = {
+                "payload" : new_like_payload,
+                "notif_type" : "like_post"
+            }
+
+            notify_like(author_id_uuid_res['uuid'], new_notif_payload)
 
         return jsonify(success=True, message=f"successfully {message} post", action=message)
     else :

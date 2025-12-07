@@ -63,7 +63,13 @@ function NotificationBlock({
                 <div
                     className="flex gap-3 cursor-pointer"
                     onClick={() => {
-                        navigate(`/${actor.username}`);
+                        if (notification_type == "like_post") {
+                            navigate(
+                                `/home/${payload.actor.username}/${payload.entity_uuid}`
+                            );
+                        } else if (notification_type == "like_guide") {
+                            navigate(`/guides/${payload.entity_uuid}`);
+                        }
                         markNotificationRead(notification.id);
                     }}
                 >
