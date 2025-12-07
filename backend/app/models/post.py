@@ -46,6 +46,21 @@ class Posts():
             created_at=result['created_at'],
             user_id=result['user_id']
         )
+    
+    @classmethod
+    def get_by_id(cls, post_id):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT * FROM posts WHERE id = %s"
+
+        cursor.execute(sql, (post_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            return None
+
+        return result
 
     @classmethod
     def all(cls, limit, cursor_score, cursor_timestamp, current_user_id):

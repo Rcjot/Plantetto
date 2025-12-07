@@ -104,10 +104,39 @@ def toggle_like_comment_post(comment_uuid) :
     comment_res = CommentsPosts.get_by_uuid(comment_uuid)
     if comment_res :
         comment_id = comment_res.id
+        
 
         current_user_id = current_user.get_id()
 
         message = Likes.toggle_like_comment_posts(current_user_id, comment_id)
+
+
+        author_post_id_uuid_res = CommentsPosts.get_comment_author_post_id_uuid(comment_uuid)
+
+        if (message=="like" and str(current_user_id) != str(author_post_id_uuid_res['user_id'])) :
+            #generate notification
+            payload = json.dumps({
+                "actor" : current_user.get_json(),
+                "entity_uuid" : author_post_id_uuid_res['post_uuid']
+            })
+
+
+            new_notif = Notifications(user_id=author_post_id_uuid_res['user_id'],
+                                    actor_id=current_user_id,
+                                    notification_type="like_comment_post", 
+                                    payload=payload, 
+                                    entity_id=author_post_id_uuid_res['post_id'])
+            new_like_payload = new_notif.add_likes_notif()
+            new_like_payload['created_at'] = new_like_payload['created_at'].isoformat()
+
+            new_notif_payload = {
+                "payload" : new_like_payload,
+                "notif_type" : "like_comment_post"
+            }
+
+            notify_like(author_post_id_uuid_res['user_uuid'], new_notif_payload)
+
+
 
         return jsonify(success=True, message=f"successfully {message} comment", action=message)
     else :

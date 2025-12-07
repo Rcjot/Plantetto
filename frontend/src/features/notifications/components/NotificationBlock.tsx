@@ -54,7 +54,9 @@ function NotificationBlock({
         );
     } else if (
         notification_type == "like_post" ||
-        notification_type == "like_guide"
+        notification_type == "like_guide" ||
+        notification_type == "like_comment_post" ||
+        notification_type == "like_comment_guide"
     ) {
         const payload = notification.payload as LikePayloadType;
         const actor = payload.actor;
@@ -63,11 +65,17 @@ function NotificationBlock({
                 <div
                     className="flex gap-3 cursor-pointer"
                     onClick={() => {
-                        if (notification_type == "like_post") {
+                        if (
+                            notification_type == "like_post" ||
+                            notification_type == "like_comment_post"
+                        ) {
                             navigate(
                                 `/home/${payload.actor.username}/${payload.entity_uuid}`
                             );
-                        } else if (notification_type == "like_guide") {
+                        } else if (
+                            notification_type == "like_guide" ||
+                            notification_type == "like_comment_guide"
+                        ) {
                             navigate(`/guides/${payload.entity_uuid}`);
                         }
                         markNotificationRead(notification.id);
