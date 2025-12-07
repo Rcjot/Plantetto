@@ -155,6 +155,33 @@ def toggle_like_comment_guide(comment_uuid) :
         current_user_id = current_user.get_id()
 
         message = Likes.toggle_like_comment_guides(current_user_id, comment_id)
+        author_guide_id_uuid_res = CommentsGuides.get_comment_author_guide_id_uuid(comment_uuid)
+
+        if (message=="like" and str(current_user_id) != str(author_guide_id_uuid_res['user_id'])) :
+            #generate notification
+            payload = json.dumps({
+                "actor" : current_user.get_json(),
+                "entity_uuid" : author_guide_id_uuid_res['guide_uuid']
+            })
+
+
+            new_notif = Notifications(user_id=author_guide_id_uuid_res['user_id'],
+                                    actor_id=current_user_id,
+                                    notification_type="like_comment_guide", 
+                                    payload=payload, 
+                                    entity_id=author_guide_id_uuid_res['guide_id'])
+            new_like_payload = new_notif.add_likes_notif()
+            new_like_payload['created_at'] = new_like_payload['created_at'].isoformat()
+
+            new_notif_payload = {
+                "payload" : new_like_payload,
+                "notif_type" : "like_comment_guide"
+            }
+
+            notify_like(author_guide_id_uuid_res['user_uuid'], new_notif_payload)
+
+
+
 
         return jsonify(success=True, message=f"successfully {message} comment", action=message)
     else :
