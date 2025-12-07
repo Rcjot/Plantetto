@@ -98,7 +98,10 @@ function useNotification() {
                                 navigate(
                                     `/home/${notificationRes.payload.actor.username}/${payload.entity_uuid}`
                                 );
-                            } else if (notifType == "guide") {
+                            } else if (
+                                notifType == "guide" ||
+                                notifType == "comment_guide"
+                            ) {
                                 navigate(`/guides/${payload.entity_uuid}`);
                             } else if (notifType == "comment_post") {
                                 navigate(

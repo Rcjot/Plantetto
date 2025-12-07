@@ -202,6 +202,10 @@ def notify_followers_of_diary(author_uuid, new_diary_payload) :
 def notify_post_author(author_uuid, new_notif_payload) :
     new_notif_payload['notif_type'] = "comment_post"
     socketio.emit(f"notify", new_notif_payload, to=f"{author_uuid}" )
+
+def notify_guide_author(author_uuid, new_notif_payload) :
+    new_notif_payload['notif_type'] = "comment_guide"
+    socketio.emit(f"notify", new_notif_payload, to=f"{author_uuid}" )
     
 
 

@@ -384,3 +384,17 @@ class Guides() :
             id=result['id'],
             uuid=result['uuid'],
         )
+
+    @classmethod
+    def get_guide_author_id_uuid(cls, guide_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "SELECT users.id, users.uuid FROM guides JOIN users ON guides.user_id = users.id WHERE guides.uuid = %s "
+        cursor.execute(sql, (guide_uuid,))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None:
+            return None
+        return result

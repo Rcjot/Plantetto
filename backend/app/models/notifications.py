@@ -11,42 +11,6 @@ class Notifications() :
         self.actor_id=actor_id
         self.created_at=created_at
 
-    def add(self):
-        db = get_db()
-        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
-
-        sql = """
-        INSERT INTO notifications
-        (notification_type, payload, user_id, actor_id)
-        VALUES(%s, %s, %s, %s)
-        ON CONFLICT DO NOTHING
-        RETURNING id, notification_type, is_read, payload, user_id, created_at
-        """
-        cursor.execute(sql, (self.notification_type, self.payload, self.user_id, self.actor_id))
-
-        id_res = cursor.fetchone()
-        
-        if id_res is None :
-            # upsert duplicate notifications for follows
-            sql = """
-            UPDATE notifications
-            SET created_at = NOW(),
-            is_read = FALSE
-            WHERE 
-            notification_type = %s
-            AND user_id = %s
-            AND actor_id = %s
-            RETURNING id, notification_type, is_read, payload, user_id, created_at
-            """
-            cursor.execute(sql, (self.notification_type, self.user_id, self.actor_id))
-
-            id_res = cursor.fetchone()
-
-        db.commit()
-        cursor.close()
-    
-        return id_res
-
     @classmethod    
     def get_notification(cls, notif_id) :
         db = get_db()
@@ -71,14 +35,14 @@ class Notifications() :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
 
-        if notif_type == "post" :
+        if notif_type == "post" or notif_type == "comment_post" :
             x = "posts"
-        elif notif_type == "guide" :
+        elif notif_type == "guide" or notif_type == "comment_guide" :
             x = "guides"
         elif notif_type == "diary" : 
             x = "diaries"
-        elif notif_type == "comment_post" :
-            x = "posts"
+
+
 
         sql = f"""
                 SELECT * 
@@ -90,6 +54,7 @@ class Notifications() :
                 """
 
         cursor.execute(sql, (current_user_id, entity_uuid, notif_type, ) )
+        print(sql, current_user_id, entity_uuid, notif_type)
 
         result = cursor.fetchone()
 
@@ -278,7 +243,9 @@ class Notifications() :
         return payload
     
     @classmethod
-    def generate_notifications_comments_posts(cls, entity_id, content, actor, entity_uuid, user_id,  actor_id) :
+    def generate_notification_comment(cls, entity_id, content, actor, entity_uuid, user_id,  actor_id, notification_type) :
+        # function used for notifications like
+            # comments
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
 
@@ -292,7 +259,7 @@ class Notifications() :
         INSERT INTO notifications
         (notification_type, entity_id, payload, user_id, actor_id)
         SELECT 
-        'comment_post',
+        %s,
         %s,
         %s,
         %s,
@@ -300,7 +267,7 @@ class Notifications() :
         RETURNING payload
         """
 
-        cursor.execute(sql, (entity_id, psycopg2.extras.Json(payload), user_id, actor_id))
+        cursor.execute(sql, (notification_type, entity_id, psycopg2.extras.Json(payload), user_id, actor_id))
 
         payload = cursor.fetchone()
 
@@ -308,4 +275,42 @@ class Notifications() :
         cursor.close()
 
         return payload
+    
+    def add(self):
+        # for types with no content,
+            # likes and follows
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+
+        sql = """
+        INSERT INTO notifications
+        (notification_type, payload, user_id, actor_id)
+        VALUES(%s, %s, %s, %s)
+        ON CONFLICT DO NOTHING
+        RETURNING id, notification_type, is_read, payload, user_id, created_at
+        """
+        cursor.execute(sql, (self.notification_type, self.payload, self.user_id, self.actor_id))
+
+        id_res = cursor.fetchone()
+        
+        if id_res is None :
+            # upsert duplicate notifications for follows
+            sql = """
+            UPDATE notifications
+            SET created_at = NOW(),
+            is_read = FALSE
+            WHERE 
+            notification_type = %s
+            AND user_id = %s
+            AND actor_id = %s
+            RETURNING id, notification_type, is_read, payload, user_id, created_at
+            """
+            cursor.execute(sql, (self.notification_type, self.user_id, self.actor_id))
+
+            id_res = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+    
+        return id_res
     

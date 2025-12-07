@@ -93,7 +93,8 @@ function NotificationBlock({
         notification_type == "post" ||
         notification_type == "guide" ||
         notification_type == "diary" ||
-        notification_type == "comment_post"
+        notification_type == "comment_post" ||
+        notification_type == "comment_guide"
     ) {
         const payload = notification.payload as EntityPayloadType;
         const actor = payload.actor;
@@ -106,7 +107,10 @@ function NotificationBlock({
                             navigate(
                                 `/home/${actor.username}/${payload.entity_uuid}`
                             );
-                        } else if (notification_type == "guide") {
+                        } else if (
+                            notification_type == "guide" ||
+                            notification_type == "comment_guide"
+                        ) {
                             navigate(`/guides/${payload.entity_uuid}`);
                         } else if (notification_type == "comment_post") {
                             navigate(
@@ -130,7 +134,9 @@ function NotificationBlock({
                                   ? "has sprouted a new post"
                                   : notification_type === "diary"
                                     ? "added a new diary entry"
-                                    : "commented on your post"}
+                                    : notification_type === "comment_post"
+                                      ? "commented on your post"
+                                      : "commented on your guide"}
                         </p>
                     </div>
                     <div className="ml-auto">
