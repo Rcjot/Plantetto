@@ -13,7 +13,9 @@ def get_comments(post_uuid):
     parent_uuid = request.args.get("parent_uuid", default=None, type=str)
     post_uuid = str(post_uuid)
 
-    comments = CommentsPosts.all(post_uuid, parent_uuid)
+    current_user_id = current_user.get_id()
+
+    comments = CommentsPosts.all(post_uuid, parent_uuid, current_user_id)
 
 
     return jsonify(success=True, comments=comments)

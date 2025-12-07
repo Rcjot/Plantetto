@@ -20,7 +20,9 @@ def get_published_guides() :
 
     offset = (page - 1) * limit
 
-    result = Guides.get_published_guides(search, plant_type_id, limit, offset)
+    current_user_id = current_user.get_id()
+
+    result = Guides.get_published_guides(search, plant_type_id, limit, offset, current_user_id)
     guides = result["guides"]
     total_count = result["meta_data"]["total_count"]
     result_count = result["meta_data"]["result_count"]
