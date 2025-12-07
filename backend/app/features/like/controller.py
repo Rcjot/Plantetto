@@ -23,14 +23,15 @@ def toggle_like_post(post_uuid) :
 
         message = Likes.toggle_like_post(current_user_id, post_id)
 
-        if (message=="like") :
+        author_id_uuid_res = Posts.get_post_author_id_uuid(post_uuid)
+
+        if (message=="like" and str(current_user_id) != str(author_id_uuid_res['id'])) :
             #generate notification
             payload = json.dumps({
                 "actor" : current_user.get_json(),
                 "entity_uuid" : post_uuid
             })
 
-            author_id_uuid_res = Posts.get_post_author_id_uuid(post_uuid)
 
             new_notif = Notifications(user_id=author_id_uuid_res['id'],
                                     actor_id=current_user_id,
@@ -63,6 +64,32 @@ def toggle_like_guide(guide_uuid) :
         current_user_id = current_user.get_id()
 
         message = Likes.toggle_like_guide(current_user_id, guide_id)
+
+        author_id_uuid_res = Guides.get_guide_author_id_uuid(guide_uuid)
+
+        if (message=="like" and str(current_user_id) != str(author_id_uuid_res['id'])) :
+            #generate notification
+            payload = json.dumps({
+                "actor" : current_user.get_json(),
+                "entity_uuid" : guide_uuid
+            })
+
+
+            new_notif = Notifications(user_id=author_id_uuid_res['id'],
+                                    actor_id=current_user_id,
+                                    notification_type="like_guide", 
+                                    payload=payload, 
+                                    entity_id=guide_id)
+            new_like_payload = new_notif.add_likes_notif()
+            new_like_payload['created_at'] = new_like_payload['created_at'].isoformat()
+
+            new_notif_payload = {
+                "payload" : new_like_payload,
+                "notif_type" : "like_guide"
+            }
+
+            notify_like(author_id_uuid_res['uuid'], new_notif_payload)
+
 
         return jsonify(success=True, message=f"successfully {message} guide", action=message)
     else :

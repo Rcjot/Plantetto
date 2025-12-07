@@ -66,7 +66,13 @@ function useNotification() {
             console.log(newNotif, "newnotif");
             const notifType = newNotif["notif_type"];
 
-            if (notifType == "follow" || notifType == "like_post") {
+            if (
+                notifType == "follow" ||
+                notifType == "like_post" ||
+                notifType == "like_guide" ||
+                notifType == "like_comment_post" ||
+                notifType == "like_comment_guide"
+            ) {
                 const notification: NotificationType = newNotif[
                     "payload"
                 ] as NotificationType;
@@ -77,12 +83,22 @@ function useNotification() {
                         markNotificationRead(notification.id);
                         if (notifType == "follow") {
                             navigate(`/${notification.payload.actor.username}`);
-                        } else if (notifType == "like_post") {
+                        } else if (
+                            notifType == "like_post" ||
+                            notifType == "like_comment_post"
+                        ) {
                             const payload =
                                 notification.payload as LikePayloadType;
                             navigate(
                                 `/home/${notification.payload.actor.username}/${payload.entity_uuid}`
                             );
+                        } else if (
+                            notifType == "like_guide" ||
+                            notifType == "like_comment_guide"
+                        ) {
+                            const payload =
+                                notification.payload as LikePayloadType;
+                            navigate(`/guides/${payload.entity_uuid}`);
                         }
                     },
                 });

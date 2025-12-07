@@ -40,7 +40,9 @@ function NotifToast({ notification }: NotificationBlockProps) {
         );
     } else if (
         notification_type == "like_post" ||
-        notification_type == "like_guide"
+        notification_type == "like_guide" ||
+        notification_type == "like_comment_post" ||
+        notification_type == "like_comment_guide"
     ) {
         const payload = notification.payload as LikePayloadType;
         const actor = payload.actor;
@@ -56,7 +58,9 @@ function NotifToast({ notification }: NotificationBlockProps) {
                             has liked your{" "}
                             {notification_type === "like_guide"
                                 ? "guide"
-                                : "post"}
+                                : notification_type === "like_post"
+                                  ? "post"
+                                  : "comment"}
                         </p>
                     </div>
                     <div className="ml-auto text-xs">

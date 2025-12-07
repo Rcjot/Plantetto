@@ -43,7 +43,8 @@ class Notifications() :
         elif notif_type == "diary" : 
             x = "diaries"
 
-
+        # likes and follows notifs are not here, because they are passed directly when notifying.
+    
 
         sql = f"""
                 SELECT * 
