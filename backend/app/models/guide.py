@@ -271,7 +271,7 @@ class Guides() :
         return guide
     
     @classmethod
-    def get_published_guides(cls, search, plant_type_id, limit, offset) :
+    def get_published_guides(cls, search, plant_type_id, limit, offset, current_user_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -306,7 +306,18 @@ class Guides() :
         guides.created_at,
         guides.published_date,
         guides.last_edit_date,
-        thumbnail.image_url AS thumbnail
+        thumbnail.image_url AS thumbnail,
+        (SELECT COUNT(*) FROM comments_guides
+        WHERE guide_id = guides.id
+        ) AS comment_count,
+        (SELECT COUNT(*) FROM likes_guides 
+            WHERE guide_id = guides.id
+        ) AS like_count,
+        EXISTS (
+            SELECT l_g.created_at FROM likes_guides l_g
+            WHERE l_g.guide_id = guides.id
+            AND l_g.user_id  = %s
+        )  AS liked
         """
 
         meta_data_query = """
@@ -338,7 +349,7 @@ class Guides() :
         sql+= "ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
-        cursor.execute(guides_query + sql, params)
+        cursor.execute(guides_query + sql, [current_user_id] + params)
         guides = cursor.fetchall()
         cursor.execute(meta_data_query + sql, params)
         meta_data = cursor.fetchone()
@@ -355,3 +366,21 @@ class Guides() :
             "guides" : guides,
             "meta_data" : meta_data
         })
+
+    @classmethod
+    def get_by_uuid(cls, guide_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT * FROM guides WHERE uuid = %s"
+
+        cursor.execute(sql, (guide_uuid,))
+        result = cursor.fetchone()
+
+        if not result :
+            return None
+
+        return cls(
+            id=result['id'],
+            uuid=result['uuid'],
+        )

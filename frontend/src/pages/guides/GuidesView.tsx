@@ -35,6 +35,8 @@ import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import ProfilePicture from "@/components/ProfilePicture";
 
+import { GuideCommentSection } from "@/features/comments/GuideComments/GuideCommentSections";
+
 function GuidesView() {
     const { uuid } = useParams();
     const guide = useFetchGuide(uuid);
@@ -133,6 +135,12 @@ function GuidesView() {
                     role="presentation"
                     className="simple-editor-content"
                 />
+
+                <div className="flex justify-center w-full">
+                    <div className="w-[50%]">
+                        <GuideCommentSection guideUuid={guide.uuid} />
+                    </div>
+                </div>
             </div>
         </div>
     );
