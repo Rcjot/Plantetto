@@ -289,6 +289,7 @@ def get_user_listing(username) :
         listing=listing,
         meta_data=meta_data
     )
+    
 
 @user_bp.route("/<username>/posts")
 @login_required
@@ -336,6 +337,35 @@ def get_user_posts(username) :
         feed=feed,
         next_cursor=next_cursor,
     )
+    
+@user_bp.route("/verification_code", methods=["POST"])
+def send_verify_code() :
+    current_user_id = current_user.get_id()
+    user = current_user.get_json()
+    email = user['email']
+
+    cooldown_minutes = 1
+
+    if not Users.check_verification_status(current_user_id) and EmailVerifications.check_sent_code_request_is_available(current_user_id, cooldown_minutes) :
+
+        token_res = EmailVerifications.generate_token(current_user_id)
+
+        send_to_email(email, token_res['secret_code'], token_res['expires_in_minutes'])
+
+        return jsonify(success=True, message="email sent")
+    else :
+        return jsonify(success=False, message="you are already verified or you are on cooldown"), 400
+
+@user_bp.route("/verify_email", methods=["POST"])
+def verify_email() :
+    data = request.get_json()
+    input_code = data['code']
+    current_user_id = current_user.get_id()
+
+    if EmailVerifications.verify_code(code=input_code, current_user_id=current_user_id) :
+        return jsonify(success=True, verified=True)
+    else : 
+        return jsonify(success=False, verified=False), 400
 
 @user_bp.route("/<username>/guides")
 @login_required
