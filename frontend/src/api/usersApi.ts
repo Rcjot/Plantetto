@@ -50,7 +50,6 @@ async function verifyEmail(code: string) {
         const { data } = await axios.post("/users/verify_email", {
             code: code,
         });
-        console.log();
         const verified = data["verified"];
         return { ok: true, verified: verified };
     } catch (error) {
@@ -59,9 +58,37 @@ async function verifyEmail(code: string) {
     }
 }
 
+async function getVerifCodeStatus(codeType: string) {
+    try {
+        const { data } = await axios.get(
+            `/users/verification_code?type=${codeType}`
+        );
+        const status = data["has_available"];
+        return { ok: true, status: status };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, status: false };
+    }
+}
+
+async function submitCodeForPasswordChange(code: string) {
+    try {
+        const { data } = await axios.patch("/users/password", { code: code });
+        return { ok: true, data };
+    } catch (error) {
+        console.error(error);
+        if (isAxiosError(error) && error.response) {
+            return { ok: false, errors: error.response.data.error };
+        }
+        return { ok: false, errors: { root: "some error occurred" } };
+    }
+}
+
 export default {
     changePassword,
     changeEmail,
     sendVerificationCode,
     verifyEmail,
+    getVerifCodeStatus,
+    submitCodeForPasswordChange,
 };
