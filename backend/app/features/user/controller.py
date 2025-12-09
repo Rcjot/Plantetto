@@ -6,10 +6,12 @@ from ...models.user import Users
 from ...models.plant import Plants
 from ...models.diary import Diaries
 from ...models.guide import Guides
+from ...models.post import Posts
 from datetime import date
 from .forms import ChangePasswordForm, ChangeEmailForm
 from ...models.market import MarketItems
 import math
+import json
 
 @user_bp.route("/upload", methods=["POST"])
 @login_required
@@ -251,4 +253,50 @@ def get_user_listing(username) :
     return jsonify(
         listing=listing,
         meta_data=meta_data
+    )
+
+@user_bp.route("/<username>/posts")
+def get_user_posts(username) :
+    id_res = Users.get_id_uuid_by_username(username)
+    if id_res is None :
+        return jsonify(
+                success=False,
+                feed=[],
+                next_cursor=None,
+            ), 404
+
+    limit = request.args.get("limit", default=10, type=int)
+    cursor_data = request.args.get("cursor", default=None, type=str)
+    
+    cursor_score = None
+    cursor_timestamp = None
+    
+    # Parse cursor if provided
+    if cursor_data:
+        try:
+            cursor_obj = json.loads(cursor_data)
+            cursor_score = cursor_obj.get("score")
+            cursor_timestamp = cursor_obj.get("timestamp")
+        except (json.JSONDecodeError, AttributeError):
+            return jsonify(error="Invalid cursor format"), 400
+    
+    current_user_id = current_user.get_id()
+    result = Posts.all(limit, cursor_score, cursor_timestamp, current_user_id, user_id=id_res['id'])
+    
+    feed = result
+    has_more = len(feed) > limit
+    feed = feed[:limit]
+    
+    # Create next cursor from last item
+    next_cursor = None
+    if has_more and feed:
+        last_post = feed[-1]
+        next_cursor = json.dumps({
+            "score": last_post['priority_score'],
+            "timestamp": last_post['created_at'].isoformat()
+        })
+
+    return jsonify(
+        feed=feed,
+        next_cursor=next_cursor,
     )

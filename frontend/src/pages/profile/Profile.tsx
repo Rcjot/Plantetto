@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 import profileApi from "@/api/profileApi";
 import followApi from "@/api/followApi";
 import type { UserType } from "@/features/auth/authTypes";
@@ -105,7 +105,7 @@ function Profile() {
     const isOwnProfile = auth.user && user.username === auth.user.username;
 
     return (
-        <div className="bg-base-200 h-screen overflow-y-auto">
+        <div className="bg-base-200" key={user.username}>
             <div className="bg-base-100">
                 <div className="max-w-4xl mx-auto px-4 py-6">
                     <div className="flex items-center justify-between mb-4">
@@ -213,19 +213,34 @@ function Profile() {
             </div>
 
             {/* nav tab */}
-            <div className="bg-base-100">
+            <div className="bg-base-primary">
                 <div className="max-w-4xl mx-auto px-4">
-                    <div className="bg-base-300 text-neutral-100 rounded-lg overflow-hidden">
+                    <div className="bg-primary text-neutral-100 rounded-lg overflow-hidden">
                         <div className="grid grid-cols-3">
-                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral/30">
+                            <NavLink
+                                to={`/${user.username}/posts`}
+                                className={({ isActive }) =>
+                                    `${isActive && "bg-neutral/30"} py-3 text-center font-semibold transition-colors hover:bg-neutral/30`
+                                }
+                            >
                                 Posts
-                            </button>
-                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral/30">
+                            </NavLink>
+                            <NavLink
+                                to={`/${user.username}/plants`}
+                                className={({ isActive }) =>
+                                    `${isActive && "bg-neutral/30"} py-3 text-center font-semibold transition-colors hover:bg-neutral/30`
+                                }
+                            >
                                 Plants
-                            </button>
-                            <button className="py-3 text-center font-semibold transition-colors hover:bg-neutral/30">
+                            </NavLink>
+                            <NavLink
+                                to={`/${user.username}/guides`}
+                                className={({ isActive }) =>
+                                    `${isActive && "bg-neutral/30"} py-3 text-center font-semibold transition-colors hover:bg-neutral/30`
+                                }
+                            >
                                 Guides
-                            </button>
+                            </NavLink>
                         </div>
                     </div>
                 </div>
@@ -234,7 +249,7 @@ function Profile() {
             {/* feed container */}
             <div className="max-w-4xl mx-auto px-4 py-6">
                 <div className="bg-base-100 rounded-lg border border-base-300 p-6 min-h-96 flex items-center justify-center">
-                    <p className="text-base-content/40">Coming soon...</p>
+                    <Outlet />
                 </div>
             </div>
 
