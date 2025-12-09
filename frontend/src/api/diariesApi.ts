@@ -93,9 +93,11 @@ async function fetchDiariesOfPlantOnDate(
     date: string | null
 ) {
     try {
+        console.log(username, plantUuid);
         const { data } = await axios.get(
             `/users/${username}/diaries/plants/${plantUuid}${date ? `?date=${date}` : ""}`
         );
+        console.log(data);
         const plantDiaries: DiaryCircleType = data["diaries"];
         return { ok: true, plantDiaries: plantDiaries };
     } catch {
