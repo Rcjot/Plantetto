@@ -40,3 +40,27 @@ def toggle_bookmark_guide(guide_uuid) :
         return jsonify(success=True, message=f"successfully {message} guide", action=message)
     else :
         return jsonify(success=False, message=f"resource not found", action=None), 404
+    
+@bookmark_post_bp.route("/posts", methods=["GET"])
+@login_required
+def get_bookmarked_posts():
+    limit = request.args.get("limit", default=10, type=int)
+    page = request.args.get("page", default=1, type=int)
+    offset = (page - 1) * limit
+    
+    current_user_id = current_user.get_id()
+    posts = Posts.get_bookmarked_post(current_user_id, limit, offset)
+    
+    return jsonify(feed=posts)
+
+@bookmark_guide_bp.route("/guides", methods=["GET"])
+@login_required
+def get_bookmarked_guides():
+    limit = request.args.get("limit", default=12, type=int)
+    page = request.args.get("page", default=1, type=int)
+    offset = (page - 1) * limit
+
+    current_user_id = current_user.get_id()
+    guides = Guides.get_bookmarked_guide(current_user_id, limit, offset)
+
+    return jsonify(guides=guides)
