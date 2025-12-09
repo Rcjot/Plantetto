@@ -24,6 +24,9 @@ import SettingsThemes from "@/pages/settings/SettingsThemes";
 import Market from "@/pages/market/Market";
 import MarketItemPage from "@/pages/market/MarketItemPage";
 import MyListings from "@/pages/market/MyListings";
+import UsersPostFeedSection from "@/features/profile/subsections/UsersPostFeedSection";
+import UsersGardenSection from "@/features/profile/subsections/UsersGardenSection";
+import UsersPublishedGuidesSection from "@/features/profile/subsections/UsersPublishedGuidesSection";
 import Bookmarks from "@/pages/bookmarks/Bookmarks";
 
 function getRoutes() {
@@ -68,6 +71,24 @@ function getRoutes() {
                         {
                             path: "/:username",
                             element: <Profile />,
+                            children: [
+                                {
+                                    index: true,
+                                    element: <UsersPostFeedSection />,
+                                },
+                                {
+                                    path: "posts",
+                                    element: <UsersPostFeedSection />,
+                                },
+                                {
+                                    path: "plants",
+                                    element: <UsersGardenSection />,
+                                },
+                                {
+                                    path: "guides",
+                                    element: <UsersPublishedGuidesSection />,
+                                },
+                            ],
                         },
                         {
                             path: "/explore",

@@ -63,6 +63,20 @@ async function fetchPosts(cursor: string | null) {
     return { posts, nextCursor };
 }
 
+async function fetchUserPosts(cursor: string | null, username: string) {
+    const params = new URLSearchParams();
+    if (cursor) {
+        params.append("cursor", cursor);
+    }
+
+    const { data } = await axios.get(
+        `users/${username}/posts?${params.toString()}`
+    );
+    const posts: PostType[] = data["feed"];
+    const nextCursor: string | null = data["next_cursor"];
+    return { posts, nextCursor };
+}
+
 async function fetchPostByUUID(post_uuid: string) {
     const { data } = await axios.get(`/posts/${post_uuid}`);
     const post: PostType = data["post"];
@@ -103,6 +117,7 @@ export default {
     editPost,
     deletePost,
     fetchPosts,
+    fetchUserPosts,
     fetchPostByUUID,
     explorePosts,
     explorePostsOfPlant,

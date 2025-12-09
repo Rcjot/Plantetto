@@ -48,7 +48,7 @@ class Posts():
         )
 
     @classmethod
-    def all(cls, limit, cursor_score, cursor_timestamp, current_user_id):
+    def all(cls, limit, cursor_score, cursor_timestamp, current_user_id, user_id=None):
         """
         Fetch posts with priority buckets and visibility rules:
         - Priority 3: Recent posts from YOU and people you follow (last 24 hours)
@@ -171,6 +171,7 @@ class Posts():
         JOIN users u ON sp.user_id = u.id
         LEFT JOIN media m ON m.post_id = sp.id
         LEFT JOIN max_ratio_media mr ON mr.post_id = sp.id
+        WHERE 1=1
         """
         
         params = [current_user_id, current_user_id, current_user_id, current_user_id, current_user_id, current_user_id]
@@ -178,9 +179,13 @@ class Posts():
         # add cursor filtering
         if cursor_score is not None and cursor_timestamp is not None:
             sql += """
-            WHERE (sp.priority_score, sp.created_at) < (%s, %s)
+            AND (sp.priority_score, sp.created_at) < (%s, %s)
             """
             params.extend([cursor_score, cursor_timestamp])
+
+        if user_id :
+            sql += " AND sp.user_id = %s "
+            params.extend([user_id])
         
         sql += """
         GROUP BY sp.id, sp.post_uuid, sp.caption, sp.visibility, sp.created_at, 

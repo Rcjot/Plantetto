@@ -45,6 +45,27 @@ async function getPublishedGuides(
     }
 }
 
+async function getUserPublishedGuides(
+    username: string,
+    search: string,
+    plant_type_id: number | undefined,
+    page: number
+) {
+    try {
+        const { data } = await axios.get(
+            `users/${username}/guides?page=${page}&search=${search}&plant_type_id=${plant_type_id}`
+        );
+
+        const guides: GuideType[] = data["guides"];
+        const meta_data = data["meta_data"];
+
+        return { ok: true, guides: guides, meta_data };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, guides: [] };
+    }
+}
+
 async function getGuide(guide_uuid: string) {
     try {
         const { data } = await axios.get(`/guides/${guide_uuid}`);
@@ -158,6 +179,7 @@ export default {
     getUserBoard,
     getGuide,
     getPublishedGuides,
+    getUserPublishedGuides,
     patchMetaGuide,
     patchContentGuide,
     patchStatusGuide,

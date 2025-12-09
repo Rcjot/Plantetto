@@ -1,4 +1,5 @@
 import type { UserType } from "../auth/authTypes";
+import type { PlantType } from "../garden/gardenTypes";
 
 export interface PlantDiaryType {
     uuid: string;
@@ -17,6 +18,10 @@ export interface DiaryMediaType {
 
 export interface DiaryCardType {
     diaries: PlantDiaryType[];
-    user: UserType | undefined;
+    user: UserType;
     thumbnail: DiaryMediaType;
+}
+
+export interface DiaryCircleType extends DiaryCardType {
+    plant: PlantType;
 }

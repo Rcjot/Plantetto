@@ -231,3 +231,15 @@ class Plants() :
         cursor.close()
 
         return user_plants
+    
+    @classmethod
+    def get_id_by_uuid(cls, uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "SELECT id FROM plants WHERE uuid = %s"
+        cursor.execute(sql, (uuid,))
+        result = cursor.fetchone()
+        if not result :
+            return None
+
+        return result
