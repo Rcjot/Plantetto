@@ -7,6 +7,7 @@ from ...models.plant import Plants
 from ...models.diary import Diaries
 from ...models.guide import Guides
 from datetime import date
+from .forms import ChangePasswordForm, ChangeEmailForm
 from ...models.market import MarketItems
 import math
 
@@ -153,6 +154,74 @@ def get_user_board(username) :
         board=board,
         meta_data=meta_data
     )
+
+@user_bp.route("/password", methods=["PATCH"]) 
+@login_required
+def change_password() :
+    data = request.get_json()
+
+    form = ChangePasswordForm(data=data)
+
+    validated = form.validate()
+    error = {
+        "currentPassword" : form.currentPassword.errors,
+        "newPassword" : form.newPassword.errors,
+        "confirmNewPassword" : form.confirmNewPassword.errors,
+        "root" : [],
+    }
+
+    current_user_id = current_user.get_id()
+
+    if validated :
+        user_json = current_user.get_json()
+        username = user_json['username']
+        user = Users.get_for_auth(username)
+
+        if user and user.check_password(form.currentPassword.data) :
+            if Users.change_password(current_user_id=current_user_id, new_password=form.newPassword.data) :
+                return jsonify(success=True, message="successfully changed password")
+            else :
+                error["root"] = ["user not found"]
+                return jsonify(success=False, 
+                            message="resource not found",
+                            error=error
+                            ), 404
+        error["currentPassword"] = ["invalid password"]
+    
+    return jsonify(success=False, 
+                   message="might have invalid fields",
+                   error=error
+                   ), 400
+
+@user_bp.route("/email", methods=["PATCH"]) 
+@login_required
+def change_email() :
+    data = request.get_json()
+
+    form = ChangeEmailForm(data=data)
+
+    validated = form.validate()
+    error = {
+        "newEmail" : form.newEmail.errors,
+        "root" : [],
+    }
+
+    current_user_id = current_user.get_id()
+
+    if validated :
+        if Users.change_email(current_user_id=current_user_id, new_email=form.newEmail.data) :
+            return jsonify(success=True, message="successfully changed email")
+        else :
+            error["root"] = ["user not found"]
+            return jsonify(success=False, 
+                        message="resource not found",
+                        error=error
+                        ), 404
+
+    return jsonify(success=False, 
+                   message="might have invalid fields",
+                   error=error
+                   ), 400
 
 @user_bp.route("/<username>/listing")
 def get_user_listing(username) :
