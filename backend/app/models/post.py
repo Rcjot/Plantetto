@@ -161,7 +161,12 @@ class Posts():
                 SELECT l_p.created_at FROM likes_posts l_p
                 WHERE l_p.post_id = sp.id
                 AND l_p.user_id = %s
-            ) AS liked
+            ) AS liked,
+            EXISTS (
+                SELECT b_p.created_at FROM bookmarks_posts b_p
+                WHERE b_p.post_id = sp.id
+                AND b_p.user_id = %s
+            ) AS bookmarked
         FROM scored_posts sp
         JOIN users u ON sp.user_id = u.id
         LEFT JOIN media m ON m.post_id = sp.id
@@ -169,7 +174,7 @@ class Posts():
         WHERE 1=1
         """
         
-        params = [current_user_id, current_user_id, current_user_id, current_user_id, current_user_id]
+        params = [current_user_id, current_user_id, current_user_id, current_user_id, current_user_id, current_user_id]
         
         # add cursor filtering
         if cursor_score is not None and cursor_timestamp is not None:
@@ -531,3 +536,92 @@ class Posts():
             return None
 
         return result
+    
+    @classmethod
+    def get_bookmarked_post(cls, current_user_id, limit, cursor_timestamp):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        # EXTRACT(EPOCH FROM ...) converts timestamp to a float number for the frontend
+        sql = """
+                WITH max_ratio_media AS (
+                    SELECT DISTINCT ON (post_id)
+                        post_id,
+                        width,
+                        height
+                    FROM media
+                    ORDER BY post_id, (height::float / width::float) DESC
+                )
+                SELECT
+                    posts.id AS cursor_id,
+                    posts.uuid AS post_uuid,
+                    posts.caption,
+                    posts.created_at,
+                    JSON_BUILD_OBJECT(
+                        'id', users.id,
+                        'pfp_url', users.pfp_url,
+                        'username', users.username,
+                        'display_name', users.display_name
+                    ) AS author,
+                    COALESCE(
+                        JSON_AGG(
+                            JSON_BUILD_OBJECT(
+                                'url', media.media_url,
+                                'order', media.media_order,
+                                'type', media.media_type
+                            ) ORDER BY media.media_order
+                        ) FILTER (WHERE media.id IS NOT NULL), '[]'
+                    ) AS media,
+                    COALESCE(
+                        JSON_AGG(
+                            JSON_BUILD_OBJECT(
+                                'id', p.id,
+                                'uuid', p.uuid,
+                                'nickname', p.nickname
+                            )
+                        ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                    ) AS planttags,
+                    max_ratio.width AS highlight_width,
+                    max_ratio.height AS highlight_height,
+                    -- ADDED FROM OTHER REPO: comment_count
+                    (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count,
+                    -- ADDED FROM OTHER REPO: like_count
+                    (SELECT COUNT(*) FROM likes_posts WHERE post_id = posts.id) AS like_count,
+                    -- ADDED FROM OTHER REPO: liked (whether current user liked the post)
+                    EXISTS (
+                        SELECT l_p.created_at FROM likes_posts l_p
+                        WHERE l_p.post_id = posts.id
+                        AND l_p.user_id = %s
+                    ) AS liked,
+                    TRUE as bookmarked
+                FROM posts
+                JOIN bookmarks_posts ON posts.id = bookmarks_posts.post_id
+                JOIN users ON posts.user_id = users.id
+                LEFT JOIN media ON media.post_id = posts.id
+                LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
+                LEFT JOIN plant_tags pt ON posts.id = pt.post_id
+                LEFT JOIN plants p ON p.id = pt.plant_id
+                LEFT JOIN plant_types pty ON p.plant_type_id = pty.id
+        """
+        
+        params = [current_user_id, current_user_id]
+        
+        # Cursor Logic: Fetch bookmarks older than the cursor timestamp
+        if cursor_timestamp:
+            sql += " WHERE bookmarks_posts.user_id = %s AND bookmarks_posts.created_at < to_timestamp(%s) "
+            params+= [cursor_timestamp]
+        else:
+            sql += " WHERE bookmarks_posts.user_id = %s "
+            
+        sql += """
+                GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height, bookmarks_posts.created_at, users.id
+                ORDER BY bookmarks_posts.created_at DESC
+                LIMIT %s
+                """
+        params.append(limit + 1)
+
+        cursor.execute(sql, params)
+        posts = cursor.fetchall()
+        cursor.close()
+
+        return posts

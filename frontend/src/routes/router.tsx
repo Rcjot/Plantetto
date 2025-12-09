@@ -27,6 +27,7 @@ import MyListings from "@/pages/market/MyListings";
 import UsersPostFeedSection from "@/features/profile/subsections/UsersPostFeedSection";
 import UsersGardenSection from "@/features/profile/subsections/UsersGardenSection";
 import UsersPublishedGuidesSection from "@/features/profile/subsections/UsersPublishedGuidesSection";
+import Bookmarks from "@/pages/bookmarks/Bookmarks";
 
 function getRoutes() {
     return [
@@ -135,9 +136,16 @@ function getRoutes() {
                             path: "/plantdiaries",
                             element: <ComingSoon />,
                         },
+
                         {
                             path: "/bookmarks",
-                            element: <ComingSoon />,
+                            element: <Bookmarks />,
+                            children: [
+                                {
+                                    path: ":username/:post_uuid",
+                                    element: <PostDialog />,
+                                },
+                            ],
                         },
                         {
                             path: "/settings",
