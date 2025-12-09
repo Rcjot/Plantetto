@@ -14,9 +14,20 @@ import GuidesEditor from "@/pages/guides/GuidesEditor";
 import GuidesBoard from "@/pages/guides/GuidesBoard";
 import GuidesView from "@/pages/guides/GuidesView";
 import Explore from "@/pages/explore/Explore";
+import Settings from "@/pages/settings/Settings";
+import SettingsAccount from "@/pages/settings/SettingsAccount";
+import SettingsTerms from "@/pages/settings/SettingsTerms";
+import SettingsPrivacy from "@/pages/settings/SettingsPrivacy";
+import SettingsCookies from "@/pages/settings/SettingsCookies";
+import SettingsStandards from "@/pages/settings/SettingsStandards";
+import SettingsThemes from "@/pages/settings/SettingsThemes";
 import Market from "@/pages/market/Market";
 import MarketItemPage from "@/pages/market/MarketItemPage";
 import MyListings from "@/pages/market/MyListings";
+import UsersPostFeedSection from "@/features/profile/subsections/UsersPostFeedSection";
+import UsersGardenSection from "@/features/profile/subsections/UsersGardenSection";
+import UsersPublishedGuidesSection from "@/features/profile/subsections/UsersPublishedGuidesSection";
+import Bookmarks from "@/pages/bookmarks/Bookmarks";
 
 function getRoutes() {
     return [
@@ -60,6 +71,24 @@ function getRoutes() {
                         {
                             path: "/:username",
                             element: <Profile />,
+                            children: [
+                                {
+                                    index: true,
+                                    element: <UsersPostFeedSection />,
+                                },
+                                {
+                                    path: "posts",
+                                    element: <UsersPostFeedSection />,
+                                },
+                                {
+                                    path: "plants",
+                                    element: <UsersGardenSection />,
+                                },
+                                {
+                                    path: "guides",
+                                    element: <UsersPublishedGuidesSection />,
+                                },
+                            ],
                         },
                         {
                             path: "/explore",
@@ -107,13 +136,44 @@ function getRoutes() {
                             path: "/plantdiaries",
                             element: <ComingSoon />,
                         },
+
                         {
                             path: "/bookmarks",
-                            element: <ComingSoon />,
+                            element: <Bookmarks />,
+                            children: [
+                                {
+                                    path: ":username/:post_uuid",
+                                    element: <PostDialog />,
+                                },
+                            ],
                         },
                         {
                             path: "/settings",
-                            element: <ComingSoon />,
+                            element: <Settings />,
+                        },
+                        {
+                            path: "/settings/accountsinformation",
+                            element: <SettingsAccount />,
+                        },
+                        {
+                            path: "/settings/themes",
+                            element: <SettingsThemes />,
+                        },
+                        {
+                            path: "/settings/terms",
+                            element: <SettingsTerms />,
+                        },
+                        {
+                            path: "/settings/privacy",
+                            element: <SettingsPrivacy />,
+                        },
+                        {
+                            path: "/settings/cookies",
+                            element: <SettingsCookies />,
+                        },
+                        {
+                            path: "/settings/standards",
+                            element: <SettingsStandards />,
                         },
                     ],
                 },

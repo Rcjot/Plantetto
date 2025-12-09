@@ -16,6 +16,8 @@ import {
 import GardenFormEdit from "./GardenFormEdit";
 import type { PlantType } from "@/features/garden/gardenTypes";
 import GardenDelete from "./GardenDelete";
+import { useParams } from "react-router-dom";
+import { useAuthContext } from "../auth/AuthContext";
 
 interface GardenCardDetailsProps {
     open: boolean;
@@ -31,9 +33,12 @@ export default function GardenCard_Details({
     plant,
     onUpdated,
 }: GardenCardDetailsProps) {
+    const { username } = useParams();
+    const { auth } = useAuthContext()!;
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
 
+    const isOwner = !username ? true : auth.user?.username === username;
     return (
         <>
             {/* Details Dialog */}
@@ -77,38 +82,40 @@ export default function GardenCard_Details({
                             {/* buttons */}
                             <div className="absolute top-2 right-2 flex gap-1 sm:gap-2 items-center">
                                 {/* edit, delete dropdown */}
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="secondary"
-                                            size="icon"
-                                            className="w-10 h-10 bg-neutral/0 border border-gray-300 transition-all duration-200 hover:rounded-lg hover:bg-neutral-300 hover:border-0"
-                                        >
-                                            <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="bg-base-100">
-                                        <DropdownMenuItem
-                                            className="hover:!bg-neutral-300 hover:!text-neutral-800 transition-colors duration-200"
-                                            onClick={() => {
-                                                setEditOpen(true); // open edit modal
-                                                onOpenChange(false); // close details modal
-                                            }}
-                                        >
-                                            Edit
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className="hover:!bg-yellow-500 hover:!text-white transition-colors duration-200
+                                {isOwner && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="secondary"
+                                                size="icon"
+                                                className="w-10 h-10 bg-neutral/0 border border-gray-300 transition-all duration-200 hover:rounded-lg hover:bg-neutral-300 hover:border-0"
+                                            >
+                                                <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="bg-base-100">
+                                            <DropdownMenuItem
+                                                className="hover:!bg-neutral-300 hover:!text-neutral-800 transition-colors duration-200"
+                                                onClick={() => {
+                                                    setEditOpen(true); // open edit modal
+                                                    onOpenChange(false); // close details modal
+                                                }}
+                                            >
+                                                Edit
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className="hover:!bg-yellow-500 hover:!text-white transition-colors duration-200
                                         "
-                                            onClick={() => {
-                                                setDeleteOpen(true);
-                                                onOpenChange(false);
-                                            }}
-                                        >
-                                            Delete
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                                onClick={() => {
+                                                    setDeleteOpen(true);
+                                                    onOpenChange(false);
+                                                }}
+                                            >
+                                                Delete
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
 
                                 {/* close button */}
                                 <Button

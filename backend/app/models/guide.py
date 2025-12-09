@@ -271,7 +271,7 @@ class Guides() :
         return guide
     
     @classmethod
-    def get_published_guides(cls, search, plant_type_id, limit, offset, current_user_id) :
+    def get_published_guides(cls, search, plant_type_id, limit, offset, current_user_id, user_id=None) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -317,8 +317,15 @@ class Guides() :
             SELECT l_g.created_at FROM likes_guides l_g
             WHERE l_g.guide_id = guides.id
             AND l_g.user_id  = %s
-        )  AS liked
+        )  AS liked,
+        EXISTS (
+            SELECT b_g.created_at FROM bookmarks_guides b_g
+            WHERE b_g.guide_id = guides.id
+            AND b_g.user_id = %s
+        ) AS bookmarked
         """
+
+
 
         meta_data_query = """
         WITH thumbnail AS (
@@ -346,10 +353,15 @@ class Guides() :
         if (plant_type_id is not None) :
             sql += " AND guides.plant_type_id =%s"
             params.extend([plant_type_id])
+
+        if (user_id) :
+            sql += " AND guides.user_id = %s "
+            params.extend([user_id])
+            
         sql+= "ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
-        cursor.execute(guides_query + sql, [current_user_id] + params)
+        cursor.execute(guides_query + sql, [current_user_id, current_user_id] + params)
         guides = cursor.fetchall()
         cursor.execute(meta_data_query + sql, params)
         meta_data = cursor.fetchone()
@@ -398,3 +410,65 @@ class Guides() :
         if result is None:
             return None
         return result
+    
+    @classmethod
+    def get_bookmarked_guide(cls, current_user_id, limit, offset):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        WITH thumbnail AS (
+            SELECT DISTINCT ON (guide_id)
+                guide_id,
+                image_url
+            FROM guides_images
+            WHERE is_used = TRUE
+            ORDER BY guide_id ASC
+        )
+        SELECT 
+            guides.uuid, 
+            guides.title, 
+            guides.content, 
+            guides.guide_status,
+            CASE 
+                WHEN plant_types.id IS NOT NULL THEN 
+                    JSON_BUILD_OBJECT(
+                        'id', plant_types.id,
+                        'plant_name', plant_types.plant_name
+                    )
+                ELSE NULL
+            END AS plant_type,
+            JSON_BUILD_OBJECT(
+                    'id', users.uuid,
+                    'username', users.username,
+                    'display_name', users.display_name,
+                    'pfp_url', users.pfp_url
+            ) AS author,
+            guides.created_at,
+            guides.published_date,
+            guides.last_edit_date,
+            thumbnail.image_url AS thumbnail,
+            (SELECT COUNT(*) FROM comments_guides WHERE guide_id = guides.id) AS comment_count,
+            (SELECT COUNT(*) FROM likes_guides WHERE guide_id = guides.id) AS like_count,
+            EXISTS (
+                SELECT l_g.created_at FROM likes_guides l_g
+                WHERE l_g.guide_id = guides.id
+                AND l_g.user_id = %s
+            ) AS liked,
+            TRUE as bookmarked
+        FROM guides
+        JOIN bookmarks_guides ON guides.id = bookmarks_guides.guide_id
+        JOIN users ON guides.user_id = users.id
+        LEFT JOIN plant_types ON guides.plant_type_id = plant_types.id
+        LEFT JOIN thumbnail AS thumbnail ON guides.id = thumbnail.guide_id
+        WHERE bookmarks_guides.user_id = %s
+        AND guides.guide_status = 'published'
+        ORDER BY bookmarks_guides.created_at DESC
+        LIMIT %s OFFSET %s
+        """
+
+        cursor.execute(sql, (current_user_id, current_user_id, limit, offset))
+        guides = cursor.fetchall()
+        cursor.close()
+
+        return guides
