@@ -69,13 +69,18 @@ class Posts() :
                         SELECT l_p.created_at FROM likes_posts l_p
                         WHERE l_p.post_id = posts.id
                         AND l_p.user_id  = %s
-                    )  AS liked
+                    )  AS liked,
+                    EXISTS (
+                        SELECT b_p.created_at FROM bookmarks_posts b_p
+                        WHERE b_p.post_id = posts.id
+                        AND b_p.user_id = %s
+                    ) AS bookmarked
                 FROM posts
                 JOIN users ON posts.user_id = users.id
                 LEFT JOIN media ON media.post_id = posts.id
                 LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
                 """
-        params = [current_user_id]
+        params = [current_user_id, current_user_id]
         if cursor_id :
             sql +=  """
                     WHERE posts.id < %s

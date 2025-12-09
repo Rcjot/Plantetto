@@ -317,7 +317,12 @@ class Guides() :
             SELECT l_g.created_at FROM likes_guides l_g
             WHERE l_g.guide_id = guides.id
             AND l_g.user_id  = %s
-        )  AS liked
+        )  AS liked,
+        EXISTS (
+            SELECT b_g.created_at FROM bookmarks_guides b_g
+            WHERE b_g.guide_id = guides.id
+            AND b_g.user_id = %s
+        ) AS bookmarked
         """
 
 
@@ -351,7 +356,7 @@ class Guides() :
         sql+= "ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
-        cursor.execute(guides_query + sql, [current_user_id] + params)
+        cursor.execute(guides_query + sql, [current_user_id, current_user_id] + params)
         guides = cursor.fetchall()
         cursor.execute(meta_data_query + sql, params)
         meta_data = cursor.fetchone()
