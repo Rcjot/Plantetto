@@ -360,7 +360,7 @@ class Diaries :
                     'plant', plants.nickname,
                     'plant_id', plants.id,
                     'created_at', diaries.created_at
-                ) ORDER BY diaries.created_at
+                ) ORDER BY diaries.created_at DESC
             ) AS diaries
         FROM diaries
         JOIN users ON diaries.user_id = users.id
