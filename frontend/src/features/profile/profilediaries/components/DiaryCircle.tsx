@@ -20,15 +20,12 @@ function DiaryCircle({ thumbnail, plant, diaries = [] }: DiaryCircleProps) {
     const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const slideIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Filter diaries that have images
     const mediaDiaries = diaries.filter(
         (diary) => diary.media_url && diary.media_type === "image"
     );
 
-    // Show carousel only if we have multiple images
     const shouldShowCarousel = isHovering && mediaDiaries.length > 1;
 
-    // Handle hover with delay to prevent jitter
     const handleMouseEnter = () => {
         if (hoverTimeoutRef.current) {
             clearTimeout(hoverTimeoutRef.current);
@@ -45,15 +42,12 @@ function DiaryCircle({ thumbnail, plant, diaries = [] }: DiaryCircleProps) {
         setIsHovering(false);
     };
 
-    // Start/stop auto slide effect - CHANGED TO 1 SECOND
     useEffect(() => {
         if (shouldShowCarousel) {
-            // Start auto sliding every 1 second
             slideIntervalRef.current = setInterval(() => {
                 setCurrentSlide((prev) => (prev + 1) % mediaDiaries.length);
-            }, 1000); // Changed from 2000 to 1000
+            }, 1000);
         } else {
-            // Stop auto sliding and reset to first slide
             if (slideIntervalRef.current) {
                 clearInterval(slideIntervalRef.current);
                 slideIntervalRef.current = null;
