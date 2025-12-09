@@ -6,23 +6,23 @@ import PostCard from "../PostCard";
 
 function PostCardProvider({
     passedPost,
-    origin = "home",
+    origin = "/home",
 }: {
     passedPost: PostType;
     origin?: string;
 }) {
-    const { post, updateCaption, openEdit, setOpenEditCallback } =
+    const { post, updatePost, openEdit, setOpenEditCallback } =
         usePost(passedPost);
 
     const contextValue = useMemo(
         () => ({
             post,
-            updateCaption,
+            updatePost,
             openEdit,
             setOpenEditCallback,
-            origin,
+            origin, // Add this
         }),
-        [post, updateCaption, openEdit, setOpenEditCallback, origin]
+        [post, updatePost, openEdit, setOpenEditCallback, origin]
     );
 
     return (

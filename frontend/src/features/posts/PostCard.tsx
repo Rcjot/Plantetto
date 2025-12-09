@@ -9,7 +9,7 @@ import { addRecentPost } from "@/features/recent/recentService";
 import { InteractionButton } from "@/features/posts/InteractionButtons";
 
 function PostCard() {
-    const { post, origin = "home" } = usePostContext()!;
+    const { post, origin = "/home" } = usePostContext()!;
     const { auth } = useAuthContext()!;
     const navigate = useNavigate();
     const location = useLocation();
@@ -37,8 +37,10 @@ function PostCard() {
             addRecentPost(auth.user.id, post);
         }
 
-        navigate(`/${origin}/${post.author.username}/${post.post_uuid}`, {
-            state: { background: location, post: post },
+        const fullOrigin = location.search ? origin + location.search : origin;
+
+        navigate(`${origin}/${post.author.username}/${post.post_uuid}`, {
+            state: { background: location, post: post, origin: fullOrigin },
         });
     }
 
@@ -61,6 +63,7 @@ function PostCard() {
                         user={post.author}
                         createdAt={post.created_at}
                         postCaption={post.caption}
+                        planttags={post.planttags}
                     />
                     {auth.user?.id === post.author.id && (
                         <PostOptionsButton setDeleted={setDeleted} />

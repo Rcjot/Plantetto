@@ -5,8 +5,10 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 from . import database
 from flask_login import LoginManager
 from .services import cleanup
+from flask_socketio import SocketIO, send
 
 login_manager = LoginManager()
+socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app() :
     app = Flask(__name__, 
@@ -17,6 +19,10 @@ def create_app() :
         SECRET_KEY=SECRET_KEY,
         DATABASE_URL=DATABASE_URL
     )
+
+    socketio.init_app(app)
+
+    from . import sockets
 
 
     cors = CORS(app,
@@ -61,23 +67,32 @@ def create_app() :
     from .features.guide import guide_bp
     app.register_blueprint(guide_bp, url_prefix="/api/guides")
 
+    from .features.follow import follow_bp
+    app.register_blueprint(follow_bp, url_prefix="/api/follow")
+
+    from .features.chat import chat_bp
+    app.register_blueprint(chat_bp, url_prefix="/api/chat")
+
+    from .features.market import market_bp
+    app.register_blueprint(market_bp, url_prefix="/api/market")
+
     from .features.comment_post import comment_post_bp
     app.register_blueprint(comment_post_bp, url_prefix="/api/posts/<uuid:post_uuid>/comments")
 
     from .features.comment_guide import comment_guide_bp
     app.register_blueprint(comment_guide_bp, url_prefix="/api/guides/<uuid:guide_uuid>/comments")
-    
+
     from .features.like import like_post_bp, like_guide_bp, like_comment_post_bp, like_comment_guide_bp
     app.register_blueprint(like_post_bp, url_prefix="/api/posts/<uuid:post_uuid>/likes")
     app.register_blueprint(like_guide_bp, url_prefix="/api/guides/<uuid:guide_uuid>/likes")
     app.register_blueprint(like_comment_post_bp, url_prefix="/api/posts/comments/<uuid:comment_uuid>/likes")
     app.register_blueprint(like_comment_guide_bp, url_prefix="/api/guides/comments/<uuid:comment_uuid>/likes")
 
+
     from .features.bookmarks import bookmark_post_bp, bookmark_guide_bp, bookmark_list_bp
     app.register_blueprint(bookmark_post_bp, url_prefix="/api/posts/<uuid:post_uuid>/bookmarks")
     app.register_blueprint(bookmark_guide_bp, url_prefix="/api/guides/<uuid:guide_uuid>/bookmarks")
-    app.register_blueprint(bookmark_list_bp, url_prefix="/api/bookmarks")
-
+    app.register_blueprint(bookmark_list_bp, url_prefix="/api/bookmarks")            
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e) :
@@ -91,4 +106,6 @@ def create_app() :
     
     return app
             
+    
+
     
