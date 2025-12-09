@@ -24,7 +24,8 @@ import SettingsThemes from "@/pages/settings/SettingsThemes";
 import Market from "@/pages/market/Market";
 import MarketItemPage from "@/pages/market/MarketItemPage";
 import MyListings from "@/pages/market/MyListings";
-import UsersPostFeedSection from "@/profile/subsections/UsersPostFeedSection";
+import UsersPostFeedSection from "@/features/profile/subsections/UsersPostFeedSection";
+import UsersGardenSection from "@/features/profile/subsections/UsersGardenSection";
 
 function getRoutes() {
     return [
@@ -76,6 +77,10 @@ function getRoutes() {
                                 {
                                     path: "posts",
                                     element: <UsersPostFeedSection />,
+                                },
+                                {
+                                    path: "plants",
+                                    element: <UsersGardenSection />,
                                 },
                             ],
                         },

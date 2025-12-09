@@ -247,7 +247,7 @@ function Profile() {
             </div>
 
             {/* feed container */}
-            <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="min-w-4xl max-w-fit mx-auto px-4 py-6">
                 <div className="bg-base-100 rounded-lg border border-base-300 p-6 min-h-96 flex items-center justify-center">
                     <Outlet />
                 </div>
