@@ -64,7 +64,7 @@ function BookmarkedPostsFeed() {
                       <div key={post.post_uuid} className="w-full">
                           <PostCardProvider
                               passedPost={post}
-                              origin="bookmarks"
+                              origin="/bookmarks"
                           />
                       </div>
                   ))
