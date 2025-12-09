@@ -298,18 +298,18 @@ class Diaries :
         params = [user_id, plant_id]
         if (on_date == "today") :
             sql +=  """
-                    AND diaries.created_at >= NOW() - INTERVAL '24 hours'
+                    AND DATE(diaries.created_at AT TIME ZONE 'Asia/Manila') >= NOW() - INTERVAL '24 hours'
                     GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type,plants.uuid, plants.nickname, plants.plant_description,
                     plants.picture_url, plants.created_at, plant_types.plant_name
-                    ORDER BY MAX(diaries.created_at) DESC
+                    ORDER BY MAX(DATE(diaries.created_at AT TIME ZONE 'Asia/Manila')) DESC
                     """
         else :
             sql +=  """
-                    AND diaries.created_at >= %s::date 
-                    AND diaries.created_at < (%s::date + INTERVAL '1 day')
+                    AND DATE(diaries.created_at AT TIME ZONE 'Asia/Manila') >= %s::date 
+                    AND DATE(diaries.created_at AT TIME ZONE 'Asia/Manila') < (%s::date + INTERVAL '1 day')
                     GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type, plants.uuid, plants.nickname, plants.plant_description,
                     plants.picture_url, plants.created_at, plant_types.plant_name
-                    ORDER BY MAX(diaries.created_at) DESC
+                    ORDER BY MAX(DATE(diaries.created_at AT TIME ZONE 'Asia/Manila')) DESC
                     """
             params += [on_date, on_date]
 
@@ -396,7 +396,7 @@ class Diaries :
 
         sql = """
         SELECT 
-            DISTINCT DATE(diaries.created_at)
+            DISTINCT DATE(diaries.created_at AT TIME ZONE 'Asia/Manila')
         FROM diaries
         JOIN users ON diaries.user_id = users.id
         JOIN plants ON diaries.plant_id = plants.id
