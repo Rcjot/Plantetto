@@ -93,7 +93,6 @@ async function fetchDiariesOfPlantOnDate(
     date: string | null
 ) {
     try {
-        console.log(username, plantUuid);
         const { data } = await axios.get(
             `/users/${username}/diaries/plants/${plantUuid}${date ? `?date=${date}` : ""}`
         );
@@ -102,6 +101,22 @@ async function fetchDiariesOfPlantOnDate(
         return { ok: true, plantDiaries: plantDiaries };
     } catch {
         return { ok: false, plantDiaries: null };
+    }
+}
+
+async function fetchDatesWithEntriesOfPlants(
+    username: string,
+    plantUuid: string
+) {
+    try {
+        const { data } = await axios.get(
+            `/users/${username}/diaries/plants/${plantUuid}/dates`
+        );
+        console.log(data);
+        const datesWithEntries: { date: string }[] = data["dates"];
+        return { ok: true, datesWithEntries: datesWithEntries };
+    } catch {
+        return { ok: false, datesWithEntries: [] };
     }
 }
 
@@ -114,4 +129,5 @@ export default {
     fetchDiariesTodayFollowing,
     fetchPlantsWithDiariesOfUser,
     fetchDiariesOfPlantOnDate,
+    fetchDatesWithEntriesOfPlants,
 };

@@ -388,3 +388,29 @@ class Diaries :
         cursor.close()
 
         return diaries
+
+    @classmethod
+    def get_all_dates_with_entry_of_plant(cls, user_id, plant_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT 
+            DISTINCT DATE(diaries.created_at)
+        FROM diaries
+        JOIN users ON diaries.user_id = users.id
+        JOIN plants ON diaries.plant_id = plants.id
+        WHERE diaries.user_id = %s
+        AND diaries.plant_id = %s
+
+        """
+        params= [user_id, plant_id]
+
+        cursor.execute(sql, params)
+        dates = cursor.fetchall()
+
+        cursor.close()
+
+        return dates
+    
+    
