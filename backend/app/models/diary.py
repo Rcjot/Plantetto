@@ -218,17 +218,17 @@ class Diaries :
         
         if (on_date == "today") :
             sql +=  """
-                    AND diaries.created_at >= NOW() - INTERVAL '24 hours'
+                    AND DATE(diaries.created_at AT TIME ZONE 'Asia/Manila') >= NOW() - INTERVAL '24 hours'
                     GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type
-                    ORDER BY MAX(diaries.created_at) DESC
+                    ORDER BY MAX(DATE(diaries.created_at AT TIME ZONE 'Asia/Manila')) DESC
                     """
             params = [current_user_id, current_user_id]
         else :
             sql +=  """
-                    AND diaries.created_at >= %s::date 
-                    AND diaries.created_at < (%s::date + INTERVAL '1 day')
+                    AND DATE(diaries.created_at AT TIME ZONE 'Asia/Manila') >= %s::date 
+                    AND DATE(diaries.created_at AT TIME ZONE 'Asia/Manila') < (%s::date + INTERVAL '1 day')
                     GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type
-                    ORDER BY MAX(diaries.created_at) DESC
+                    ORDER BY MAX(DATE(diaries.created_at AT TIME ZONE 'Asia/Manila')) DESC
                     """
             params = [current_user_id, current_user_id, on_date, on_date]
 
