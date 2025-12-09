@@ -62,27 +62,7 @@ class Diaries :
 
         return diaries
 
-    @classmethod 
-    def get_all_on_date_of_user(cls, username, on_date) :
-        db = get_db()
-        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-        sql = """
-        SELECT diaries.uuid, diaries.note, diaries.media_url, diaries.media_type, plants.nickname AS plant
-        FROM diaries
-        JOIN users ON diaries.user_id = users.id
-        JOIN plants ON diaries.plant_id = plants.id
-        WHERE users.username = %s
-        AND diaries.created_at >= %s::date 
-        AND diaries.created_at < (%s::date + INTERVAL '1 day')
-        """
-
-        cursor.execute(sql, (username, on_date, on_date))
-        diaries = cursor.fetchall()
-
-        cursor.close()
-
-        return diaries
+    
 
     @classmethod 
     def get_all_on_date(cls, on_date) :
@@ -251,6 +231,156 @@ class Diaries :
                     ORDER BY MAX(diaries.created_at) DESC
                     """
             params = [current_user_id, current_user_id, on_date, on_date]
+
+        cursor.execute(sql, params)
+        diaries = cursor.fetchall()
+
+        cursor.close()
+
+        return diaries
+    
+    @classmethod # get diary group of user's plant on specified date
+    def get_all_on_date_of_user_of_plant(cls, user_id, plant_id, on_date) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT 
+            JSON_BUILD_OBJECT(
+                'media_url', thumb.media_url,
+                'media_type', thumb.media_type
+            ) AS thumbnail,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'username', users.username,
+                'display_name', users.display_name,
+                'pfp_url', users.pfp_url
+            ) AS user,
+             JSON_BUILD_OBJECT(
+                'plant_uuid', plants.uuid,
+                'nickname', plants.nickname,
+                'description', plants.plant_description,
+                'picture_url', plants.picture_url,
+                'created_at', plants.created_at,
+               'plant_type', plant_types.plant_name,
+                'owner', JSON_BUILD_OBJECT(
+                    'id', users.uuid,
+                    'pfp_url', users.pfp_url,
+                    'username', users.username,
+                    'display_name', users.display_name
+                )
+            ) AS plant, 
+            JSON_AGG(
+                JSON_BUILD_OBJECT(
+                    'uuid', diaries.uuid,
+                    'note', diaries.note,
+                    'media_url', diaries.media_url,
+                    'media_type', diaries.media_type,
+                    'plant', plants.nickname,
+                    'plant_id', plants.id,
+                    'created_at', diaries.created_at
+                ) ORDER BY diaries.created_at
+            ) AS diaries
+        FROM diaries
+        JOIN users ON diaries.user_id = users.id
+        JOIN plants ON diaries.plant_id = plants.id
+        JOIN plant_types ON plants.plant_type_id = plant_types.id
+        LEFT JOIN LATERAL (
+            SELECT media_url, media_type
+            FROM diaries
+            WHERE user_id = users.id AND media_url IS NOT NULL
+            ORDER BY created_at DESC
+            LIMIT 1
+        ) thumb ON TRUE
+        WHERE diaries.user_id = %s
+        AND diaries.plant_id = %s
+        """
+        params = [user_id, plant_id]
+        if (on_date == "today") :
+            sql +=  """
+                    AND diaries.created_at >= NOW() - INTERVAL '24 hours'
+                    GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type,plants.uuid, plants.nickname, plants.plant_description,
+                    plants.picture_url, plants.created_at, plant_types.plant_name
+                    ORDER BY MAX(diaries.created_at) DESC
+                    """
+        else :
+            sql +=  """
+                    AND diaries.created_at >= %s::date 
+                    AND diaries.created_at < (%s::date + INTERVAL '1 day')
+                    GROUP BY users.uuid, users.username, users.display_name, users.pfp_url, thumb.media_url, thumb.media_type, plants.uuid, plants.nickname, plants.plant_description,
+                    plants.picture_url, plants.created_at, plant_types.plant_name
+                    ORDER BY MAX(diaries.created_at) DESC
+                    """
+            params += [on_date, on_date]
+
+        cursor.execute(sql, params)
+        diaries = cursor.fetchone()
+
+        cursor.close()
+
+        return diaries
+
+    @classmethod 
+    def get_all_of_user_plants_with_diary_entry(cls, user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT 
+            JSON_BUILD_OBJECT(
+                'media_url', thumb.media_url,
+                'media_type', thumb.media_type
+            ) AS thumbnail,
+            JSON_BUILD_OBJECT(
+                'plant_uuid', plants.uuid,
+                'nickname', plants.nickname,
+                'description', plants.plant_description,
+                'picture_url', plants.picture_url,
+                'created_at', plants.created_at,
+               'plant_type', plant_types.plant_name,
+                'owner', JSON_BUILD_OBJECT(
+                    'id', users.uuid,
+                    'pfp_url', users.pfp_url,
+                    'username', users.username,
+                    'display_name', users.display_name
+                )
+            ) AS plant, 
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'username', users.username,
+                'display_name', users.display_name,
+                'pfp_url', users.pfp_url
+            ) AS user,
+            JSON_AGG(
+                JSON_BUILD_OBJECT(
+                    'uuid', diaries.uuid,
+                    'note', diaries.note,
+                    'media_url', diaries.media_url,
+                    'media_type', diaries.media_type,
+                    'plant', plants.nickname,
+                    'plant_id', plants.id,
+                    'created_at', diaries.created_at
+                ) ORDER BY diaries.created_at
+            ) AS diaries
+        FROM diaries
+        JOIN users ON diaries.user_id = users.id
+        JOIN plants ON diaries.plant_id = plants.id
+        JOIN plant_types ON plants.plant_type_id = plant_types.id
+        LEFT JOIN LATERAL (
+            SELECT media_url, media_type
+            FROM diaries
+            WHERE user_id = users.id AND media_url IS NOT NULL
+            AND plant_id = plants.id
+            ORDER BY created_at DESC
+            LIMIT 1
+        ) thumb ON TRUE
+        WHERE diaries.user_id = %s
+        GROUP BY users.uuid, users.username, users.display_name, 
+                 users.pfp_url, thumb.media_url, thumb.media_type,
+                 plants.uuid, plants.nickname, plants.plant_description,
+                 plants.picture_url, plants.created_at, plant_types.plant_name
+        """
+        params= [user_id]
 
         cursor.execute(sql, params)
         diaries = cursor.fetchall()

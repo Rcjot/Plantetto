@@ -112,8 +112,27 @@ def get_user_plants_options(username) :
 
 @user_bp.route("/<username>/diaries")
 def get_user_diaries(username) :
-    on_date = request.args.get("date", date.today().isoformat())
-    result = Diaries.get_all_on_date_of_user(username, on_date)
+
+    id_res = Users.get_id_uuid_by_username(username)
+
+    # result = Diaries.get_all_on_date_of_user(id_res['id'], on_date,)
+    result = Diaries.get_all_of_user_plants_with_diary_entry(id_res['id'])
+
+    return jsonify(
+        diaries=result
+    )
+
+@user_bp.route("/<username>/diaries/plants/<uuid:plant_uuid>")
+def get_user_diaries_of_plant_on_date(username, plant_uuid) :
+    plant_uuid = str(plant_uuid)
+    plant_id_res = Plants.get_id_by_uuid(plant_uuid)
+
+    on_date = request.args.get("date", default="today", type=str)
+
+    id_res = Users.get_id_uuid_by_username(username)
+
+    # result = Diaries.get_all_on_date_of_user(id_res['id'], on_date,)
+    result = Diaries.get_all_on_date_of_user_of_plant(id_res['id'], plant_id_res['id'], on_date)
 
     return jsonify(
         diaries=result

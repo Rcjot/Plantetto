@@ -3,6 +3,7 @@ import type { PlantOptionType } from "@/features/garden/gardenTypes";
 import { isAxiosError } from "axios";
 import type {
     DiaryCardType,
+    DiaryCircleType,
     PlantDiaryType,
 } from "@/features/diary/diaryTypes";
 
@@ -76,6 +77,32 @@ async function fetchDiariesTodayFollowing() {
     }
 }
 
+async function fetchPlantsWithDiariesOfUser(username: string) {
+    try {
+        const { data } = await axios.get(`/users/${username}/diaries`);
+        const plantDiaries: DiaryCircleType[] = data["diaries"];
+        return { ok: true, plantDiaries: plantDiaries };
+    } catch {
+        return { ok: false, plantDiaries: [] };
+    }
+}
+
+async function fetchDiariesOfPlantOnDate(
+    username: string,
+    plantUuid: string,
+    date: string | null
+) {
+    try {
+        const { data } = await axios.get(
+            `/users/${username}/diaries/plants/${plantUuid}${date ? `?date=${date}` : ""}`
+        );
+        const plantDiaries: DiaryCircleType = data["diaries"];
+        return { ok: true, plantDiaries: plantDiaries };
+    } catch {
+        return { ok: false, plantDiaries: null };
+    }
+}
+
 export default {
     getUserPlantsOptions,
     addDiaryEntry,
@@ -83,4 +110,6 @@ export default {
     deleteDiaryEntry,
     fetchDiariesToday,
     fetchDiariesTodayFollowing,
+    fetchPlantsWithDiariesOfUser,
+    fetchDiariesOfPlantOnDate,
 };

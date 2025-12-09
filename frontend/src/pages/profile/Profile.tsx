@@ -9,6 +9,7 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { FollowersDialog } from "@/features/follow/FollowersDialog";
 import { FollowingDialog } from "@/features/follow/FollowingDialog";
 import chat_icon from "@/assets/icons/chat.svg";
+import ProfileDiaryCarouselSection from "@/features/profile/profilediaries/ProfileDiaryCarouselSection";
 
 function Profile() {
     const [user, setUser] = useState<UserType | "loading" | null>("loading");
@@ -206,8 +207,8 @@ function Profile() {
                         )}
                     </div>
 
-                    <div className="bg-base-200 border border-base-300 rounded-lg p-4 h-32 flex items-center justify-center">
-                        <p className="text-base-content/40">Coming soon...</p>
+                    <div className="bg-base-200 border border-base-300 rounded-lg p-4 h-36 flex items-center justify-center">
+                        <ProfileDiaryCarouselSection />
                     </div>
                 </div>
             </div>
