@@ -3,6 +3,7 @@ import { ThumbsUp, Bookmark } from "lucide-react";
 import type { PostType } from "./postTypes";
 import { useState } from "react";
 import likesApi from "@/api/likesApi";
+import bookmarksApi from "@/api/bookmarksApi";
 
 interface InteractionButtonProps {
     post: PostType;
@@ -11,6 +12,7 @@ interface InteractionButtonProps {
 export function InteractionButton({ post }: InteractionButtonProps) {
     const [isLiked, setIsLiked] = useState(post.liked);
     const [likeCount, setLikeCount] = useState(post.like_count);
+    const [isBookmarked, setIsBookmarked] = useState(post.bookmarked);
 
     async function toggleLikePost() {
         const { ok, action } = await likesApi.toggleLikePost(post.post_uuid);
@@ -23,6 +25,15 @@ export function InteractionButton({ post }: InteractionButtonProps) {
                     return prev - 1;
                 }
             });
+        }
+    }
+
+    async function toggleBookmarkPost() {
+        const { ok, action } = await bookmarksApi.toggleBookmarkPost(
+            post.post_uuid
+        );
+        if (ok) {
+            setIsBookmarked(action === "bookmark");
         }
     }
 
@@ -53,10 +64,14 @@ export function InteractionButton({ post }: InteractionButtonProps) {
                 <div>
                     <button
                         className="btn btn-circle bg-none border-none hover:bg-transparent hover:shadow-none"
-                        onClick={(e) => e.stopPropagation()}
-                        disabled={true}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            toggleBookmarkPost();
+                        }}
                     >
-                        <Bookmark className="hover:scale-115 hover:fill-neutral hover:text-neutral transition-colors" />
+                        <Bookmark
+                            className={`hover:scale-115  hover:text-neutral transition-colors ${isBookmarked && "fill-success"} `}
+                        />
                     </button>
                 </div>
             </div>

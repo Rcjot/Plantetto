@@ -73,7 +73,7 @@ def create_app() :
     app.register_blueprint(like_comment_post_bp, url_prefix="/api/posts/comments/<uuid:comment_uuid>/likes")
     app.register_blueprint(like_comment_guide_bp, url_prefix="/api/guides/comments/<uuid:comment_uuid>/likes")
 
-    from .features.bookmark import bookmark_post_bp, bookmark_guide_bp, bookmark_list_bp
+    from .features.bookmarks import bookmark_post_bp, bookmark_guide_bp, bookmark_list_bp
     app.register_blueprint(bookmark_post_bp, url_prefix="/api/posts/<uuid:post_uuid>/bookmarks")
     app.register_blueprint(bookmark_guide_bp, url_prefix="/api/guides/<uuid:guide_uuid>/bookmarks")
     app.register_blueprint(bookmark_list_bp, url_prefix="/api/bookmarks")

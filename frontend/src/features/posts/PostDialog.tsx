@@ -20,21 +20,26 @@ function PostDialog() {
     const location = useLocation();
     const [post, setPost] = useState<PostType | null>(null);
 
-    const origin = location.state?.origin || "/home";
-
-    const hasMedia = post && post.media && post.media.length > 0;
-
     useEffect(() => {
-        if (!location.state?.post && post_uuid) {
+        if (!location.state && post_uuid) {
             const fetchPost = async () => {
-                const fetchedPost = await postsApi.fetchPostByUUID(post_uuid);
-                setPost(fetchedPost);
+                const post = await postsApi.fetchPostByUUID(post_uuid);
+                setPost(post);
             };
             fetchPost();
-        } else if (location.state?.post) {
+        } else {
             setPost(location.state.post);
         }
     }, [post_uuid, location]);
+
+    const isExplore = location.pathname.startsWith("/explore");
+    const isBookmarks = location.pathname.startsWith("/bookmarks");
+
+    let backPath = "/home";
+    if (isExplore) backPath = "/explore";
+    if (isBookmarks) backPath = "/bookmarks";
+
+    const hasMedia = post && post.media && post.media.length > 0;
 
     return (
         <>
@@ -42,12 +47,10 @@ function PostDialog() {
                 <Dialog
                     open={true}
                     onOpenChange={(open) => {
-                        if (!open) {
-                            navigate(origin);
-                        }
+                        if (!open) navigate(backPath);
                     }}
                 >
-                    <DialogContent className="p-0 min-w-[95vw] sm:p-3 md:min-w-max md:min-h-max bg-base-100">
+                    <DialogContent className="p-0 min-w-[95vw] sm:p-3 md:min-w-max  md:min-h-max bg-base-100">
                         <DialogHeader
                             className={`p-5 gap-4 max-h-[90vh] overflow-hidden transition-all duration-300
                                 ${
@@ -62,14 +65,13 @@ function PostDialog() {
                                     user={post.author}
                                     createdAt={post.created_at}
                                     postCaption={post.caption}
-                                    planttags={post.planttags}
                                 />
                             </div>
-
+                            {/* --- LEFT SIDE: MEDIA (Only render if hasMedia) --- */}
                             {hasMedia &&
                                 post.highlight_height &&
                                 post.highlight_width && (
-                                    <div className="order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] max-h-[90vh] flex items-center justify-center bg-black/5 rounded-md overflow-hidden">
+                                    <div className="order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] flex items-center justify-center bg-black/5 rounded-md overflow-hidden">
                                         <PostCarousel
                                             mediaList={post.media}
                                             view="viewpost"
@@ -83,6 +85,7 @@ function PostDialog() {
                                     </div>
                                 )}
 
+                            {/* --- RIGHT SIDE: INFO & COMMENTS --- */}
                             <div
                                 className={`flex flex-col h-full min-h-0 ${
                                     hasMedia ? "order-3 lg:order-2" : "w-full"
@@ -95,17 +98,18 @@ function PostDialog() {
                                     view post
                                 </DialogDescription>
 
+                                {/* Post Header */}
                                 <div className="flex-shrink-0 hidden lg:block">
                                     <PostHeader
                                         user={post.author}
                                         createdAt={post.created_at}
                                         postCaption={post.caption}
-                                        planttags={post.planttags}
                                     />
                                 </div>
 
                                 <div className="divider my-0"></div>
 
+                                {/* Comment Section Container */}
                                 <div className="flex-grow min-h-0 overflow-hidden flex flex-col mt-2">
                                     {hasMedia ? (
                                         <CommentSectionWithMedia
