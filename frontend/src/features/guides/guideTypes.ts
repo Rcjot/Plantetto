@@ -15,4 +15,5 @@ export interface GuideType {
     comment_count: number;
     like_count: number;
     liked: boolean;
+    bookmarked: boolean;
 }

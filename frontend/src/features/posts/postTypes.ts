@@ -20,6 +20,7 @@ export interface PostType {
     comment_count: number;
     like_count: number;
     liked: boolean;
+    bookmarked: boolean;
 }
 
 export interface PostContextType {

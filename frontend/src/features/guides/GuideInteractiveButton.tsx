@@ -4,6 +4,7 @@ import type { GuideType } from "./guideTypes";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import likesApi from "@/api/likesApi";
+import bookmarksApi from "@/api/bookmarksApi";
 
 interface GuideInteractiveButtonTypes {
     guide: GuideType;
@@ -12,6 +13,7 @@ interface GuideInteractiveButtonTypes {
 export function GuideInteractiveButton({ guide }: GuideInteractiveButtonTypes) {
     const [isLiked, setIsLiked] = useState(guide.liked);
     const [likeCount, setLikeCount] = useState(guide.like_count);
+    const [isBookmarked, setIsBookmarked] = useState(guide.bookmarked);
 
     async function toggleLikeGuide() {
         const { ok, action } = await likesApi.toggleLikeGuide(guide.uuid);
@@ -24,6 +26,15 @@ export function GuideInteractiveButton({ guide }: GuideInteractiveButtonTypes) {
                     return prev - 1;
                 }
             });
+        }
+    }
+
+    async function toggleBookmarkGuide() {
+        const { ok, action } = await bookmarksApi.toggleBookmarkGuide(
+            guide.uuid
+        );
+        if (ok) {
+            setIsBookmarked(action === "bookmark");
         }
     }
 
@@ -79,11 +90,16 @@ export function GuideInteractiveButton({ guide }: GuideInteractiveButtonTypes) {
                         // Handle bookmark action
                     }
                 }}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toggleBookmarkGuide();
+                }}
             >
                 <Bookmark
                     size={22}
-                    className="hover:scale-115 hover:fill-neutral hover:text-neutral transition-colors"
+                    className={`hover:scale-115 hover:text-neutral transition-colors ${
+                        isBookmarked ? "fill-success text-neutral" : ""
+                    }`}
                 />
             </div>
         </div>

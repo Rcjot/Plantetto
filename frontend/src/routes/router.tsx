@@ -24,137 +24,145 @@ import SettingsThemes from "@/pages/settings/SettingsThemes";
 import Market from "@/pages/market/Market";
 import MarketItemPage from "@/pages/market/MarketItemPage";
 import MyListings from "@/pages/market/MyListings";
+import Bookmarks from "@/pages/bookmarks/Bookmarks";
 
 function getRoutes() {
-  return [
-    {
-      element: <PublicRoute />,
-      children: [
+    return [
         {
-          path: "/signin",
-          element: <Signin />,
-        },
-        {
-          path: "/signup",
-          element: <Signup />,
-        },
-        {
-          path: "/",
-          element: <LandingPage />,
-        },
-      ],
-    },
-    {
-      element: <ProtectedRoute />,
-      children: [
-        {
-          element: <MasterLayout />,
-          children: [
-            {
-              path: "/home",
-              element: <Home />,
-              children: [
+            element: <PublicRoute />,
+            children: [
                 {
-                  path: "/home/:username/:post_uuid",
-                  element: <PostDialog />,
+                    path: "/signin",
+                    element: <Signin />,
                 },
-              ],
-            },
-            {
-              path: "/mygarden",
-              element: <MyGarden />,
-            },
-            {
-              path: "/:username",
-              element: <Profile />,
-            },
-            {
-              path: "/explore",
-              element: <Explore />,
-              children: [
                 {
-                  path: ":username/:post_uuid",
-                  element: <PostDialog />,
+                    path: "/signup",
+                    element: <Signup />,
                 },
-              ],
-            },
-            {
-              path: "/market",
-              element: <Market />,
-            },
-            {
-              path: "/market/:item_uuid",
-              element: <MarketItemPage />,
-            },
-            {
-              path: "/mylistings",
-              element: <MyListings />,
-            },
-            {
-              path: "/mylistings/:item_uuid",
-              element: <MarketItemPage />,
-            },
-            {
-              path: "/guides",
-              element: <Guides />,
-            },
-            {
-              path: "/guides/board",
-              element: <GuidesBoard />,
-            },
-            {
-              path: "/guides/:uuid/edit",
-              element: <GuidesEditor />,
-            },
-            {
-              path: "/guides/:uuid",
-              element: <GuidesView />,
-            },
-            {
-              path: "/plantdiaries",
-              element: <ComingSoon />,
-            },
-            {
-              path: "/bookmarks",
-              element: <ComingSoon />,
-            },
-            {
-              path: "/settings",
-              element: <Settings />,
-            },
-            {
-              path: "/settings/accountsinformation",
-              element: <SettingsAccount />,
-            },
-            {
-              path: "/settings/themes",
-              element: <SettingsThemes />,
-            },
-            {
-              path: "/settings/terms",
-              element: <SettingsTerms />,
-            },
-            {
-              path: "/settings/privacy",
-              element: <SettingsPrivacy />,
-            },
-            {
-              path: "/settings/cookies",
-              element: <SettingsCookies />,
-            },
-            {
-              path: "/settings/standards",
-              element: <SettingsStandards />,
-            },
-          ],
+                {
+                    path: "/",
+                    element: <LandingPage />,
+                },
+            ],
         },
-      ],
-    },
-    {
-      path: "*",
-      element: <div>error</div>,
-    },
-  ];
+        {
+            element: <ProtectedRoute />,
+            children: [
+                {
+                    element: <MasterLayout />,
+                    children: [
+                        {
+                            path: "/home",
+                            element: <Home />,
+                            children: [
+                                {
+                                    path: "/home/:username/:post_uuid",
+                                    element: <PostDialog />,
+                                },
+                            ],
+                        },
+                        {
+                            path: "/mygarden",
+                            element: <MyGarden />,
+                        },
+                        {
+                            path: "/:username",
+                            element: <Profile />,
+                        },
+                        {
+                            path: "/explore",
+                            element: <Explore />,
+                            children: [
+                                {
+                                    path: ":username/:post_uuid",
+                                    element: <PostDialog />,
+                                },
+                            ],
+                        },
+                        {
+                            path: "/market",
+                            element: <Market />,
+                        },
+                        {
+                            path: "/market/:item_uuid",
+                            element: <MarketItemPage />,
+                        },
+                        {
+                            path: "/mylistings",
+                            element: <MyListings />,
+                        },
+                        {
+                            path: "/mylistings/:item_uuid",
+                            element: <MarketItemPage />,
+                        },
+                        {
+                            path: "/guides",
+                            element: <Guides />,
+                        },
+                        {
+                            path: "/guides/board",
+                            element: <GuidesBoard />,
+                        },
+                        {
+                            path: "/guides/:uuid/edit",
+                            element: <GuidesEditor />,
+                        },
+                        {
+                            path: "/guides/:uuid",
+                            element: <GuidesView />,
+                        },
+                        {
+                            path: "/plantdiaries",
+                            element: <ComingSoon />,
+                        },
+
+                        {
+                            path: "/bookmarks",
+                            element: <Bookmarks />,
+                            children: [
+                                {
+                                    path: ":username/:post_uuid",
+                                    element: <PostDialog />,
+                                },
+                            ],
+                        },
+                        {
+                            path: "/settings",
+                            element: <Settings />,
+                        },
+                        {
+                            path: "/settings/accountsinformation",
+                            element: <SettingsAccount />,
+                        },
+                        {
+                            path: "/settings/themes",
+                            element: <SettingsThemes />,
+                        },
+                        {
+                            path: "/settings/terms",
+                            element: <SettingsTerms />,
+                        },
+                        {
+                            path: "/settings/privacy",
+                            element: <SettingsPrivacy />,
+                        },
+                        {
+                            path: "/settings/cookies",
+                            element: <SettingsCookies />,
+                        },
+                        {
+                            path: "/settings/standards",
+                            element: <SettingsStandards />,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            path: "*",
+            element: <div>error</div>,
+        },
+    ];
 }
 
 export default getRoutes;
