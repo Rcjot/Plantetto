@@ -53,7 +53,7 @@ const DiaryAddPopupCircle: React.FC<DiaryAddFormProps> = ({ fetchDiaries }) => {
                             </div>
                         </div>
                     </div>
-                    <div className="h-fit text-base-100-content text-start font-bold px-2 text-sm rounded w-fit">
+                    <div className="h-fit text-base-100-content text-center font-bold px-2 text-sm rounded w-fit ml-[-8px]">
                         Add Diary
                     </div>
                 </div>
