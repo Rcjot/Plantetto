@@ -21,7 +21,7 @@ class EmailVerifications :
         INSERT INTO email_verifications
         (user_id, code, expires_at)
         VALUES (%s, %s, NOW() + INTERVAL '{expires_in_minutes} minutes')
-        ON CONFLICT (user_id) 
+        ON CONFLICT (user_id, verification_type) 
         DO UPDATE SET
             code = EXCLUDED.code,
             expires_at = EXCLUDED.expires_at,
@@ -111,6 +111,79 @@ class EmailVerifications :
                 """
             cursor.execute(verify_sql, (result['verification_data'], current_user_id,))
 
+
+        db.commit()
+        cursor.close()
+
+
+        if result is None :
+            return False
+        else :
+            return True
+        
+    @classmethod
+    def generate_token_change_email(cls, current_user_id, new_email) :
+        secret_code = f"{secrets.randbelow(10**6):06d}"
+        expires_in_minutes = 5
+
+
+
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = f"""
+        INSERT INTO email_verifications
+        (user_id, 
+        code, 
+        expires_at, 
+        verification_type,
+        verification_data
+        )
+        VALUES (
+        %s,
+        %s,
+        NOW() + INTERVAL '{expires_in_minutes} minutes',
+        'email',
+        %s
+        )
+        ON CONFLICT (user_id, verification_type) 
+        DO UPDATE SET
+            code = EXCLUDED.code,
+            expires_at = EXCLUDED.expires_at,
+            created_at = NOW()
+        """
+
+        cursor.execute(sql, (current_user_id, secret_code, new_email))
+
+        db.commit()
+        cursor.close()
+
+        token = {
+            "secret_code" : secret_code,
+            "expires_in_minutes" : expires_in_minutes 
+        }
+
+        return token
+    
+    @classmethod
+    def verify_code_email(cls, code, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        DELETE FROM email_verifications
+        WHERE user_id = %s
+        AND code = %s
+        AND verification_type = 'email'
+        AND expires_at > NOW()
+        RETURNING verification_data
+        """
+
+        cursor.execute(sql, (current_user_id, code))
+
+        result = cursor.fetchone()
+        if result :
+            Users.change_email(current_user_id, result['verification_data'])
 
         db.commit()
         cursor.close()

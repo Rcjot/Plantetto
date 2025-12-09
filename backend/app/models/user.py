@@ -299,7 +299,8 @@ class Users(UserMixin) :
         sql = """
                 UPDATE users
                 SET 
-                email = %s
+                email = %s,
+                email_verified = FALSE
                 WHERE id = %s
                 RETURNING *
               """

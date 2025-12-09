@@ -256,12 +256,38 @@ def change_email() :
     validated = form.validate()
     error = {
         "newEmail" : form.newEmail.errors,
+        "code" : [],
         "root" : [],
     }
 
     current_user_id = current_user.get_id()
+    
+    if "code" in data :
+        # we try to apply here the code..
+        if EmailVerifications.verify_code_email(data['code'], current_user_id) :
+            return jsonify(success=True, message="successfully changed email")
+        else :
+            error["code"].append("invalid code or expired")
+            return jsonify(success=True, message="invalid code or expired", error=error), 400
+
+    cooldown_minutes = 1
+
+    available = EmailVerifications.check_sent_code_request_is_available(current_user_id, cooldown_minutes, 'email')
+    if not available :
+        error["code"].append("please try again later")
 
     if validated :
+        user_json = current_user.get_json()
+        email = user_json['email']
+        verified = user_json['email_verified']
+
+        if verified :        
+            # if verified send an email to the old email
+            token_res = EmailVerifications.generate_token_change_email(current_user_id,
+                                                                        form.newEmail.data)
+            send_to_email(email, token_res['secret_code'], token_res['expires_in_minutes'])
+            return jsonify(success=True, message="email sent")
+        
         if Users.change_email(current_user_id=current_user_id, new_email=form.newEmail.data) :
             return jsonify(success=True, message="successfully changed email")
         else :
