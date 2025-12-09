@@ -46,6 +46,7 @@ const VerifyEmailModal: React.FC<Props> = ({ title, onClose }) => {
     }
 
     async function sendVerificationCode() {
+        setSendError("");
         const { ok } = await usersApi.sendVerificationCode();
         setVerifyingError("");
         if (ok) {

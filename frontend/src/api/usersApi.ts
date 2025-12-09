@@ -84,6 +84,19 @@ async function submitCodeForPasswordChange(code: string) {
     }
 }
 
+async function submitCodeForEmailChange(code: string) {
+    try {
+        const { data } = await axios.patch("/users/email", { code: code });
+        return { ok: true, data };
+    } catch (error) {
+        console.error(error);
+        if (isAxiosError(error) && error.response) {
+            return { ok: false, errors: error.response.data.error };
+        }
+        return { ok: false, errors: { root: "some error occurred" } };
+    }
+}
+
 export default {
     changePassword,
     changeEmail,
@@ -91,4 +104,5 @@ export default {
     verifyEmail,
     getVerifCodeStatus,
     submitCodeForPasswordChange,
+    submitCodeForEmailChange,
 };
