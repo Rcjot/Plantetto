@@ -2,11 +2,21 @@ import type { PostType } from "@/features/posts/postTypes";
 import type { GuideType } from "@/features/guides/guideTypes";
 import axios from "@/lib/axios";
 
-async function fetchBookmarkedPosts(page: number, limit: number = 10) {
-    const { data } = await axios.get(
-        `/bookmarks/posts?page=${page}&limit=${limit}`
-    );
-    return { ok: true, posts: data["feed"] as PostType[] };
+async function fetchBookmarkedPosts(
+    cursorId: number | null,
+    limit: number = 10
+) {
+    const url = cursorId
+        ? `/bookmarks/posts?next_cursor=${cursorId}&limit=${limit}`
+        : `/bookmarks/posts?limit=${limit}`;
+
+    const { data } = await axios.get(url);
+
+    return {
+        ok: true,
+        posts: data["feed"] as PostType[],
+        nextCursor: data["next_cursor"] as number | null,
+    };
 }
 
 async function fetchBookmarkedGuides(page: number, limit: number = 12) {

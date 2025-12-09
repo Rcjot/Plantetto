@@ -392,7 +392,7 @@ class Guides() :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        guides_query = """
+        sql = """
         WITH thumbnail AS (
             SELECT DISTINCT ON (guide_id)
                 guide_id,
@@ -402,36 +402,36 @@ class Guides() :
             ORDER BY guide_id ASC
         )
         SELECT 
-        guides.uuid, 
-        guides.title, 
-        guides.content, 
-        guides.guide_status,
-        CASE 
-            WHEN plant_types.id IS NOT NULL THEN 
-                JSON_BUILD_OBJECT(
-                    'id', plant_types.id,
-                    'plant_name', plant_types.plant_name
-                )
-            ELSE NULL
-        END AS plant_type,
-        JSON_BUILD_OBJECT(
-                'id', users.uuid,
-                'username', users.username,
-                'display_name', users.display_name,
-                'pfp_url', users.pfp_url
-        ) AS author,
-        guides.created_at,
-        guides.published_date,
-        guides.last_edit_date,
-        thumbnail.image_url AS thumbnail,
-        (SELECT COUNT(*) FROM comments_guides WHERE guide_id = guides.id) AS comment_count,
-        (SELECT COUNT(*) FROM likes_guides WHERE guide_id = guides.id) AS like_count,
-        EXISTS (
-            SELECT l_g.created_at FROM likes_guides l_g
-            WHERE l_g.guide_id = guides.id
-            AND l_g.user_id = %s
-        ) AS liked,
-        TRUE as bookmarked
+            guides.uuid, 
+            guides.title, 
+            guides.content, 
+            guides.guide_status,
+            CASE 
+                WHEN plant_types.id IS NOT NULL THEN 
+                    JSON_BUILD_OBJECT(
+                        'id', plant_types.id,
+                        'plant_name', plant_types.plant_name
+                    )
+                ELSE NULL
+            END AS plant_type,
+            JSON_BUILD_OBJECT(
+                    'id', users.uuid,
+                    'username', users.username,
+                    'display_name', users.display_name,
+                    'pfp_url', users.pfp_url
+            ) AS author,
+            guides.created_at,
+            guides.published_date,
+            guides.last_edit_date,
+            thumbnail.image_url AS thumbnail,
+            (SELECT COUNT(*) FROM comments_guides WHERE guide_id = guides.id) AS comment_count,
+            (SELECT COUNT(*) FROM likes_guides WHERE guide_id = guides.id) AS like_count,
+            EXISTS (
+                SELECT l_g.created_at FROM likes_guides l_g
+                WHERE l_g.guide_id = guides.id
+                AND l_g.user_id = %s
+            ) AS liked,
+            TRUE as bookmarked
         FROM guides
         JOIN bookmarks_guides ON guides.id = bookmarks_guides.guide_id
         JOIN users ON guides.user_id = users.id
@@ -443,7 +443,7 @@ class Guides() :
         LIMIT %s OFFSET %s
         """
 
-        cursor.execute(guides_query, (current_user_id, current_user_id, limit, offset))
+        cursor.execute(sql, (current_user_id, current_user_id, limit, offset))
         guides = cursor.fetchall()
         cursor.close()
 

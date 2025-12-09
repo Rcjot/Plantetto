@@ -193,10 +193,12 @@ class Posts() :
         )
     
     @classmethod
-    def get_bookmarked_post(cls, current_user_id, limit, offset):
+    @classmethod
+    def get_bookmarked_post(cls, current_user_id, limit, cursor_timestamp):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
+        
+        # EXTRACT(EPOCH FROM ...) converts timestamp to a float number for the frontend
         sql = """
                 WITH max_ratio_media AS (
                     SELECT DISTINCT ON (post_id)
@@ -207,6 +209,7 @@ class Posts() :
                     ORDER BY post_id, (height::float / width::float) DESC
                 )
                 SELECT 
+                    EXTRACT(EPOCH FROM bookmarks_posts.created_at) AS cursor_id,
                     posts.uuid AS post_uuid,
                     posts.caption,
                     posts.created_at,
@@ -227,12 +230,8 @@ class Posts() :
                     ) AS media,
                     max_ratio.width AS highlight_width,
                     max_ratio.height AS highlight_height,
-                    (SELECT COUNT(*) FROM comments_posts 
-                        WHERE post_id = posts.id
-                    ) AS comment_count,
-                    (SELECT COUNT(*) FROM likes_posts 
-                        WHERE post_id = posts.id
-                    ) AS like_count,
+                    (SELECT COUNT(*) FROM comments_posts WHERE post_id = posts.id) AS comment_count,
+                    (SELECT COUNT(*) FROM likes_posts WHERE post_id = posts.id) AS like_count,
                     EXISTS (
                         SELECT l_p.created_at FROM likes_posts l_p
                         WHERE l_p.post_id = posts.id
@@ -244,13 +243,25 @@ class Posts() :
                 JOIN users ON posts.user_id = users.id
                 LEFT JOIN media ON media.post_id = posts.id
                 LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
-                WHERE bookmarks_posts.user_id = %s
-                GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height, bookmarks_posts.created_at
-                ORDER BY bookmarks_posts.created_at DESC
-                LIMIT %s OFFSET %s
                 """
         
-        cursor.execute(sql, (current_user_id, current_user_id, limit, offset))
+        params = [current_user_id, current_user_id]
+        
+        # Cursor Logic: Fetch bookmarks older than the cursor timestamp
+        if cursor_timestamp:
+            sql += " WHERE bookmarks_posts.user_id = %s AND bookmarks_posts.created_at < to_timestamp(%s) "
+            params.append(cursor_timestamp)
+        else:
+            sql += " WHERE bookmarks_posts.user_id = %s "
+            
+        sql += """
+                GROUP BY posts.id, users.uuid, users.pfp_url, users.username, users.display_name, max_ratio.width, max_ratio.height, bookmarks_posts.created_at
+                ORDER BY bookmarks_posts.created_at DESC
+                LIMIT %s
+                """
+        params.append(limit + 1)
+
+        cursor.execute(sql, params)
         posts = cursor.fetchall()
         cursor.close()
 
