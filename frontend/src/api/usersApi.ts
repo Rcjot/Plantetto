@@ -33,4 +33,35 @@ async function changeEmail(newEmail: string) {
     }
 }
 
-export default { changePassword, changeEmail };
+async function sendVerificationCode() {
+    try {
+        const { data } = await axios.post("/users/verification_code");
+
+        const success = data["success"];
+        return { ok: true, success };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, success: false };
+    }
+}
+
+async function verifyEmail(code: string) {
+    try {
+        const { data } = await axios.post("/users/verify_email", {
+            code: code,
+        });
+        console.log();
+        const verified = data["verified"];
+        return { ok: true, verified: verified };
+    } catch (error) {
+        console.error(error);
+        return { ok: false, verified: false };
+    }
+}
+
+export default {
+    changePassword,
+    changeEmail,
+    sendVerificationCode,
+    verifyEmail,
+};
