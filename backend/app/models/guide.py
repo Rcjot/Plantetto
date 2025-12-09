@@ -271,7 +271,7 @@ class Guides() :
         return guide
     
     @classmethod
-    def get_published_guides(cls, search, plant_type_id, limit, offset, current_user_id) :
+    def get_published_guides(cls, search, plant_type_id, limit, offset, current_user_id, user_id=None) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -346,6 +346,11 @@ class Guides() :
         if (plant_type_id is not None) :
             sql += " AND guides.plant_type_id =%s"
             params.extend([plant_type_id])
+
+        if (user_id) :
+            sql += " AND guides.user_id = %s "
+            params.extend([user_id])
+            
         sql+= "ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 

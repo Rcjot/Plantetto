@@ -26,6 +26,7 @@ import MarketItemPage from "@/pages/market/MarketItemPage";
 import MyListings from "@/pages/market/MyListings";
 import UsersPostFeedSection from "@/features/profile/subsections/UsersPostFeedSection";
 import UsersGardenSection from "@/features/profile/subsections/UsersGardenSection";
+import UsersPublishedGuidesSection from "@/features/profile/subsections/UsersPublishedGuidesSection";
 
 function getRoutes() {
     return [
@@ -81,6 +82,10 @@ function getRoutes() {
                                 {
                                     path: "plants",
                                     element: <UsersGardenSection />,
+                                },
+                                {
+                                    path: "guides",
+                                    element: <UsersPublishedGuidesSection />,
                                 },
                             ],
                         },

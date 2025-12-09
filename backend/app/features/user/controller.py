@@ -256,6 +256,7 @@ def get_user_listing(username) :
     )
 
 @user_bp.route("/<username>/posts")
+@login_required
 def get_user_posts(username) :
     id_res = Users.get_id_uuid_by_username(username)
     if id_res is None :
@@ -299,4 +300,41 @@ def get_user_posts(username) :
     return jsonify(
         feed=feed,
         next_cursor=next_cursor,
+    )
+
+@user_bp.route("/<username>/guides")
+@login_required
+def get_user_published_guides(username) :
+    id_res = Users.get_id_uuid_by_username(username)
+    if id_res is None :
+        return jsonify(
+                success=False,
+                feed=[],
+                next_cursor=None,
+            ), 404
+    
+    search = request.args.get("search", default="", type=str)
+    plant_type_id = request.args.get("plant_type_id", default=None, type=int)
+    page = request.args.get("page", default=1, type=int)
+    limit = request.args.get("limit", default = 12, type=int)
+
+    offset = (page - 1) * limit
+
+    result = Guides.get_published_guides(search, plant_type_id, limit, offset, id_res['id'])
+    guides = result["guides"]
+    total_count = result["meta_data"]["total_count"]
+    result_count = result["meta_data"]["result_count"]
+    max_page = math.ceil(result_count / limit)
+    meta_data = {
+        "page" : page,
+        "total_count" : total_count,
+        "limit" : limit,
+        "max_page" : max_page,
+        "has_next" : page < max_page,
+        "has_prev" : page > 1,
+    }
+
+    return jsonify(
+        guides=guides,
+        meta_data=meta_data
     )
