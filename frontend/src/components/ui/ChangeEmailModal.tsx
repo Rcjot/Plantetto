@@ -69,7 +69,7 @@ const ChangeEmailModal: React.FC<Props> = ({ title, onClose }) => {
             }
         };
         fetchStatus();
-    });
+    }, []);
 
     if (!auth.user) return <div>loading...</div>;
     return (
