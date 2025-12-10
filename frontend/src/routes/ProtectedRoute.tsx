@@ -2,6 +2,7 @@ import { Outlet, Navigate, useSearchParams } from "react-router-dom";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { useEffect } from "react";
 import PostDialog2 from "@/features/posts/PostDialog2";
+import { ToastContainer } from "react-toastify";
 
 function ProtectedRoute() {
     const { auth } = useAuthContext()!;
@@ -19,6 +20,7 @@ function ProtectedRoute() {
     return auth.status === "authenticated" ? (
         <>
             {postUuid && <PostDialog2 postUuid={postUuid} />}
+            <ToastContainer position="bottom-right" stacked />
             <Outlet />
         </>
     ) : (
