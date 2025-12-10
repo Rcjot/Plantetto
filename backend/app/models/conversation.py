@@ -117,9 +117,10 @@ class Conversations() :
         return result
 
     @classmethod
-    def get_all_conversation_rooms(cls, current_user_id, search=None, cursor_timestamp=None, limit=None) :
+    def get_all_conversation_rooms(cls, current_user_id, search=None, cursor_timestamp=None, limit=None, is_all=None) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        is_all = True if is_all == "true" else False
         
         sql = """
         SELECT
@@ -174,13 +175,29 @@ class Conversations() :
                     """
         else : 
             search = "%" + search + "%"
+            if not is_all :
+                sql += """
+                        WHERE (u.username ILIKE %s OR u.display_name ILIKE %s)
+                        AND (SELECT 
+                                m.id
+                            FROM messages m
+                            JOIN users sender ON sender.id = m.sender_id
+                            WHERE conversation_uuid = c.uuid     
+                            ORDER BY m.created_at DESC
+                            LIMIT 1
+                            ) != cp1.last_read_message_id
+                       """
+                params += [search, search]
+            else :
+                sql +=  """
+                        WHERE (u.username ILIKE %s OR u.display_name ILIKE %s)
+                        """
+                params += [search, search]
         
             if cursor_timestamp :
-                print(cursor_timestamp)
                 # tiring to make this better, 
                 # recent_message_date cant be compared as it is not a table column
                 sql +=  """
-                        WHERE (u.username ILIKE %s OR u.display_name ILIKE %s)
                         AND (SELECT
                                 m.created_at
                             FROM messages m
@@ -192,14 +209,13 @@ class Conversations() :
                         ORDER BY recent_message_date DESC
                         LIMIT %s
                         """
-                params += [search, search, cursor_timestamp, limit+1]
+                params += [cursor_timestamp, limit+1]
             else :
                 sql +=  """
-                        WHERE (u.username ILIKE %s OR u.display_name ILIKE %s)
                         ORDER BY recent_message_date DESC
                         LIMIT %s
                         """
-                params += [search, search, limit+1]
+                params += [limit+1]
 
         cursor.execute(sql, params) 
         result = cursor.fetchall()

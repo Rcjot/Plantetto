@@ -4,6 +4,10 @@ from flask_login import login_user, login_required, current_user, logout_user
 from .models.conversation import Conversations
 from .models.message import Messages
 from .models.user import Users
+from .models.notifications import Notifications
+from .models.follow import Follows
+import json
+import datetime
 
 @socketio.on("connect") 
 def handle_connect() :
@@ -79,6 +83,8 @@ def handle_chat_message(data):
     emit(f"new_message_{room_destination}", payload, to=room_destination)
     
     emit(f"{recipient_uuid}_new_message", payload, to=recipient_uuid)
+    # can be considered as notification.
+
     Conversations.patch_last_read_id(res["id"], sender_id, conversation_room)
 
 
@@ -98,13 +104,34 @@ def join_rooms(username) :
     # this function assumes that client passed a valid user
     # and that user is authenticated
 
-    user_id_res = Users.get_id_uuid_by_username(username)
+    user_id_uuid_res = Users.get_id_uuid_by_username(username)
     
-    current_user_id = user_id_res['id']
+    current_user_id = user_id_uuid_res['id']
+    current_user_uuid = user_id_uuid_res['uuid']
     rooms = Conversations.get_all_conversation_rooms(current_user_id, limit=-1) 
     for room in rooms:
         print('user', current_user_id, 'joined', room['uuid'])
         join_room(room['uuid'])
+    # i think its possible to not join them right away, but only join when room is opened in client
+    #       then for new messages: {recipient_uuid}_new_message is already sent for chatList to be rerendered.
+
+    # we also fetch all followed users that current user has notifications listened to
+    following_posts_users = Follows.get_notified_posts(username)
+    following_guides_users = Follows.get_notified_guides(username)
+    all_following = Follows.get_following(username)
+
+    for following in following_posts_users :
+        print('user', username, 'joined', f"{following['id']}_post")
+        join_room(f"{following['id']}_post")
+    for following in following_guides_users :
+        print('user', username, 'joined', f"{following['id']}_guide")
+        join_room(f"{following['id']}_guide")
+    for following in all_following :
+        # join all users to diaries
+        join_room(f"{following['id']}_diary")
+
+
+    join_room(f"{current_user_uuid}_follow")
 
 @socketio.on("read_message") 
 def read_message(data) :
@@ -120,3 +147,107 @@ def read_message(data) :
     Conversations.patch_last_read_id(message_id, user_id, conversation_uuid)
 
 
+@socketio.on("follow")
+def notify_follow(data) :
+    # follower user emits this event
+
+    follower_user = data['follower']
+    following_user = data['following']
+
+    follower_res = Users.get_id_uuid_by_username(follower_user['username'])
+    follower_id = follower_res['id']
+
+
+
+    following_res = Users.get_id_uuid_by_username(following_user['username'])
+    following_id = following_res['id']
+    following_uuid = following_res['uuid']
+
+    payload = json.dumps({
+        "actor" : follower_user,
+    })
+
+    new_notif = Notifications(user_id=following_id,
+                              actor_id=follower_id,
+                              notification_type="follow", 
+                              payload=payload)
+    new_follow_payload = new_notif.add()
+    new_follow_payload['created_at'] = new_follow_payload['created_at'].isoformat()
+
+    new_notif_payload = {
+        "payload" : new_follow_payload,
+        "notif_type" : "follow"
+    }
+
+
+    emit(f"notify", new_notif_payload, to=following_uuid)
+# above notify follow could have also been a callback called after follow user http request finishes
+            # if it works it works
+
+def notify_followers_of_post(author_uuid, new_post_payload) :
+    # new_post_payload is {payload: {...}}
+    new_post_payload["notif_type"] = "post"
+
+    socketio.emit(f"notify", new_post_payload, to=f"{author_uuid}_post" )
+
+def notify_followers_of_guide(author_uuid, new_guide_payload) :
+    new_guide_payload["notif_type"] = "guide"
+
+    socketio.emit(f"notify", new_guide_payload, to=f"{author_uuid}_guide" )
+
+def notify_followers_of_diary(author_uuid, new_diary_payload) :
+    new_diary_payload["notif_type"] ="diary"
+    socketio.emit(f"notify", new_diary_payload, to=f"{author_uuid}_diary" )
+
+def notify_post_author(author_uuid, new_notif_payload) :
+    new_notif_payload['notif_type'] = "comment_post"
+    socketio.emit(f"notify", new_notif_payload, to=f"{author_uuid}" )
+
+def notify_guide_author(author_uuid, new_notif_payload) :
+    new_notif_payload['notif_type'] = "comment_guide"
+    socketio.emit(f"notify", new_notif_payload, to=f"{author_uuid}" )
+    
+def notify_like(author_uuid, new_like_payload) :
+    socketio.emit(f"notify", new_like_payload, to=f"{author_uuid}" )
+
+
+    
+"""
+
+note :
+    we specify uuids in some events because it is to distinguish 
+    the event. 
+
+    Rooms are only there for the user to listen to, user does not automatically
+    distinguish events by the room it came from, it just listens to events
+    from joined rooms.
+
+rooms 
+{user_uuid} , this room is user's personal room, will always listen to these
+    emitted events :
+        {sender_uuid}_new_message 
+            : is used in updating chat list for recent messages
+        request_join
+            : is used when a new conversation is initiated
+            : user is the recipient
+        conversation_created
+            : is used as feedback when a new conversation is created
+            : user is the sender
+        followed
+            : when other user has followed current user, emit follow event
+
+{room_uuid} , room of conversation
+    emitted events : 
+        new_message_{room_uuid} 
+            : is used to update conversation real time
+{user_uuid}_post , room to join when following user
+--            ---
+
+{user_uuid}_post
+    : notifies user for posts from following user
+...
+
+"""
+
+    
+ 

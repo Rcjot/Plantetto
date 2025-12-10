@@ -5,6 +5,9 @@ from .forms import CommentGuideForm, EditCommentGuideForm
 from ...models.comments_guides import CommentsGuides
 from ...services import cloudinary
 from datetime import date, timedelta
+from ...models.notifications import Notifications
+from ...models.guide import Guides
+from ...sockets import notify_guide_author
 
 @comment_guide_bp.route("/", methods=["GET", "OPTIONS"], strict_slashes=False)
 def get_comments(guide_uuid):  # ADD guide_uuid parameter
@@ -42,6 +45,23 @@ def add_comment(guide_uuid):  # ADD guide_uuid parameter
                                          parent_id=form.parent_id
                                          )
         uuid_res = new_comment.add()
+
+        author_id_uuid_res = Guides.get_guide_author_id_uuid(guide_uuid)
+
+        if (str(author_id_uuid_res['id']) != str(current_user_id)) :
+            actor = current_user.get_json()
+            payload = Notifications.generate_notification_comment(entity_id=form.guide_id,
+                                                        content=form.content.data,
+                                                        actor=actor,
+                                                        entity_uuid=guide_uuid,
+                                                        actor_id=current_user_id,
+                                                        user_id=author_id_uuid_res['id'],
+                                                        notification_type="comment_guide"
+                                                        )
+
+            notify_guide_author(author_id_uuid_res['uuid'], new_notif_payload=payload)
+        
+
         return jsonify(success=True, comment_uuid=uuid_res["uuid"])
     return jsonify(success=False,
                     message="form fields might be invalid",

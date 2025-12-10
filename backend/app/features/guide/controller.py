@@ -5,6 +5,8 @@ from .forms import GuideForm, PatchMetaGuideForm
 from ...models.guide import Guides
 from ...models.guides_image import GuidesImages
 from ...services import cloudinary
+from ...models.notifications import Notifications
+from ...sockets import notify_followers_of_guide
 import json
 import math
 
@@ -49,6 +51,7 @@ def create_guide() :
     uuid_res = new_guide.add()
     guide_uuid = uuid_res["uuid"]
 
+            
     return jsonify(success=True, guide_uuid=guide_uuid)
 
 
@@ -129,12 +132,24 @@ def patch_status_guide(guide_uuid) :
     data = request.get_json()
     guide_uuid = str(guide_uuid)
     status = data["status"]
-    print(status)
 
     current_user_id = current_user.get_id()
     to_update_guide = Guides.patch_status(guide_uuid=guide_uuid, status=status, current_user_id=current_user_id )
 
+   
+
     if (to_update_guide) :
+        if status == "published" :
+                payload = Notifications.generate_notifications_guide(entity_id=to_update_guide['id'],
+                                                                    title=to_update_guide['title'],
+                                                                    actor=current_user.get_json(),
+                                                                    entity_uuid=guide_uuid,
+                                                                    actor_id=current_user_id
+                                                                    )
+                if payload :
+                    notify_followers_of_guide(author_uuid=current_user.get_uuid(),
+                                            new_guide_payload=payload)
+
         return jsonify(success=True, guide_uuid=guide_uuid)
     return jsonify(success=False, message="update plant failed"), 404
 

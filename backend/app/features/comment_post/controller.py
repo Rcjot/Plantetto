@@ -3,6 +3,10 @@ from flask_login import login_required, current_user
 from flask import request, jsonify
 from .forms import CommentPostForm, EditCommentPostForm
 from ...models.comments_posts import CommentsPosts
+from ...models.notifications import Notifications
+from ...models.post import Posts
+from ...sockets import notify_post_author
+import json
 
 @comment_post_bp.route("/", methods=["GET"], strict_slashes=False)
 def get_comments(post_uuid):
@@ -33,7 +37,25 @@ def add_comment(post_uuid):
             user_id=current_user_id,
             parent_id=form.parent_id
         )
+
         uuid_res = new_comment.add()
+
+        author_id_uuid_res = Posts.get_post_author_id_uuid(post_uuid)
+
+        if (str(author_id_uuid_res['id']) != str(current_user_id)) :
+            actor = current_user.get_json()
+            payload = Notifications.generate_notification_comment(entity_id=form.post_id,
+                                                        content=form.content.data,
+                                                        actor=actor,
+                                                        entity_uuid=post_uuid,
+                                                        actor_id=current_user_id,
+                                                        user_id=author_id_uuid_res['id'],
+                                                        notification_type="comment_post"
+                                                        )
+
+            notify_post_author(author_id_uuid_res['uuid'], new_notif_payload=payload)
+        
+
         return jsonify(success=True, comment_uuid=uuid_res["uuid"])
         
     return jsonify(success=False, message="form fields might be invalid", error=form.errors), 400

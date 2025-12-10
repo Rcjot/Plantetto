@@ -159,5 +159,27 @@ class CommentsGuides() :
             uuid=result['uuid'],
             guide_id=result['guide_id']
         )
-        
-    
+
+    @classmethod
+    def get_comment_author_guide_id_uuid(cls, comment_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = """
+        SELECT 
+            users.id AS user_id, 
+            users.uuid AS user_uuid, 
+            guides.id AS guide_id,
+            guides.uuid AS guide_uuid
+        FROM comments_guides c_g
+        JOIN users ON c_g.user_id = users.id
+        JOIN guides ON c_g.guide_id = guides.id
+        WHERE c_g.uuid = %s
+        """
+        cursor.execute(sql, (comment_uuid,))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None:
+            return None
+        return result

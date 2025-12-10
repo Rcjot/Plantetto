@@ -5,6 +5,8 @@ from ...services import cloudinary
 from ...models.post import Posts
 from ...models.media import Media
 from ...models.planttag import PlantTags
+from ...models.notifications import Notifications
+from ...sockets import notify_followers_of_post
 from .forms import PostForm
 from .forms import PostEditForm
 import json
@@ -157,12 +159,32 @@ def create_post():
                 media_res = cloudinary.upload_asset(media, public_id=str(i), media_type=media_type, folder=f"posts/{new_post_uuid}")
                 new_media = Media(media_url=media_res["srcURL"], media_order=i, media_type=media_type, post_id=new_post_id, width=media_res["width"], height=media_res["height"])
                 new_media.add()
+            new_post = Posts.get_post(new_post_uuid)
+
+            for tag in form.parsed_planttags :
+                new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
+                new_planttag.add()
+            new_post['planttags'] = form.parsed_planttags
+
+            actor = current_user.get_json()
+
+            payload = Notifications.generate_notifications_post(entity_id=new_post_id,
+                                                      caption=caption,
+                                                      actor=actor,
+                                                      entity_uuid=new_post_uuid,
+                                                      actor_id=current_user_id
+                                                      )
+            if payload :
+                notify_followers_of_post(author_uuid=current_user.get_uuid(),
+                                        new_post_payload=payload
+                                        )
+
             
-            # Add plant tags if they exist
-            if hasattr(form, 'parsed_planttags') and form.parsed_planttags:
-                for tag in form.parsed_planttags:
-                    new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
-                    new_planttag.add()
+                # Add plant tags if they exist
+                if hasattr(form, 'parsed_planttags') and form.parsed_planttags:
+                    for tag in form.parsed_planttags:
+                        new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
+                        new_planttag.add()
             
             # Get the created post with current_user_id to include liked status
             new_post = Posts.get_post(new_post_uuid, current_user_id)

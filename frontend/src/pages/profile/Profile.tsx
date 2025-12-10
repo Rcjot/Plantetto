@@ -9,6 +9,9 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { FollowersDialog } from "@/features/follow/FollowersDialog";
 import { FollowingDialog } from "@/features/follow/FollowingDialog";
 import chat_icon from "@/assets/icons/chat.svg";
+import { followNotify } from "@/lib/socket";
+import { BellRingIcon } from "lucide-react";
+import { joinRoom } from "@/lib/socket";
 import ProfileDiaryCarouselSection from "@/features/profile/profilediaries/ProfileDiaryCarouselSection";
 
 function Profile() {
@@ -23,6 +26,10 @@ function Profile() {
     const [followingDialogOpen, setFollowingDialogOpen] = useState(false);
     const { username } = useParams<string>();
     const { auth } = useAuthContext()!;
+    const [notifStatus, setNotifStatus] = useState<{
+        notify_post: boolean;
+        notify_guide: boolean;
+    } | null>(null);
 
     const fetchProfile = useCallback(async () => {
         if (username) {
@@ -73,7 +80,14 @@ function Profile() {
     }, [username, auth.user, fetchFollowStatus, fetchFollowCounts]);
 
     const handleFollowToggle = async () => {
-        if (!username || isFollowLoading) return;
+        if (
+            !username ||
+            isFollowLoading ||
+            !auth.user ||
+            !user ||
+            user === "loading"
+        )
+            return;
 
         setIsFollowLoading(true);
 
@@ -94,11 +108,29 @@ function Profile() {
                     ...prev,
                     followers_count: prev.followers_count + 1,
                 }));
+                followNotify(auth.user, user);
             }
         }
 
         setIsFollowLoading(false);
     };
+
+    const fetchNotifStatus = useCallback(async () => {
+        if (
+            !username ||
+            isFollowLoading ||
+            !auth.user ||
+            !user ||
+            user === "loading"
+        )
+            return;
+        const { notificationStatus } = await followApi.getNotifStatus(username);
+        setNotifStatus(notificationStatus);
+    }, [auth, username, isFollowLoading, user]);
+
+    useEffect(() => {
+        fetchNotifStatus();
+    }, [fetchNotifStatus]);
 
     if (user === "loading") return <div className="p-10">Loading...</div>;
     if (!user) return <div className="p-10">User not found.</div>;
@@ -203,6 +235,66 @@ function Profile() {
                                         className="w-6 h-6 sm:w-8 sm:h-8 cursor-pointer"
                                     />
                                 </button>
+                                {notifStatus && (
+                                    <div className="dropdown dropdown-left 2xl:dropdown-right">
+                                        <div
+                                            tabIndex={0}
+                                            role="button"
+                                            className="cursor-pointer"
+                                        >
+                                            <BellRingIcon />
+                                        </div>
+                                        <ul
+                                            tabIndex={-1}
+                                            className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+                                        >
+                                            <li>
+                                                <button
+                                                    onClick={async () => {
+                                                        const { ok } =
+                                                            await followApi.patchNotification(
+                                                                user.username,
+                                                                "post"
+                                                            );
+                                                        if (ok) {
+                                                            joinRoom(
+                                                                "",
+                                                                `${user.id}_post`
+                                                            );
+                                                            fetchNotifStatus();
+                                                        }
+                                                    }}
+                                                >
+                                                    {notifStatus.notify_post
+                                                        ? "unnotify me for new posts"
+                                                        : "notify me for new posts"}
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={async () => {
+                                                        const { ok } =
+                                                            await followApi.patchNotification(
+                                                                user.username,
+                                                                "guide"
+                                                            );
+                                                        if (ok) {
+                                                            joinRoom(
+                                                                "",
+                                                                `${user.id}_guide`
+                                                            );
+                                                            fetchNotifStatus();
+                                                        }
+                                                    }}
+                                                >
+                                                    {notifStatus.notify_guide
+                                                        ? "unnotify me for new guides"
+                                                        : "notify me for new guides"}
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

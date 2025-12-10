@@ -22,7 +22,7 @@ class Guides() :
         VALUES (%s)
         RETURNING uuid
         """
-        cursor.execute(sql, (self.user_id))
+        cursor.execute(sql, (self.user_id,))
 
         uuid_res = cursor.fetchone()
 
@@ -96,7 +96,7 @@ class Guides() :
         """ + published_date_sql + """
         WHERE uuid = %s
         AND user_id = %s 
-        RETURNING uuid, content, plant_type_id, user_id
+        RETURNING id, title, uuid, content, plant_type_id, user_id
         """
         cursor.execute(sql, (status, guide_uuid, current_user_id))
         result = cursor.fetchone()
@@ -351,14 +351,14 @@ class Guides() :
         search = "%" + search + "%"
         params = [search]
         if (plant_type_id is not None) :
-            sql += " AND guides.plant_type_id =%s"
+            sql += " AND guides.plant_type_id =%s "
             params.extend([plant_type_id])
 
         if (user_id) :
             sql += " AND guides.user_id = %s "
             params.extend([user_id])
             
-        sql+= "ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
+        sql+= " ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
         cursor.execute(guides_query + sql, [current_user_id, current_user_id] + params)
@@ -396,6 +396,20 @@ class Guides() :
             id=result['id'],
             uuid=result['uuid'],
         )
+
+    @classmethod
+    def get_guide_author_id_uuid(cls, guide_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "SELECT users.id, users.uuid FROM guides JOIN users ON guides.user_id = users.id WHERE guides.uuid = %s "
+        cursor.execute(sql, (guide_uuid,))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None:
+            return None
+        return result
     
     @classmethod
     def get_bookmarked_guide(cls, current_user_id, limit, offset):

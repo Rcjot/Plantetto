@@ -42,4 +42,8 @@ export function readMessage(
     });
 }
 
+export function followNotify(follower: UserType, following: UserType) {
+    socket.emit("follow", { follower: follower, following: following });
+}
+
 export default socket;

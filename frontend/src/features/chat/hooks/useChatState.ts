@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { UserType } from "../../auth/authTypes";
 import socket from "@/lib/socket";
 import chatApi from "@/api/chatApi";
@@ -10,7 +10,7 @@ export interface RoomObjType {
 function useChatState(
     setIsListState: React.Dispatch<React.SetStateAction<boolean>>
 ) {
-    const buttonRef = useRef<HTMLImageElement>(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const [currentRoomObj, setCurrentRoomObj] = useState<RoomObjType>({
         recipient: null,
@@ -35,8 +35,8 @@ function useChatState(
         };
 
         const handler = (event: CustomEvent<{ user: UserType }>) => {
-            buttonRef.current?.focus();
-
+            setDropdownOpen(true);
+            console.log("hey", event.detail.user);
             handleAsync(event.detail.user);
         };
         window.addEventListener("openChat", handler as EventListener);
@@ -69,9 +69,10 @@ function useChatState(
     });
 
     return {
-        buttonRef,
         currentRoomObj,
         setCurrentRoomObj,
+        dropdownOpen,
+        setDropdownOpen,
     };
 }
 

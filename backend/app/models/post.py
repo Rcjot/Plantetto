@@ -46,6 +46,21 @@ class Posts():
             created_at=result['created_at'],
             user_id=result['user_id']
         )
+    
+    @classmethod
+    def get_by_id(cls, post_id):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT * FROM posts WHERE id = %s"
+
+        cursor.execute(sql, (post_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            return None
+
+        return result
 
     @classmethod
     def all(cls, limit, cursor_score, cursor_timestamp, current_user_id, user_id=None):
@@ -496,6 +511,20 @@ class Posts():
         cursor.close()
 
         return posts
+
+    @classmethod
+    def get_post_author_id_uuid(cls, post_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "SELECT users.id, users.uuid FROM posts JOIN users ON posts.user_id = users.id WHERE posts.uuid = %s "
+        cursor.execute(sql, (post_uuid,))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None:
+            return None
+        return result
 
     @classmethod
     def delete(cls, post_uuid, current_user_id):

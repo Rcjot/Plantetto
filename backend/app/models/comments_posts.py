@@ -130,3 +130,27 @@ class CommentsPosts():
             uuid=result['uuid'],
             post_id=result['post_id']
         )
+
+    @classmethod
+    def get_comment_author_post_id_uuid(cls, comment_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = """
+        SELECT 
+            users.id AS user_id, 
+            users.uuid AS user_uuid, 
+            posts.id AS post_id,
+            posts.uuid AS post_uuid
+        FROM comments_posts c_p
+        JOIN users ON c_p.user_id = users.id
+        JOIN posts ON c_p.post_id = posts.id
+        WHERE c_p.uuid = %s
+        """
+        cursor.execute(sql, (comment_uuid,))
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        if result is None:
+            return None
+        return result

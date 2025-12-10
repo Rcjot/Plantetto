@@ -19,16 +19,16 @@ class Diaries :
         sql = """INSERT INTO diaries 
         (note, plant_id, user_id) 
         VALUES (%s, %s, %s)
-        RETURNING uuid
+        RETURNING id, uuid
         """
         cursor.execute(sql, (self.note, self.plant_id, self.user_id))
         
-        uuid_res = cursor.fetchone()
+        id_uuid_res = cursor.fetchone()
 
         db.commit()
         cursor.close()
 
-        return uuid_res
+        return id_uuid_res
     
     @classmethod
     def update_media(cls, diary_uuid, media_url, media_type) :

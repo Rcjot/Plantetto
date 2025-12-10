@@ -6,27 +6,33 @@ import socket from "@/lib/socket";
 
 function useConversationRooms() {
     const [search, setSearch] = useState("");
-    const [nextCursor, setNextCursor] = useState<string | null>(null);
+    const nextCursor = useRef<string | null>(null);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(true);
     const [conversationRooms, setConversationRooms] = useState<
         ConversationRoomType[]
     >([]);
+    const [isAllState, setIsAllState] = useState(true);
     const initialFetch = useRef(false);
 
     const { auth } = useAuthContext()!;
 
     const fetchConversationRooms = useCallback(
-        async (resetCursor = false) => {
+        async (resetCursor = false, isAll = isAllState) => {
             setLoading(true);
-            const modifiedNextCursor = resetCursor ? null : nextCursor;
+            const modifiedNextCursor = resetCursor ? null : nextCursor.current;
 
             const {
                 conversationRooms: conversationRoomsRes,
                 nextCursor: nextCursorRes,
-            } = await chatApi.getConversationRooms(search, modifiedNextCursor);
+            } = await chatApi.getConversationRooms(
+                search,
+                modifiedNextCursor,
+                isAll
+            );
             setHasMore(Boolean(nextCursorRes));
-            setNextCursor(nextCursorRes);
+            // setNextCursor(nextCursorRes);
+            nextCursor.current = nextCursorRes;
             if (resetCursor) {
                 setConversationRooms(conversationRoomsRes);
             } else {
@@ -37,7 +43,7 @@ function useConversationRooms() {
             }
             setLoading(false);
         },
-        [nextCursor, search]
+        [search, isAllState]
     );
 
     useEffect(() => {
@@ -62,10 +68,10 @@ function useConversationRooms() {
     }, [fetchConversationRooms]);
 
     const refetchWithResetCursorIs = useCallback(
-        (resetCursor: boolean) => {
-            fetchConversationRooms(resetCursor);
+        (resetCursor: boolean, isAll = isAllState) => {
+            fetchConversationRooms(resetCursor, isAll);
         },
-        [fetchConversationRooms]
+        [fetchConversationRooms, isAllState]
     );
 
     useEffect(() => {
@@ -82,6 +88,11 @@ function useConversationRooms() {
         };
     }, [auth, refetchWithResetCursorIs]);
 
+    function toggleIsAllState(isAll: boolean) {
+        setIsAllState(isAll);
+        refetchWithResetCursorIs(true, isAll);
+    }
+
     return {
         conversationRooms,
         search,
@@ -89,6 +100,8 @@ function useConversationRooms() {
         refetchWithResetCursorIs,
         hasMore,
         loading,
+        isAllState,
+        toggleIsAllState,
     };
 }
 

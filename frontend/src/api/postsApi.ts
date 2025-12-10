@@ -4,7 +4,7 @@ import { isAxiosError } from "axios";
 
 async function createPost(formData: FormData) {
     try {
-        const { data } = await axios.post("/posts", formData);
+        const { data } = await axios.post("/posts/", formData);
         const newPost: PostType = data["new_post"];
         const resErrors: {
             caption: string[];

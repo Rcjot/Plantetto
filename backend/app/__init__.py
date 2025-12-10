@@ -73,6 +73,9 @@ def create_app() :
     from .features.chat import chat_bp
     app.register_blueprint(chat_bp, url_prefix="/api/chat")
 
+    from .features.notification import notification_bp
+    app.register_blueprint(notification_bp, url_prefix="/api/notifications")
+
     from .features.market import market_bp
     app.register_blueprint(market_bp, url_prefix="/api/market")
 
