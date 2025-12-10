@@ -64,6 +64,7 @@ function SettingsAccount() {
                     <ChangePasswordModal
                         title="Change your password"
                         onClose={() => setModal(null)}
+                        username={auth.user?.username}
                     />
                 )}
 
