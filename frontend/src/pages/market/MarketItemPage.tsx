@@ -123,18 +123,8 @@ export default function MarketItemPage() {
             <div className="bg-base-100 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 py-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="input input-bordered w-full sm:max-w-md bg-base-200"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate("/market");
-                            }}
-                            readOnly
-                        />
-                        <div className="flex gap-2 w-full sm:w-auto">
-                            {onMarketPage && (
+                        <div className="flex gap-2 w-full sm:w-auto ml-auto ">
+                            {onMarketPage ? (
                                 <button
                                     className="btn btn-ghost btn-sm sm:btn-md flex-1 sm:flex-initial"
                                     onClick={() => navigate("/mylistings")}
@@ -146,10 +136,17 @@ export default function MarketItemPage() {
                                         My Listings
                                     </span>
                                 </button>
+                            ) : (
+                                <button
+                                    className="btn btn-ghost"
+                                    onClick={() => navigate("/market")}
+                                >
+                                    Browse Marketplace
+                                </button>
                             )}
 
                             <button
-                                className="btn btn-success btn-sm sm:btn-md flex-1 sm:flex-initial"
+                                className="btn btn-success btn-sm sm:btn-md flex-1 sm:flex-initial ml-auto"
                                 onClick={() => navigate("/mylistings")}
                             >
                                 Create Listing
