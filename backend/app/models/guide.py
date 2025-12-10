@@ -22,7 +22,7 @@ class Guides() :
         VALUES (%s)
         RETURNING uuid
         """
-        cursor.execute(sql, (self.user_id))
+        cursor.execute(sql, (self.user_id,))
 
         uuid_res = cursor.fetchone()
 
@@ -351,14 +351,14 @@ class Guides() :
         search = "%" + search + "%"
         params = [search]
         if (plant_type_id is not None) :
-            sql += " AND guides.plant_type_id =%s"
+            sql += " AND guides.plant_type_id =%s "
             params.extend([plant_type_id])
 
         if (user_id) :
             sql += " AND guides.user_id = %s "
             params.extend([user_id])
             
-        sql+= "ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
+        sql+= " ORDER BY guides.published_date DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
         cursor.execute(guides_query + sql, [current_user_id, current_user_id] + params)
