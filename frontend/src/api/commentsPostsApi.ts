@@ -1,18 +1,17 @@
-import type { UserType } from "@/features/auth/authTypes";
+import type { CommentType } from "@/features/comments/commentTypes";
 import axios from "@/lib/axios";
 import { isAxiosError } from "axios";
 
-interface commentType {
-    uuid: string;
-    content: string;
-    author: UserType;
-    created_at: string;
-    last_edit_date: string;
-}
-
-async function getCommentsUnderPost(post_uuid: string) {
+async function getCommentsUnderPost(
+    post_uuid: string,
+    nextCursor: null | string
+) {
     try {
-        const { data } = await axios.get(`/posts/${post_uuid}/comments`);
+        console.log(nextCursor);
+
+        const { data } = await axios.get(
+            `/posts/${post_uuid}/comments?cursor=${nextCursor}`
+        );
 
         let commentsArray = [];
 
@@ -24,12 +23,19 @@ async function getCommentsUnderPost(post_uuid: string) {
             }
         }
 
-        const comments: commentType[] = commentsArray;
+        const comments: CommentType[] = commentsArray;
+        const totalCount: number = data["total_count"];
+        const nextCursorRes: string | null = data["next_cursor"];
 
-        return { ok: true, comments: comments };
+        return {
+            ok: true,
+            comments: comments,
+            totalCount: totalCount,
+            nextCursor: nextCursorRes,
+        };
     } catch (error) {
         console.error(error);
-        return { ok: false, comments: null };
+        return { ok: false, comments: [], totalCount: 0, nextCursor: null };
     }
 }
 

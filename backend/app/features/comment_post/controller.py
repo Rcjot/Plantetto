@@ -10,15 +10,28 @@ import json
 
 @comment_post_bp.route("/", methods=["GET"], strict_slashes=False)
 def get_comments(post_uuid):
+    limit = request.args.get("limit", default=10, type=int)
+    cursor_timestamp = request.args.get("cursor", default=None, type=str)
+    if cursor_timestamp == "null" :
+        cursor_timestamp = None
     parent_uuid = request.args.get("parent_uuid", default=None, type=str)
     post_uuid = str(post_uuid)
 
     current_user_id = current_user.get_id()
 
-    comments = CommentsPosts.all(post_uuid, parent_uuid, current_user_id)
+    comments = CommentsPosts.all(post_uuid, parent_uuid, current_user_id, cursor_timestamp, limit)
+
+    has_more = len(comments) > limit
+    comments = comments[:limit]
+
+    total_count = CommentsPosts.get_count_of_post(post_uuid)
 
 
-    return jsonify(success=True, comments=comments)
+    return jsonify(success=True, 
+                   comments=comments,
+                   total_count=total_count['count'],
+                   next_cursor = comments[-1]['created_at'] if has_more else None,
+                   )
 
 
 @comment_post_bp.route("/", methods=["POST"], strict_slashes=False)
