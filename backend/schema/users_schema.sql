@@ -1,3 +1,4 @@
+
 DROP TABLE IF EXISTS users CASCADE;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -7,6 +8,7 @@ CREATE TABLE users (
     uuid UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
     username VARCHAR(20) UNIQUE NOT NULL,
     email VARCHAR(50) UNIQUE NOT NULL,
+    email_verified BOOLEAN DEFAULT FALSE,
     user_password VARCHAR(50) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     pfp_url TEXT DEFAULT NULL,

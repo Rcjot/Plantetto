@@ -1,7 +1,8 @@
 export interface UserType {
     id: string;
     username: string;
-    email: string; 
+    email: string;
+    email_verified: boolean;
     pfp_url: string;
     display_name: string | null;
 }

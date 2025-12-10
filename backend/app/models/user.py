@@ -5,11 +5,12 @@ import hashlib
 from flask import jsonify
 
 class Users(UserMixin) :
-    def __init__(self, id=None, uuid=None, username=None, email=None, password=None, created_at=None, pfp_url=None, display_name=None):
+    def __init__(self, id=None, uuid=None, username=None, email=None, password=None, created_at=None, pfp_url=None, display_name=None, email_verified=None):
         self.id = id
         self.uuid = uuid
         self.username = username
         self.email = email
+        self.email_verified = email_verified
         self.password = password
         self.created_at = created_at
         self.pfp_url = pfp_url
@@ -91,6 +92,7 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
+            email_verified=result['email_verified'],
             created_at=result['created_at'],
             pfp_url=result['pfp_url'],
             display_name=result['display_name'],
@@ -115,6 +117,7 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
+            email_verified=result['email_verified'],
             password=result['user_password'],
             created_at=result['created_at'],
             pfp_url=result['pfp_url'],
@@ -145,6 +148,7 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
+            email_verified=result['email_verified'],
             created_at=result['created_at'],
             pfp_url=result['pfp_url'],
             display_name=result['display_name'],
@@ -175,6 +179,7 @@ class Users(UserMixin) :
             uuid=result['uuid'],
             username=result['username'],
             email=result['email'],
+            email_verified=result['email_verified'],
             created_at=result['created_at'],
             pfp_url=result['pfp_url'],
             display_name=result['display_name'],
@@ -196,7 +201,8 @@ class Users(UserMixin) :
             'username':self.username,
             'pfp_url':self.pfp_url,
             'display_name':self.display_name,
-            'email': self.email
+            'email': self.email,
+            'email_verified': self.email_verified
         }
     
     @classmethod
@@ -293,7 +299,8 @@ class Users(UserMixin) :
         sql = """
                 UPDATE users
                 SET 
-                email = %s
+                email = %s,
+                email_verified = FALSE
                 WHERE id = %s
                 RETURNING *
               """
@@ -308,3 +315,18 @@ class Users(UserMixin) :
             return False
 
         return True
+    
+    @classmethod
+    def check_verification_status(cls, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = "SELECT email_verified FROM users WHERE id = %s"
+
+        cursor.execute(sql, (current_user_id,))
+        result = cursor.fetchone()
+
+        if result is None :
+            return False
+
+        return result['email_verified']

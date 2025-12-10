@@ -16,6 +16,7 @@ cloudinary = "*"
 apscheduler = "*"
 tzdata = "*"
 flask-socketio = "*"
+resend = "*"
 
 [dev-packages]
 
