@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { DialogClose } from "@/components/ui/dialog";
+import { toast } from "react-toastify";
 
 const schema = z.object({
     nickname: z
@@ -85,6 +86,21 @@ export default function GardenForm({
         const file = (data.image as FileList)?.[0];
         if (!file) {
             setError("image", { type: "manual", message: "Image is required" });
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            toast.warn("Please select an image ");
+            setError("image", { type: "manual", message: "Image is required" });
+
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.warn("File size must be less than 10MB.");
+            setError("image", {
+                type: "manual",
+                message: "less than 10MB please",
+            });
             return;
         }
 
@@ -198,6 +214,24 @@ export default function GardenForm({
                         })}
                         onChange={(e) => {
                             const file = e.target.files?.[0];
+                            let invalid = false;
+                            if (file) {
+                                if (!file.type.startsWith("image/")) {
+                                    toast.warn(
+                                        "Please select an image or video file."
+                                    );
+                                    invalid = true;
+                                }
+                                if (file.size > 10 * 1024 * 1024) {
+                                    toast.warn(
+                                        "File size must be less than 10MB."
+                                    );
+                                    invalid = true;
+                                }
+                            }
+                            if (invalid) {
+                                return true;
+                            }
                             if (file) setPreview(URL.createObjectURL(file));
                             else setPreview(null);
                         }}
