@@ -76,7 +76,7 @@ function ProfileDiaryCarouselSection() {
                 carouselItems={carouselItems}
             />
 
-            <Carousel className="w-[83vw] sm:w-5/6">
+            <Carousel className="max-w-[95%] sm:w-6/6">
                 <CarouselContent>
                     {/* If you ever uncomment this to add the button inside the carousel, 
                         wrap it in the same check: */}
