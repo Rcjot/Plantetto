@@ -7,12 +7,14 @@ import { Link } from "react-router-dom";
 import { MailCheck } from "lucide-react";
 import { Mail } from "lucide-react";
 import { Shield } from "lucide-react";
+import VerifyEmailModal from "@/components/ui/VerifyEmailModal";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 function SettingsAccount() {
+    const { auth } = useAuthContext()!;
     const [modal, setModal] = useState<"email" | "password" | "verify" | null>(
         null
     );
-
     return (
         <div className="flex flex-col gap-20 p-3 sm:p-10">
             <div className="flex gap-2">
@@ -43,12 +45,18 @@ function SettingsAccount() {
                     >
                         <Shield />
                     </SettingItem>
-                    <SettingItem
-                        label="Verify your email"
-                        onClick={() => setModal("verify")}
-                    >
-                        <MailCheck />
-                    </SettingItem>
+                    {!auth.user?.email_verified ? (
+                        <SettingItem
+                            label="Verify your email"
+                            onClick={() => setModal("verify")}
+                        >
+                            <MailCheck />
+                        </SettingItem>
+                    ) : (
+                        <SettingItem label="Verified" onClick={() => {}}>
+                            <MailCheck />
+                        </SettingItem>
+                    )}
                 </div>
 
                 {/* Modals */}
@@ -62,6 +70,12 @@ function SettingsAccount() {
                 {modal === "email" && (
                     <ChangeEmailModal
                         title="Change your email address"
+                        onClose={() => setModal(null)}
+                    />
+                )}
+                {modal === "verify" && (
+                    <VerifyEmailModal
+                        title="Verify your email address"
                         onClose={() => setModal(null)}
                     />
                 )}

@@ -12,6 +12,8 @@ from .forms import ChangePasswordForm, ChangeEmailForm
 from ...models.market import MarketItems
 import math
 import json
+from ...services.resend import send_to_email
+from ...models.email_verification import EmailVerifications
 
 @user_bp.route("/upload", methods=["POST"])
 @login_required
@@ -204,25 +206,41 @@ def change_password() :
         "currentPassword" : form.currentPassword.errors,
         "newPassword" : form.newPassword.errors,
         "confirmNewPassword" : form.confirmNewPassword.errors,
+        "code" : [],
         "root" : [],
     }
 
     current_user_id = current_user.get_id()
 
-    if validated :
+    if "code" in data :
+        # we try to apply here the code..
+        if EmailVerifications.verify_code_password(data['code'], current_user_id) :
+            return jsonify(success=True, message="successfully changed password")
+        else :
+            error["code"].append("invalid code or expired")
+            return jsonify(success=True, message="invalid code or expired", error=error), 400
+
+
+    cooldown_minutes = 1
+
+    available = EmailVerifications.check_sent_code_request_is_available(current_user_id, cooldown_minutes, 'password')
+    if not available :
+        error["code"].append("please try again later")
+
+    if validated and available:
         user_json = current_user.get_json()
         username = user_json['username']
+        email = user_json['email']
         user = Users.get_for_auth(username)
 
         if user and user.check_password(form.currentPassword.data) :
-            if Users.change_password(current_user_id=current_user_id, new_password=form.newPassword.data) :
-                return jsonify(success=True, message="successfully changed password")
-            else :
-                error["root"] = ["user not found"]
-                return jsonify(success=False, 
-                            message="resource not found",
-                            error=error
-                            ), 404
+            token_res = EmailVerifications.generate_token_change_password(current_user_id,
+                                                                          form.newPassword.data)
+
+
+            send_to_email(email, token_res['secret_code'], token_res['expires_in_minutes'])
+
+            return jsonify(success=True, message="email sent")
         error["currentPassword"] = ["invalid password"]
     
     return jsonify(success=False, 
@@ -240,12 +258,38 @@ def change_email() :
     validated = form.validate()
     error = {
         "newEmail" : form.newEmail.errors,
+        "code" : [],
         "root" : [],
     }
 
     current_user_id = current_user.get_id()
+    
+    if "code" in data :
+        # we try to apply here the code..
+        if EmailVerifications.verify_code_email(data['code'], current_user_id) :
+            return jsonify(success=True, message="successfully changed email")
+        else :
+            error["code"].append("invalid code or expired")
+            return jsonify(success=True, message="invalid code or expired", error=error), 400
+
+    cooldown_minutes = 1
+
+    available = EmailVerifications.check_sent_code_request_is_available(current_user_id, cooldown_minutes, 'email')
+    if not available :
+        error["code"].append("please try again later")
 
     if validated :
+        user_json = current_user.get_json()
+        email = user_json['email']
+        verified = user_json['email_verified']
+
+        if verified :        
+            # if verified send an email to the old email
+            token_res = EmailVerifications.generate_token_change_email(current_user_id,
+                                                                        form.newEmail.data)
+            send_to_email(email, token_res['secret_code'], token_res['expires_in_minutes'])
+            return jsonify(success=True, message="email sent")
+        
         if Users.change_email(current_user_id=current_user_id, new_email=form.newEmail.data) :
             return jsonify(success=True, message="successfully changed email")
         else :
@@ -289,6 +333,7 @@ def get_user_listing(username) :
         listing=listing,
         meta_data=meta_data
     )
+    
 
 @user_bp.route("/<username>/posts")
 @login_required
@@ -336,6 +381,43 @@ def get_user_posts(username) :
         feed=feed,
         next_cursor=next_cursor,
     )
+    
+@user_bp.route("/verification_code", methods=["POST"])
+def send_verify_code() :
+    current_user_id = current_user.get_id()
+    user = current_user.get_json()
+    email = user['email']
+
+    cooldown_minutes = 1
+
+    if not Users.check_verification_status(current_user_id) and EmailVerifications.check_sent_code_request_is_available(current_user_id, cooldown_minutes, 'verify') :
+        
+        token_res = EmailVerifications.generate_token(current_user_id)
+
+        send_to_email(email, token_res['secret_code'], token_res['expires_in_minutes'])
+
+        return jsonify(success=True, message="email sent")
+    else :
+        return jsonify(success=False, message="you are already verified or you are on cooldown"), 400
+
+@user_bp.route("/verify_email", methods=["POST"])
+def verify_email() :
+    data = request.get_json()
+    input_code = data['code']
+    current_user_id = current_user.get_id()
+
+    if EmailVerifications.verify_code(code=input_code, current_user_id=current_user_id) :
+        return jsonify(success=True, verified=True)
+    else : 
+        return jsonify(success=False, verified=False), 400
+
+@user_bp.route("/verification_code")
+def get_verification_code_status() :
+    verification_type = request.args.get("type", default="verify", type=str)
+
+    status = EmailVerifications.check_has_available_code(current_user.get_id(), verification_type)
+
+    return jsonify(success=True, has_available=status)
 
 @user_bp.route("/<username>/guides")
 @login_required
