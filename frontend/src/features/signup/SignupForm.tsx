@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 import { useState, useMemo } from "react";
 import { usePasswordValidation } from "@/features/signup/usePasswordValidation";
+import { toast } from "react-toastify";
 
 const schema = z
     .object({
@@ -63,6 +64,7 @@ const schema = z
                 message: "Password is too common",
                 path: ["password"],
             });
+            // REMOVED: toast.info("Password is too common");
         }
 
         if (
@@ -75,6 +77,7 @@ const schema = z
                 message: "Password cannot contain your username",
                 path: ["password"],
             });
+            // REMOVED: console.log and toast.info
         }
 
         if (password !== data.confirm) {
@@ -104,6 +107,8 @@ function SignupForm() {
         resolver: zodResolver(schema),
         mode: "onSubmit",
     });
+
+    // REMOVED: useEffect that watched errors.password
 
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
@@ -143,7 +148,7 @@ function SignupForm() {
             msg === "Password cannot contain your username" ||
             msg === "Password is too common"
         ) {
-            // add shadcn toast error here for hidden password rules
+            toast.info(msg);
         }
     };
 

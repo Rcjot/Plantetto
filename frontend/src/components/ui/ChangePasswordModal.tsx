@@ -129,7 +129,7 @@ const ChangePasswordModal: React.FC<Props> = ({ title, onClose, username }) => {
                 type: "custom",
                 message: "Password cannot contain your username",
             });
-            // add toast ("Password cannot contain your username")
+            toast.info("Password cannot contain your username");
             return;
         }
 
@@ -151,7 +151,7 @@ const ChangePasswordModal: React.FC<Props> = ({ title, onClose, username }) => {
     const onError: SubmitErrorHandler<ChangePasswordFields> = (errors) => {
         const msg = errors.newPassword?.message;
         if (msg === "Password is too common") {
-            // add toast error here ("Password is too common")
+            toast.info("Password is too common");
         }
     };
 
