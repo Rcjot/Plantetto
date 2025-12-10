@@ -174,17 +174,17 @@ def create_post():
                                                       entity_uuid=new_post_uuid,
                                                       actor_id=current_user_id
                                                       )
-            
-            notify_followers_of_post(author_uuid=current_user.get_uuid(),
-                                     new_post_payload=payload
-                                      )
+            if payload :
+                notify_followers_of_post(author_uuid=current_user.get_uuid(),
+                                        new_post_payload=payload
+                                        )
 
-           
-            # Add plant tags if they exist
-            if hasattr(form, 'parsed_planttags') and form.parsed_planttags:
-                for tag in form.parsed_planttags:
-                    new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
-                    new_planttag.add()
+            
+                # Add plant tags if they exist
+                if hasattr(form, 'parsed_planttags') and form.parsed_planttags:
+                    for tag in form.parsed_planttags:
+                        new_planttag = PlantTags(plant_id=tag['id'], post_id=new_post_id)
+                        new_planttag.add()
             
             # Get the created post with current_user_id to include liked status
             new_post = Posts.get_post(new_post_uuid, current_user_id)
