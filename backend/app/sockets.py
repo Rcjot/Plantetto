@@ -167,6 +167,10 @@ def notify_follow(data) :
         "actor" : follower_user,
     })
 
+    join_room(f"{following_uuid}_post")
+    join_room(f"{following_uuid}_guide")
+    join_room(f"{following_uuid}_diary")
+
     new_notif = Notifications(user_id=following_id,
                               actor_id=follower_id,
                               notification_type="follow", 
