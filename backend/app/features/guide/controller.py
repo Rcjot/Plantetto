@@ -146,8 +146,9 @@ def patch_status_guide(guide_uuid) :
                                                                     entity_uuid=guide_uuid,
                                                                     actor_id=current_user_id
                                                                     )
-                notify_followers_of_guide(author_uuid=current_user.get_uuid(),
-                                          new_guide_payload=payload)
+                if payload :
+                    notify_followers_of_guide(author_uuid=current_user.get_uuid(),
+                                            new_guide_payload=payload)
 
         return jsonify(success=True, guide_uuid=guide_uuid)
     return jsonify(success=False, message="update plant failed"), 404
