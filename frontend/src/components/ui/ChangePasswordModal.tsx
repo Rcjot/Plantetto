@@ -162,6 +162,8 @@ const ChangePasswordModal: React.FC<Props> = ({ title, onClose, username }) => {
         if (!ok) {
             setCodeError("invalid code or expired");
         } else {
+            toast.success("changed password!");
+
             onClose();
         }
         setVerifying(false);

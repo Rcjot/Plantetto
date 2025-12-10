@@ -1,6 +1,7 @@
 import usersApi from "@/api/usersApi";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface Props {
     title: string;
@@ -38,6 +39,7 @@ const VerifyEmailModal: React.FC<Props> = ({ title, onClose }) => {
         const { ok } = await usersApi.verifyEmail(verifCode);
         if (ok) {
             onClose();
+            toast.success("email verified!");
             fetchCredentials();
         } else {
             setVerifyingError("code sent has already expire or invalid");

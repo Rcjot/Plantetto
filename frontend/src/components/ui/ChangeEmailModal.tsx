@@ -1,6 +1,7 @@
 import usersApi from "@/api/usersApi";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import React, { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface Props {
     title: string;
@@ -64,6 +65,8 @@ const ChangeEmailModal: React.FC<Props> = ({ title, onClose }) => {
             setCodeError("invalid code or expired");
         } else {
             onClose();
+            toast.success("changed email!");
+
             fetchCredentials();
         }
         setVerifying(false);
