@@ -8,33 +8,26 @@ import {
 import PostHeader from "@/features/posts/PostHeader";
 import PostCarousel from "./PostCarousel";
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import postsApi from "@/api/postsApi";
 import type { PostType } from "./postTypes";
 import { CommentSectionWithMedia } from "../comments/PostComments/CommentSectionWithMedia";
 import { CommentSectionWithoutMedia } from "../comments/PostComments/CommentSectionWithoutMedia";
 
-function PostDialog() {
-    const { post_uuid } = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
+function PostDialog2({ postUuid }: { postUuid: string | null }) {
+    const [, setSearchParams] = useSearchParams();
     const [post, setPost] = useState<PostType | null>(null);
-
-    const origin = location.state?.origin || "/home";
-
     const hasMedia = post && post.media && post.media.length > 0;
 
     useEffect(() => {
-        if (!location.state?.post && post_uuid) {
+        if (postUuid) {
             const fetchPost = async () => {
-                const fetchedPost = await postsApi.fetchPostByUUID(post_uuid);
+                const fetchedPost = await postsApi.fetchPostByUUID(postUuid);
                 setPost(fetchedPost);
             };
             fetchPost();
-        } else if (location.state?.post) {
-            setPost(location.state.post);
         }
-    }, [post_uuid, location]);
+    }, [postUuid]);
 
     return (
         <>
@@ -43,19 +36,19 @@ function PostDialog() {
                     open={true}
                     onOpenChange={(open) => {
                         if (!open) {
-                            navigate(origin);
+                            setSearchParams("", { replace: true });
                         }
                     }}
                 >
                     <DialogContent className="p-0 min-w-[95vw] sm:p-3 md:min-w-max md:min-h-max bg-base-100">
                         <DialogHeader
                             className={`p-5 gap-4 max-h-[90vh] overflow-hidden transition-all duration-300
-                                ${
-                                    hasMedia
-                                        ? "md:max-w-[900px] lg:max-w-max lg:grid lg:grid-cols-[1fr_350px]"
-                                        : "md:max-w-[600px] w-full mx-auto flex flex-col"
-                                }
-                            `}
+                                    ${
+                                        hasMedia
+                                            ? "md:max-w-[900px] lg:max-w-max lg:grid lg:grid-cols-[1fr_350px]"
+                                            : "md:max-w-[600px] w-full mx-auto flex flex-col"
+                                    }
+                                `}
                         >
                             <div className="w-full text-left order-1 lg:hidden pb-2 shrink-0">
                                 <PostHeader
@@ -69,8 +62,7 @@ function PostDialog() {
                             {hasMedia &&
                                 post.highlight_height &&
                                 post.highlight_width && (
-                                    // was overflow-hidden here
-                                    <div className="order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] max-h-[90vh] flex items-center justify-center bg-black/5 rounded-md">
+                                    <div className="order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] max-h-[90vh] flex items-center justify-center bg-black/5 rounded-md overflow-hidden">
                                         <PostCarousel
                                             mediaList={post.media}
                                             view="viewpost"
@@ -127,4 +119,4 @@ function PostDialog() {
     );
 }
 
-export default PostDialog;
+export default PostDialog2;

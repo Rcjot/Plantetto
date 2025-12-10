@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import { useLocation, Outlet, useSearchParams } from "react-router-dom";
 import postsApi from "@/api/postsApi";
 import plantsApi from "@/api/plantsApi";
 import type { PostType } from "@/features/posts/postTypes";
@@ -10,7 +10,6 @@ import { Search } from "lucide-react";
 import MasonryGrid from "@/features/explore/MasonryGrid";
 
 function Explore() {
-    const navigate = useNavigate();
     const location = useLocation();
 
     const params = new URLSearchParams(location.search);
@@ -19,6 +18,7 @@ function Explore() {
     const [posts, setPosts] = useState<PostType[]>([]);
     const [_plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [, setSearchParams] = useSearchParams();
 
     const [search, setSearch] = useState(initialURLSearch);
     const [submittedSearch, setSubmittedSearch] = useState(initialURLSearch);
@@ -142,9 +142,7 @@ function Explore() {
     }, [loading, hasMore, nextCursor, selectedTag, isSearching]);
 
     const openPost = (post: PostType) => {
-        navigate(`/explore/${post.author.username}/${post.post_uuid}`, {
-            state: { background: location, post, origin: "/explore" },
-        });
+        setSearchParams({ post: post.post_uuid }, { replace: true });
     };
 
     return (

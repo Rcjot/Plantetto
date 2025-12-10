@@ -9,7 +9,7 @@ import {
     onRecentsUpdated,
 } from "./recentService";
 import type { PostType } from "@/features/posts/postTypes";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { addRecentPost } from "./recentService";
 
 export function RecentBlock() {
@@ -17,8 +17,7 @@ export function RecentBlock() {
     const userId = auth.user?.id ?? null;
     const [recentPosts, setRecentPosts] = useState<PostType[]>([]);
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const location = useLocation();
+    const [, setSearchParams] = useSearchParams();
 
     function timeAgo(dateString: string) {
         const then = new Date(dateString).getTime();
@@ -130,11 +129,9 @@ export function RecentBlock() {
                                 if (userId) {
                                     addRecentPost(userId, post);
                                 }
-                                navigate(
-                                    `/home/${post.author.username}/${post.post_uuid}`,
-                                    {
-                                        state: { background: location, post },
-                                    }
+                                setSearchParams(
+                                    { post: post.post_uuid },
+                                    { replace: true }
                                 );
                             }}
                         />

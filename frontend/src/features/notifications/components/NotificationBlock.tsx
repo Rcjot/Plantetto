@@ -6,8 +6,7 @@ import type {
     PayloadType,
 } from "../notificationTypes";
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "@/features/auth/AuthContext";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface NotificationBlockProps {
     notification: NotificationType;
@@ -19,7 +18,8 @@ function NotificationBlock({
     markNotificationRead,
 }: NotificationBlockProps) {
     const navigate = useNavigate();
-    const { auth } = useAuthContext()!;
+    const [, setSearchParams] = useSearchParams();
+
     let content;
     const notification_type = notification.notification_type;
     if (notification_type === "follow") {
@@ -69,8 +69,9 @@ function NotificationBlock({
                             notification_type == "like_post" ||
                             notification_type == "like_comment_post"
                         ) {
-                            navigate(
-                                `/home/${payload.actor.username}/${payload.entity_uuid}`
+                            setSearchParams(
+                                { post: payload.entity_uuid },
+                                { replace: true }
                             );
                         } else if (
                             notification_type == "like_guide" ||
@@ -118,8 +119,9 @@ function NotificationBlock({
                     className="flex gap-3 cursor-pointer"
                     onClick={() => {
                         if (notification_type == "post") {
-                            navigate(
-                                `/home/${actor.username}/${payload.entity_uuid}`
+                            setSearchParams(
+                                { post: payload.entity_uuid },
+                                { replace: true }
                             );
                         } else if (
                             notification_type == "guide" ||
@@ -127,8 +129,9 @@ function NotificationBlock({
                         ) {
                             navigate(`/guides/${payload.entity_uuid}`);
                         } else if (notification_type == "comment_post") {
-                            navigate(
-                                `/home/${auth.user?.username}/${payload.entity_uuid}`
+                            setSearchParams(
+                                { post: payload.entity_uuid },
+                                { replace: true }
                             );
                         } else {
                             navigate(`/home`);

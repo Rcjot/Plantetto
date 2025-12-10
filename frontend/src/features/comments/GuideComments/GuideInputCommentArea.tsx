@@ -1,6 +1,5 @@
 import { useState } from "react";
 import useAuth from "@/features/auth/useAuth";
-import { Link } from "react-router-dom";
 import commentsGuidesApi from "@/api/commentsGuidesApi";
 
 interface GuidesCommentInputAreaProps {
@@ -58,24 +57,6 @@ export function GuidesCommentInputArea({
             handleSubmit();
         }
     };
-
-    // Show login prompt if user is not authenticated
-    if (auth.status !== "authenticated") {
-        return (
-            <div className="join w-full">
-                <input
-                    type="text"
-                    placeholder="Sign in to post a comment"
-                    className="input flex-grow w-[85%]"
-                    value=""
-                    disabled
-                />
-                <Link to="/login" className="btn btn-neutral join-item w-[15%]">
-                    Sign In
-                </Link>
-            </div>
-        );
-    }
 
     return (
         <>

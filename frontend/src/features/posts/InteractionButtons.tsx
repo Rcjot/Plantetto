@@ -37,8 +37,6 @@ export function InteractionButton({ post }: InteractionButtonProps) {
         }
     }
 
-    console.log(post);
-
     return (
         <>
             <div className="flex flex-row gap-2">
