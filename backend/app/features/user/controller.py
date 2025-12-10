@@ -12,6 +12,8 @@ from .forms import ChangePasswordForm, ChangeEmailForm
 from ...models.market import MarketItems
 import math
 import json
+from ...services.resend import send_to_email
+from ...models.email_verification import EmailVerifications
 
 @user_bp.route("/upload", methods=["POST"])
 @login_required
