@@ -1,10 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import {
-    useNavigate,
-    useLocation,
-    Outlet,
-    useSearchParams,
-} from "react-router-dom";
+import { useLocation, Outlet, useSearchParams } from "react-router-dom";
 import postsApi from "@/api/postsApi";
 import plantsApi from "@/api/plantsApi";
 import type { PostType } from "@/features/posts/postTypes";
@@ -15,7 +10,6 @@ import { Search } from "lucide-react";
 import MasonryGrid from "@/features/explore/MasonryGrid";
 
 function Explore() {
-    const navigate = useNavigate();
     const location = useLocation();
 
     const params = new URLSearchParams(location.search);
