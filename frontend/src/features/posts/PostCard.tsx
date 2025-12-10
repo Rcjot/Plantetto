@@ -1,6 +1,6 @@
 import PostHeader from "@/features/posts/PostHeader";
 import PostCarousel from "./PostCarousel";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import PostOptionsButton from "./PostOptionsButon";
 import { useState } from "react";
 import { usePostContext } from "./context/PostContext";
@@ -9,10 +9,9 @@ import { addRecentPost } from "@/features/recent/recentService";
 import { InteractionButton } from "@/features/posts/InteractionButtons";
 
 function PostCard() {
-    const { post, origin = "/home" } = usePostContext()!;
+    const { post } = usePostContext()!;
+    const [, setSearchParams] = useSearchParams();
     const { auth } = useAuthContext()!;
-    const navigate = useNavigate();
-    const location = useLocation();
 
     const [deleted, setDeleted] = useState(false);
 
@@ -37,11 +36,7 @@ function PostCard() {
             addRecentPost(auth.user.id, post);
         }
 
-        const fullOrigin = location.search ? origin + location.search : origin;
-
-        navigate(`${origin}/${post.author.username}/${post.post_uuid}`, {
-            state: { background: location, post: post, origin: fullOrigin },
-        });
+        setSearchParams({ post: post.post_uuid }, { replace: true });
     }
 
     if (deleted) {
