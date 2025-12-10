@@ -22,7 +22,7 @@ const schema = z.object({
     nickname: z
         .string()
         .nonempty("required")
-        .length(50, "less than 50 characters please"),
+        .max(50, "less than 50 characters please"),
     plant_description: z.string().optional(),
     plant_type_id: z.string().nonempty("required"),
     image: z.any().optional(),
