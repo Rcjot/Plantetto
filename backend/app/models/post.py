@@ -359,8 +359,14 @@ class Posts():
                         SELECT l_p.created_at FROM likes_posts l_p
                         WHERE l_p.post_id = posts.id
                         AND l_p.user_id = %s
-                    ) AS liked
+                    ) AS liked,
+                    EXISTS (
+                        SELECT b_p.created_at FROM bookmarks_posts b_p
+                        WHERE b_p.post_id = posts.id
+                        AND b_p.user_id = %s
+                    ) AS bookmarked
             """
+            
         
         sql += """
                 FROM posts
@@ -386,7 +392,7 @@ class Posts():
 
         params = []
         if current_user_id is not None:
-            params.append(current_user_id)
+            params += [current_user_id, current_user_id]
         
         if cursor_timestamp:
             sql += f"""
