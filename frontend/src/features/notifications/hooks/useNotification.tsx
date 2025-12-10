@@ -8,8 +8,7 @@ import notificationsApi from "@/api/notificationsApi";
 import socket from "@/lib/socket";
 import { toast } from "react-toastify";
 import NotifToast from "../components/NotifToast";
-import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "@/features/auth/AuthContext";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 function useNotification() {
     const [notifs, setNotifs] = useState<NotificationType[] | null>(null);
@@ -19,7 +18,7 @@ function useNotification() {
     const initialFetch = useRef(false);
     const nextCursor = useRef<number | null>(null);
 
-    const { auth } = useAuthContext()!;
+    const [, setSearchParams] = useSearchParams();
 
     const navigate = useNavigate();
 
@@ -89,8 +88,9 @@ function useNotification() {
                         ) {
                             const payload =
                                 notification.payload as LikePayloadType;
-                            navigate(
-                                `/home/${notification.payload.actor.username}/${payload.entity_uuid}`
+                            setSearchParams(
+                                { post: payload.entity_uuid },
+                                { replace: true }
                             );
                         } else if (
                             notifType == "like_guide" ||
@@ -121,8 +121,9 @@ function useNotification() {
                             const payload =
                                 notificationRes.payload as EntityPayloadType;
                             if (notifType == "post") {
-                                navigate(
-                                    `/home/${notificationRes.payload.actor.username}/${payload.entity_uuid}`
+                                setSearchParams(
+                                    { post: payload.entity_uuid },
+                                    { replace: true }
                                 );
                             } else if (
                                 notifType == "guide" ||
@@ -130,8 +131,9 @@ function useNotification() {
                             ) {
                                 navigate(`/guides/${payload.entity_uuid}`);
                             } else if (notifType == "comment_post") {
-                                navigate(
-                                    `/home/${auth.user?.username}/${payload.entity_uuid}`
+                                setSearchParams(
+                                    { post: payload.entity_uuid },
+                                    { replace: true }
                                 );
                             } else {
                                 navigate(`/home`);
