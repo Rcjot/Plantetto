@@ -31,7 +31,7 @@ class CommentsPosts():
         return uuid_res
     
     @classmethod
-    def all(cls, post_uuid, parent_uuid=None, current_user_id=None):
+    def all(cls, post_uuid, parent_uuid=None, current_user_id=None, cursor_time_stamp=None, limit=None ):
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -58,16 +58,53 @@ class CommentsPosts():
         FROM comments_posts AS c
         JOIN users AS u ON c.user_id = u.id
         JOIN posts AS p ON c.post_id = p.id
-        WHERE p.uuid = %s  
-        AND c.parent_id IS NULL  -- Only get top-level comments
-        ORDER BY c.created_at DESC
         """
-        cursor.execute(sql, (current_user_id, post_uuid,))
+
+        params = [current_user_id]
+
+        if cursor_time_stamp :
+            sql += """
+                    WHERE 
+                    c.created_at < %s
+                    AND p.uuid = %s  
+                    AND c.parent_id IS NULL  -- Only get top-level comments
+                    ORDER BY c.created_at DESC
+                    LIMIT %s
+                    """
+            params += [cursor_time_stamp]
+        else :
+            sql += """
+                    WHERE p.uuid = %s 
+                    AND c.parent_id IS NULL  -- Only get top-level comments
+                    ORDER BY c.created_at DESC
+                    LIMIT %s
+                    """
+        params += [post_uuid, limit+1]
+        cursor.execute(sql, params)
 
         result = cursor.fetchall()
         cursor.close()
 
         return result
+    
+    @classmethod
+    def get_count_of_post(cls, post_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        SELECT COUNT(*) AS count
+        FROM comments_posts AS c
+        JOIN posts AS p ON c.post_id = p.id
+        WHERE p.uuid = %s
+        """
+        cursor.execute(sql, ([post_uuid,]))
+        
+        result = cursor.fetchone()
+        db.commit()
+        cursor.close()
+
+        return result  
 
     @classmethod
     def patch_content(cls, comment_uuid, content, current_user_id):
