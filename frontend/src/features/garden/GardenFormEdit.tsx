@@ -19,7 +19,10 @@ import { Label } from "@/components/ui/label";
 import { DialogClose } from "@/components/ui/dialog";
 
 const schema = z.object({
-    nickname: z.string().nonempty("required"),
+    nickname: z
+        .string()
+        .nonempty("required")
+        .length(50, "less than 50 characters please"),
     plant_description: z.string().optional(),
     plant_type: z.string().nonempty("required"),
     image: z.any().optional(),
