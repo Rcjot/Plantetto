@@ -4,7 +4,6 @@ import home_icon from "../assets/icons/home.svg";
 import explore_icon from "../assets/icons/explore.svg";
 import marketplace_icon from "../assets/icons/marketplace.svg";
 import guides_icon from "../assets/icons/community_guides.svg";
-import plant_diary_icon from "../assets/icons/plant_diary.svg";
 import garden_icon from "../assets/icons/my_garden.svg";
 import settings_icon from "../assets/icons/settings.svg";
 import bookmark_icon from "../assets/icons/bookmark.svg";
@@ -109,23 +108,6 @@ function Sidebar({ children }: { children: React.ReactNode }) {
                                 className="w-5 h-5"
                             />
                             <span>Community Guides</span>
-                        </NavLink>
-                    </li>
-
-                    <li>
-                        <NavLink
-                            to="/plantdiaries"
-                            onClick={drawToggle}
-                            className={({ isActive }) =>
-                                `${custom_hover_button} ${isActive ? "bg-base-300 font-semibold" : ""}`
-                            }
-                        >
-                            <img
-                                src={plant_diary_icon}
-                                alt="Plant Diary"
-                                className="w-5 h-5"
-                            />
-                            <span>My Plant Diary</span>
                         </NavLink>
                     </li>
 

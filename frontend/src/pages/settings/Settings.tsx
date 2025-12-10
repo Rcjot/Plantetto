@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 
 import ProfileIcon from "@/assets/icons/profile1.svg";
-import ThemesIcon from "@/assets/icons/themes.svg";
 import TermsIcon from "@/assets/icons/termsofservice.svg";
 import PrivacyIcon from "@/assets/icons/privacypolicy.svg";
 import CookiesIcon from "@/assets/icons/cookiespolicy.svg";
@@ -29,14 +28,6 @@ function Settings() {
             </div>
 
             {/* ========== SECTION: Display ========== */}
-            <div className="flex flex-col gap-3">
-                <h2 className="text-lg font-semibold text-gray-700">Display</h2>
-
-                <Link to="/settings/themes" className={linkStyle}>
-                    <img src={ThemesIcon} className="w-13 h-13" />
-                    <span className="text-base">Themes</span>
-                </Link>
-            </div>
 
             {/* ========== SECTION: Community Standards and Legal ========== */}
             <div className="flex flex-col gap-3">
