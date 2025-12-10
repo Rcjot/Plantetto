@@ -63,6 +63,7 @@ function GuidesView() {
             Selection,
         ],
         content: guide?.content ?? content,
+        editable: false,
     });
 
     if (!guide) return <div>loading..</div>;
