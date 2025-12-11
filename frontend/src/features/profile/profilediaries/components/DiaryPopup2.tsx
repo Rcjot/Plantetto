@@ -95,14 +95,16 @@ function DiaryPopup2({
     return (
         <>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="flex flex-col bg-yellow-50 rounded-lg shadow-lg min-w-fit h-[70dvh]  w-[80vw] md:!min-w-[50vw] md:w-[70vw] md:min-h-[60vh] [&>button]:hidden">
+                <DialogContent className="flex flex-col bg-yellow-50 rounded-lg shadow-lg min-w-fit h-[70dvh]  w-[80vw] md:!min-w-[50vw] md:w-[70vw] md:min-h-[80dvh] [&>button]:hidden">
                     {/*side carousel*/}
                     <div className="absolute hidden md:block">
                         <Carousel
-                            className="w-[83vw] sm:w-5/6 right-40 bottom-10"
+                            className="w-[83vw] sm:w-5/6 right-40 bottom-10 "
                             orientation="vertical"
                         >
-                            <CarouselContent>{carouselItems}</CarouselContent>
+                            <CarouselContent className="max-h-[75dvh]">
+                                {carouselItems}
+                            </CarouselContent>
                             <CarouselPrevious />
                             <CarouselNext />
                         </Carousel>

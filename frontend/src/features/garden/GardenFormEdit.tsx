@@ -17,9 +17,13 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { DialogClose } from "@/components/ui/dialog";
+import { toast } from "react-toastify";
 
 const schema = z.object({
-    nickname: z.string().nonempty("required"),
+    nickname: z
+        .string()
+        .nonempty("required")
+        .max(50, "less than 50 characters please"),
     plant_description: z.string().optional(),
     plant_type: z.string().nonempty("required"),
     image: z.any().optional(),
@@ -103,7 +107,26 @@ export default function GardenFormEdit({
         formData.append("plant_type", selectedPlantType.id.toString());
 
         const file = (data.image as FileList)?.[0];
+
         if (file) {
+            if (!file.type.startsWith("image/")) {
+                toast.warn("Please select an image ");
+                setError("image", {
+                    type: "manual",
+                    message: "Image is required",
+                });
+
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                toast.warn("File size must be less than 10MB.");
+                setError("image", {
+                    type: "manual",
+                    message: "less than 10MB please",
+                });
+                return;
+            }
+
             const blob = await processFile(file);
             if (blob) formData.append("plantpic", blob, file.name);
         }
@@ -208,6 +231,24 @@ export default function GardenFormEdit({
                         {...register("image")}
                         onChange={(e) => {
                             const file = e.target.files?.[0];
+                            let invalid = false;
+                            if (file) {
+                                if (!file.type.startsWith("image/")) {
+                                    toast.warn(
+                                        "Please select an image or video file."
+                                    );
+                                    invalid = true;
+                                }
+                                if (file.size > 10 * 1024 * 1024) {
+                                    toast.warn(
+                                        "File size must be less than 10MB."
+                                    );
+                                    invalid = true;
+                                }
+                            }
+                            if (invalid) {
+                                return true;
+                            }
                             if (file) setPreview(URL.createObjectURL(file));
                             else setPreview(plant.picture_url || null);
                         }}

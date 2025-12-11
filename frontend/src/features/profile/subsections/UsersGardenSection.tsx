@@ -113,7 +113,7 @@ function UsersGardenSection() {
         <div className="bg-base-200 pr-1">
             {/* top controls */}
             <div className="bg-base-100 border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
+                <div className="max-w-2xl mx-auto px-4 py-4 flex flex-col gap-4">
                     <div className="w-full sm:max-w-md">
                         <input
                             type="text"
@@ -150,7 +150,7 @@ function UsersGardenSection() {
                         No plants yet.
                     </p>
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                         {plants.map((plant) => (
                             <GardenCard
                                 key={plant.plant_uuid}

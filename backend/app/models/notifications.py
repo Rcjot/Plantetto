@@ -47,12 +47,14 @@ class Notifications() :
     
 
         sql = f"""
-                SELECT * 
+                SELECT n.id, n.created_at, n.user_id, n.actor_id, n.payload, x.uuid, n.notification_type, n.is_read
                 FROM notifications n
                 JOIN {x} x ON n.entity_id = x.id
                 WHERE n.user_id = %s
                 AND x.uuid = %s
                 AND n.notification_type = %s
+                ORDER BY n.created_at DESC
+                LIMIT 1
                 """
 
         cursor.execute(sql, (current_user_id, entity_uuid, notif_type, ) )

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import type { DiaryMediaType } from "./diaryTypes";
 import plantPlaceHolder from "@/assets/plant_placeholder.png";
 import dayjs from "dayjs";
+import { toast } from "react-toastify";
 
 const schema = z.object({
     note: z.string().nonempty("required"),
@@ -40,7 +41,23 @@ function DiaryAddForm({ onSubmitCallback }: { onSubmitCallback: () => void }) {
     useEffect(() => {
         if (mediaFile && mediaFile.length > 0) {
             const file = mediaFile[0];
-
+            let invalid = false;
+            if (file) {
+                if (
+                    !file.type.startsWith("image/") &&
+                    !file.type.startsWith("video/")
+                ) {
+                    toast.warn("Please select an image or video file.");
+                    invalid = true;
+                }
+                if (file.size > 10 * 1024 * 1024) {
+                    toast.warn("File size must be less than 10MB.");
+                    invalid = true;
+                }
+            }
+            if (invalid) {
+                return;
+            }
             setPreview({
                 media_url: URL.createObjectURL(file),
                 media_type: file.type.startsWith("image") ? "image" : "video",

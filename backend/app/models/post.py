@@ -251,14 +251,22 @@ class Posts():
                     ) ORDER BY media.media_order
                 ) FILTER (WHERE media.id IS NOT NULL), '[]'
             ) AS media,
-            COALESCE (
-                JSON_AGG(
-                    JSON_BUILD_OBJECT(
-                        'id', p.id,
-                        'uuid', p.uuid,
-                        'nickname', p.nickname
-                    ) 
-                ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+            COALESCE(
+                (SELECT
+                    COALESCE (
+                        JSON_AGG(
+                            JSON_BUILD_OBJECT(
+                                'id', p.id,
+                                'uuid', p.uuid,
+                                'nickname', p.nickname
+                            ) 
+                        ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                    ) AS planttags
+                FROM plant_tags pt
+                LEFT JOIN plants p ON p.id = pt.plant_id
+                JOIN posts psb ON pt.post_id = psb.id
+                WHERE psb.id = posts.id
+                GROUP BY pt.post_id), '[]'
             ) AS planttags,
             max_ratio.width AS highlight_width,
             max_ratio.height AS highlight_height,
@@ -284,8 +292,6 @@ class Posts():
         JOIN users ON posts.user_id = users.id
         LEFT JOIN media ON media.post_id = posts.id
         LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
-        LEFT JOIN plant_tags pt ON posts.id = pt.post_id
-        LEFT JOIN plants p ON p.id = pt.plant_id
         WHERE posts.uuid = %s
         GROUP BY posts.id, users.uuid, users.pfp_url, users.username, 
                  users.display_name, max_ratio.width, max_ratio.height
@@ -326,22 +332,37 @@ class Posts():
                         'display_name', users.display_name
                     ) AS author,
                     COALESCE(
-                        JSON_AGG(
-                            JSON_BUILD_OBJECT(
-                                'url', media.media_url,
-                                'order', media.media_order,
-                                'type', media.media_type
-                            ) ORDER BY media.media_order
-                        ) FILTER (WHERE media.id IS NOT NULL), '[]'
+                        (SELECT
+                            COALESCE(
+                                JSON_AGG(
+                                    JSON_BUILD_OBJECT(
+                                        'url', m.media_url,
+                                        'order', m.media_order,
+                                        'type', m.media_type
+                                    ) ORDER BY m.media_order
+                                ) FILTER (WHERE m.id IS NOT NULL), '[]'
+                            ) AS media
+                        FROM media m
+                        LEFT JOIN posts pm ON m.post_id = pm.id
+                        WHERE pm.id = posts.id
+                        GROUP BY m.post_id), '[]'
                     ) AS media,
-                    COALESCE (
-                        JSON_AGG(
-                            JSON_BUILD_OBJECT(
-                                'id', p.id,
-                                'uuid', p.uuid,
-                                'nickname', p.nickname
-                            ) 
-                        ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                    COALESCE(
+                        (SELECT
+                            COALESCE (
+                                JSON_AGG(
+                                    JSON_BUILD_OBJECT(
+                                        'id', p.id,
+                                        'uuid', p.uuid,
+                                        'nickname', p.nickname
+                                    ) 
+                                ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                            ) AS planttags
+                        FROM plant_tags pt
+                        LEFT JOIN plants p ON p.id = pt.plant_id
+                        JOIN posts psb ON pt.post_id = psb.id
+                        WHERE psb.id = posts.id
+                        GROUP BY pt.post_id), '[]'
                     ) AS planttags,
                     max_ratio.width AS highlight_width,
                     max_ratio.height AS highlight_height,
@@ -371,7 +392,6 @@ class Posts():
         sql += """
                 FROM posts
                 JOIN users ON posts.user_id = users.id
-                LEFT JOIN media ON media.post_id = posts.id
                 LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
                 LEFT JOIN plant_tags pt ON posts.id = pt.post_id
                 LEFT JOIN plants p ON p.id = pt.plant_id
@@ -608,13 +628,21 @@ class Posts():
                         ) FILTER (WHERE media.id IS NOT NULL), '[]'
                     ) AS media,
                     COALESCE(
-                        JSON_AGG(
-                            JSON_BUILD_OBJECT(
-                                'id', p.id,
-                                'uuid', p.uuid,
-                                'nickname', p.nickname
-                            )
-                        ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                        (SELECT
+                            COALESCE (
+                                JSON_AGG(
+                                    JSON_BUILD_OBJECT(
+                                        'id', p.id,
+                                        'uuid', p.uuid,
+                                        'nickname', p.nickname
+                                    ) 
+                                ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                            ) AS planttags
+                        FROM plant_tags pt
+                        LEFT JOIN plants p ON p.id = pt.plant_id
+                        JOIN posts psb ON pt.post_id = psb.id
+                        WHERE psb.id = posts.id
+                        GROUP BY pt.post_id), '[]'
                     ) AS planttags,
                     max_ratio.width AS highlight_width,
                     max_ratio.height AS highlight_height,
@@ -634,9 +662,6 @@ class Posts():
                 JOIN users ON posts.user_id = users.id
                 LEFT JOIN media ON media.post_id = posts.id
                 LEFT JOIN max_ratio_media AS max_ratio ON max_ratio.post_id = posts.id
-                LEFT JOIN plant_tags pt ON posts.id = pt.post_id
-                LEFT JOIN plants p ON p.id = pt.plant_id
-                LEFT JOIN plant_types pty ON p.plant_type_id = pty.id
         """
         
         params = [current_user_id, current_user_id]

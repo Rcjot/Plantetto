@@ -4,6 +4,7 @@ import defaultpfp from "@/assets/defaultpfp.png";
 import ProfileCropper from "./ProfileCropper";
 import arrowdownicon from "@/assets/arrowdownicon.svg";
 import arrowupicon from "@/assets/arrowupicon.svg";
+import { toast } from "react-toastify";
 
 export interface SetProfileRef {
     getProfileData: () => Promise<FormData | null>;
@@ -56,7 +57,14 @@ const SetProfile = forwardRef<SetProfileRef, SetProfileProps>(
         function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
             if (!e.target.files || e.target.files.length === 0) return;
             const file = e.target.files[0];
-
+            if (!file.type.startsWith("image/")) {
+                toast.warn("Please select an image file.");
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                toast.warn("File size must be less than 10MB.");
+                return;
+            }
             const url = URL.createObjectURL(file);
             setImageSrc(url);
             setShowCrop(true);

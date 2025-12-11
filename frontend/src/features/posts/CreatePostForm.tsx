@@ -4,6 +4,7 @@ import PostCarousel from "./PostCarousel";
 import type { MediaType } from "./postTypes";
 import postsApi from "@/api/postsApi";
 import { useCreatePostContext } from "./context/PostContext";
+import { toast } from "react-toastify";
 
 function CreatePostForm({
     setOpen,
@@ -37,14 +38,30 @@ function CreatePostForm({
     function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
         if (!e.target.files) return;
         if (e.target.files.length === 0) return;
+
         const files = Array.from(e.target.files);
+        let invalid = false;
         const mediaUrlList: MediaType[] = files.map((file, index) => {
+            if (
+                !file.type.startsWith("image/") &&
+                !file.type.startsWith("video/")
+            ) {
+                toast.warn("Please select an image or video file.");
+                invalid = true;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                toast.warn("File size must be less than 10MB.");
+                invalid = true;
+            }
             return {
                 url: URL.createObjectURL(file),
                 type: file.type.startsWith("image") ? "image" : "video",
                 order: index,
             };
         });
+        if (invalid) {
+            return;
+        }
         setCreatePostForm((prev) => ({
             ...prev,
             media: [...prev.media, ...files],

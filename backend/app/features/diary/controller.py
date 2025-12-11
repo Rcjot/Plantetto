@@ -57,10 +57,10 @@ def add_diary():
                                                     entity_uuid=new_diary_uuid,
                                                     actor_id=current_user_id
                                                     )
-        
-        notify_followers_of_diary(author_uuid=current_user.get_uuid(),
-                                    new_diary_payload=payload
-                                    )
+        if payload :
+            notify_followers_of_diary(author_uuid=current_user.get_uuid(),
+                                        new_diary_payload=payload
+                                        )
         
         return jsonify(success=True, dairy_uuid=new_diary_uuid)
     return jsonify(success=False,

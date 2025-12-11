@@ -5,4 +5,7 @@ CREATE TABLE plant_tags (
     plant_id BIGINT NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
     post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-)
+);
+
+CREATE UNIQUE INDEX uniq_tag
+ON plant_tags (plant_id, post_id);

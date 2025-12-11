@@ -1,6 +1,7 @@
 import usersApi from "@/api/usersApi";
 import { useAuthContext } from "@/features/auth/AuthContext";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface Props {
     title: string;
@@ -43,8 +44,16 @@ const ChangeEmailModal: React.FC<Props> = ({ title, onClose }) => {
                 onClose();
             }
         }
+        fetchStatus();
         setLoading(false);
     }
+
+    const fetchStatus = useCallback(async () => {
+        const { ok, status } = await usersApi.getVerifCodeStatus("email");
+        if (ok) {
+            setHasAvailableCode(status);
+        }
+    }, []);
 
     async function submitCode(e: React.FormEvent) {
         e.preventDefault();
@@ -56,20 +65,16 @@ const ChangeEmailModal: React.FC<Props> = ({ title, onClose }) => {
             setCodeError("invalid code or expired");
         } else {
             onClose();
+            toast.success("changed email!");
+
             fetchCredentials();
         }
         setVerifying(false);
     }
 
     useEffect(() => {
-        const fetchStatus = async () => {
-            const { ok, status } = await usersApi.getVerifCodeStatus("email");
-            if (ok) {
-                setHasAvailableCode(status);
-            }
-        };
         fetchStatus();
-    });
+    }, [fetchStatus]);
 
     if (!auth.user) return <div>loading...</div>;
     return (

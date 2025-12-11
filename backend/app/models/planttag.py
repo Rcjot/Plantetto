@@ -12,7 +12,7 @@ class PlantTags() :
         db = get_db()
         cursor = db.cursor()
 
-        sql = "INSERT INTO plant_tags(plant_id, post_id) VALUES (%s, %s)"
+        sql = "INSERT INTO plant_tags(plant_id, post_id) VALUES (%s, %s) ON CONFLICT DO NOTHING "
         cursor.execute(sql, (self.plant_id, self.post_id)) 
         db.commit()
         cursor.close()

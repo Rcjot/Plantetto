@@ -69,6 +69,7 @@ class EmailVerifications :
         ON CONFLICT (user_id, verification_type) 
         DO UPDATE SET
             code = EXCLUDED.code,
+            verification_data = EXCLUDED.verification_data,
             expires_at = EXCLUDED.expires_at,
             created_at = NOW()
         """
@@ -150,6 +151,7 @@ class EmailVerifications :
         DO UPDATE SET
             code = EXCLUDED.code,
             expires_at = EXCLUDED.expires_at,
+            verification_data = EXCLUDED.verification_data,
             created_at = NOW()
         """
 
