@@ -62,7 +62,7 @@ function PostDialog2({ postUuid }: { postUuid: string | null }) {
                             {hasMedia &&
                                 post.highlight_height &&
                                 post.highlight_width && (
-                                    <div className="order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] max-h-[90vh] flex items-center justify-center bg-black/5 rounded-md">
+                                    <div className="order-2 lg:order-1 max-w-[100vw] sm:max-w-[65vw] max-h-[90vh] flex items-center justify-center bg-black/5 rounded-md overflow-hidden">
                                         <PostCarousel
                                             mediaList={post.media}
                                             view="viewpost"
