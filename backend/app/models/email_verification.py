@@ -287,6 +287,30 @@ class EmailVerifications :
     # -----------------------------------
     # signup 
 
+    @classmethod
+    def check_code_signup_email_not_on_cooldown(cls, email, cooldown_minutes) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = f"""
+        SELECT
+        (NOW() >  created_at + INTERVAL '{cooldown_minutes} minutes') AS is_available
+        FROM 
+        signup_email_verifications
+        WHERE email = %s
+        """
+
+        cursor.execute(sql, (email,))
+        result = cursor.fetchone()
+
+
+        db.commit()
+        cursor.close()
+
+        if result is None :
+            return True
+
+        return result['is_available']
 
     @classmethod 
     def check_code_signup_email_available(cls, email) :
@@ -322,6 +346,36 @@ class EmailVerifications :
 
         return result['has_available']
       
+    @classmethod
+    def update_code_with_email(cls, email) :
+        secret_code = f"{secrets.randbelow(10**6):06d}"
+        expires_in_minutes = 5
+
+
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = f"""
+        UPDATE signup_email_verifications
+        SET 
+        code = %s,
+        expires_at = NOW() + INTERVAL '{expires_in_minutes} minutes',
+        created_at = NOW()
+        WHERE email = %s
+        """
+
+        cursor.execute(sql, (secret_code, email))
+
+        db.commit()
+        cursor.close()
+
+        token = {
+            "secret_code" : secret_code,
+            "expires_in_minutes" : expires_in_minutes 
+        }
+
+        return token
+
 
     @classmethod 
     def generate_code_signup_email(cls, email, username, password) :

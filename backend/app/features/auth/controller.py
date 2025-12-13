@@ -82,10 +82,33 @@ def verify_signup_user() :
     if EmailVerifications.verify_signup_email_and_create_user(code, email) :
         return jsonify(success=True, message="verified signup successful")
     else :
-        return jsonify(success=False, message="verified signup failed")
+        return jsonify(success=False, message="verified signup failed"), 401
 
 # in the case where we would add resend ednpoint
         # just update the signup_email_verifications, naming is bad should include codes
+@auth_bp.route("/resend_code", methods=["POST"])
+def resend_verify_signup_code() :
+    data = request.get_json()
+    email = data["email"]
+
+    cooldown = 1
+
+    not_on_cooldown = EmailVerifications.check_code_signup_email_not_on_cooldown(email, cooldown) 
+    if not_on_cooldown:
+
+        token_res = EmailVerifications.update_code_with_email(email)
+        send_to_email(email, token_res['secret_code'], token_res['expires_in_minutes'])
+
+        return jsonify(success=True,
+                        sent=True, 
+                        message="resent a verification code to email") 
+    else :
+        return jsonify(
+            success=False,
+            message=f"wait for {cooldown} minute/s"
+        ), 400
+
+
 
 @auth_bp.route("/signin", methods=["POST"])
 def signin_user() :
