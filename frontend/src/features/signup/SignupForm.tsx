@@ -3,11 +3,11 @@ import { useForm } from "react-hook-form";
 import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import { z } from "zod";
 import authApi from "@/api/authApi";
-import { useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 import { useState, useMemo } from "react";
 import { usePasswordValidation } from "@/features/signup/usePasswordValidation";
 import { toast } from "react-toastify";
+import VerificationPopup from "./VerificationPopup";
 
 const schema = z
     .object({
@@ -108,13 +108,16 @@ function SignupForm() {
         mode: "onSubmit",
     });
 
+    const [openVerification, setOpenVerification] = useState(false);
+    const [hasAvailableCode, setHasAvailableCode] = useState(false);
+
     // REMOVED: useEffect that watched errors.password
 
-    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
     const password = watch("password", "");
+    const email = watch("email", "");
 
     const { strength, percentage } = useMemo(
         () => calculateStats(password),
@@ -138,7 +141,10 @@ function SignupForm() {
                 setError(field, { message: messages[0] });
             });
         } else {
-            navigate("/signin");
+            const hasAvailableCode = res.hasAvailableCode;
+            toast.success("sent verification code!");
+            setHasAvailableCode(Boolean(hasAvailableCode));
+            setOpenVerification(true);
         }
     };
 
@@ -166,166 +172,176 @@ function SignupForm() {
     );
 
     return (
-        <form
-            onSubmit={handleSubmit(onSubmit, onError)}
-            className="flex flex-col gap-2"
-        >
-            <label htmlFor="username" className="label">
-                Username
-            </label>
-            <div>
-                <span className="text-warning-content">
-                    {errors.username?.message}
-                </span>
-                <input
-                    {...register("username")}
-                    type="text"
-                    name="username"
-                    placeholder="Username"
-                    className={`input w-full ${errors.username ? "input-error" : ""}`}
-                />
-            </div>
+        <>
+            <VerificationPopup
+                open={openVerification}
+                setOpen={setOpenVerification}
+                hasAvailableCode={hasAvailableCode}
+                email={email}
+            />
+            <form
+                onSubmit={handleSubmit(onSubmit, onError)}
+                className="flex flex-col gap-2"
+            >
+                <label htmlFor="username" className="label">
+                    Username
+                </label>
+                <div>
+                    <span className="text-warning-content">
+                        {errors.username?.message}
+                    </span>
+                    <input
+                        {...register("username")}
+                        type="text"
+                        name="username"
+                        placeholder="Username"
+                        className={`input w-full ${errors.username ? "input-error" : ""}`}
+                    />
+                </div>
 
-            <label htmlFor="email" className="label">
-                Email
-            </label>
-            <div>
-                <span className="text-warning-content">
-                    {errors.email?.message}
-                </span>
-                <input
-                    {...register("email")}
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    className={`input w-full ${errors.email ? "input-error" : ""}`}
-                    autoComplete="email"
-                />
-            </div>
+                <label htmlFor="email" className="label">
+                    Email
+                </label>
+                <div>
+                    <span className="text-warning-content">
+                        {errors.email?.message}
+                    </span>
+                    <input
+                        {...register("email")}
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        className={`input w-full ${errors.email ? "input-error" : ""}`}
+                        autoComplete="email"
+                    />
+                </div>
 
-            <label htmlFor="password" className="label">
-                Password
-            </label>
-            <div>
-                {errors.password?.message &&
-                    ![
-                        "Password cannot contain your username",
-                        "Password is too common",
-                    ].includes(errors.password.message) && (
-                        <span className="text-warning-content"></span>
+                <label htmlFor="password" className="label">
+                    Password
+                </label>
+                <div>
+                    {errors.password?.message &&
+                        ![
+                            "Password cannot contain your username",
+                            "Password is too common",
+                        ].includes(errors.password.message) && (
+                            <span className="text-warning-content"></span>
+                        )}
+
+                    <div className="relative">
+                        <input
+                            {...register("password")}
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            autoComplete="new-password"
+                            className={`input w-full pr-10 ${errors.password ? "input-error" : ""}`}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
+                    </div>
+
+                    {password && (
+                        <div className="mt-2 space-y-1">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="font-medium text-gray-600">
+                                    Strength
+                                </span>
+                                <span
+                                    className={`font-bold ${
+                                        strength === "very-weak"
+                                            ? "text-red-600"
+                                            : strength === "weak"
+                                              ? "text-red-400"
+                                              : strength === "medium"
+                                                ? "text-yellow-500"
+                                                : "text-green-500"
+                                    }`}
+                                >
+                                    {getStrengthText(strength)} ({percentage}%)
+                                </span>
+                            </div>
+                            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full transition-all duration-500 ease-out ${getStrengthColor(strength)}`}
+                                    style={{ width: `${percentage}%` }}
+                                />
+                            </div>
+                        </div>
                     )}
 
-                <div className="relative">
-                    <input
-                        {...register("password")}
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password"
-                        autoComplete="new-password"
-                        className={`input w-full pr-10 ${errors.password ? "input-error" : ""}`}
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
-                    >
-                        {showPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                        ) : (
-                            <Eye className="h-5 w-5" />
-                        )}
-                    </button>
+                    {password && (
+                        <div className="mt-3 p-3 bg-base-200 rounded-lg border border-base-300">
+                            <p className="text-xs font-semibold mb-2 opacity-70">
+                                Password Requirements:
+                            </p>
+                            <ul className="space-y-1">
+                                <RequirementItem
+                                    met={criteria.minLength}
+                                    text="At least 8 characters"
+                                />
+                                <RequirementItem
+                                    met={criteria.hasNumber}
+                                    text="At least 1 number (e.g. 0-9)"
+                                />
+                                <RequirementItem
+                                    met={criteria.hasUpper}
+                                    text="At least 1 uppercase letter (e.g. A-Z)"
+                                />
+                                <RequirementItem
+                                    met={criteria.hasSpecial}
+                                    text="At least 1 special character (e.g. !@#$%^&*)"
+                                />
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
-                {password && (
-                    <div className="mt-2 space-y-1">
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="font-medium text-gray-600">
-                                Strength
-                            </span>
-                            <span
-                                className={`font-bold ${
-                                    strength === "very-weak"
-                                        ? "text-red-600"
-                                        : strength === "weak"
-                                          ? "text-red-400"
-                                          : strength === "medium"
-                                            ? "text-yellow-500"
-                                            : "text-green-500"
-                                }`}
-                            >
-                                {getStrengthText(strength)} ({percentage}%)
-                            </span>
-                        </div>
-                        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                                className={`h-full transition-all duration-500 ease-out ${getStrengthColor(strength)}`}
-                                style={{ width: `${percentage}%` }}
-                            />
-                        </div>
+                <label htmlFor="confirm" className="label">
+                    Confirm Password
+                </label>
+                <div>
+                    <span className="text-warning-content">
+                        {errors.confirm?.message}
+                    </span>
+                    <div className="relative">
+                        <input
+                            {...register("confirm")}
+                            type={showConfirm ? "text" : "password"}
+                            placeholder="Confirm Password"
+                            autoComplete="new-password"
+                            className={`input w-full pr-10 ${errors.confirm ? "input-error" : ""}`}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirm(!showConfirm)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
+                        >
+                            {showConfirm ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
                     </div>
-                )}
+                </div>
 
-                {password && (
-                    <div className="mt-3 p-3 bg-base-200 rounded-lg border border-base-300">
-                        <p className="text-xs font-semibold mb-2 opacity-70">
-                            Password Requirements:
-                        </p>
-                        <ul className="space-y-1">
-                            <RequirementItem
-                                met={criteria.minLength}
-                                text="At least 8 characters"
-                            />
-                            <RequirementItem
-                                met={criteria.hasNumber}
-                                text="At least 1 number (e.g. 0-9)"
-                            />
-                            <RequirementItem
-                                met={criteria.hasUpper}
-                                text="At least 1 uppercase letter (e.g. A-Z)"
-                            />
-                            <RequirementItem
-                                met={criteria.hasSpecial}
-                                text="At least 1 special character (e.g. !@#$%^&*)"
-                            />
-                        </ul>
-                    </div>
-                )}
-            </div>
-
-            <label htmlFor="confirm" className="label">
-                Confirm Password
-            </label>
-            <div>
+                <button className="btn btn-neutral mt-4 self-center px-10">
+                    {isSubmitting ? "signing up.." : "sign up"}
+                </button>
                 <span className="text-warning-content">
-                    {errors.confirm?.message}
+                    {errors.root?.message}
                 </span>
-                <div className="relative">
-                    <input
-                        {...register("confirm")}
-                        type={showConfirm ? "text" : "password"}
-                        placeholder="Confirm Password"
-                        autoComplete="new-password"
-                        className={`input w-full pr-10 ${errors.confirm ? "input-error" : ""}`}
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowConfirm(!showConfirm)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
-                    >
-                        {showConfirm ? (
-                            <EyeOff className="h-5 w-5" />
-                        ) : (
-                            <Eye className="h-5 w-5" />
-                        )}
-                    </button>
-                </div>
-            </div>
-
-            <button className="btn btn-neutral mt-4 self-center px-10">
-                {isSubmitting ? "signing up.." : "sign up"}
-            </button>
-            <span className="text-warning-content">{errors.root?.message}</span>
-        </form>
+            </form>
+        </>
     );
 }
 
