@@ -2,8 +2,10 @@ from . import auth_bp
 from flask import request, jsonify
 from .forms import SignupForm, LoginForm
 from ...models.user import Users
+from ...models.email_verification import EmailVerifications
 from flask_wtf.csrf import generate_csrf
 from flask_login import login_user, login_required, current_user, logout_user
+from ...services.resend import send_to_email
 
 @auth_bp.route("/me")
 def get_me() :
@@ -43,17 +45,47 @@ def signup_user() :
     }
 
     if validated :
-        new_user = Users(username=form.username.data, 
-                         email=form.email.data, 
-                         password=form.password.data)
-        new_user.add()
+        has_available_code =  EmailVerifications.check_code_signup_email_available(form.email.data)
+        # checking here includes clean up of expired codes
 
-        return jsonify(success=True, message="signup success")
-    
+        if (has_available_code) :
+            # do not do anything
+            return jsonify(success=False, 
+                           has_available_code=has_available_code,
+                           sent=False,
+                            message="already pending a verification code to the email. Previous form submission did not save.")
+        else :
+            token_res = EmailVerifications.generate_code_signup_email(form.email.data, form.username.data, form.password.data)
+
+            send_to_email(form.email.data, token_res['secret_code'], token_res['expires_in_minutes'])
+            return jsonify(success=True,
+                           has_available_code=has_available_code,
+                            sent=True, 
+                            message="sent a verification code to email")
+
     return jsonify(success=False, 
-                   message="something went wrong on signup",
-                   error=error
-                   ), 400
+                has_available_code=None,
+                sent=False,
+                message="something went wrong on signup",
+                error=error
+                ), 400
+
+
+@auth_bp.route("/verify_signup", methods=["POST"])
+def verify_signup_user() :
+    
+    data = request.get_json()
+    code = data["code"]
+    email = data["email"]
+
+    
+    if EmailVerifications.verify_signup_email_and_create_user(code, email) :
+        return jsonify(success=True, message="verified signup successful")
+    else :
+        return jsonify(success=False, message="verified signup failed")
+
+# in the case where we would add resend ednpoint
+        # just update the signup_email_verifications, naming is bad should include codes
 
 @auth_bp.route("/signin", methods=["POST"])
 def signin_user() :

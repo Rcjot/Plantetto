@@ -27,6 +27,16 @@ class Users(UserMixin) :
 
         db.commit()
         cursor.close()
+
+    def add_verified_with_hashed_password(self) :
+        db = get_db()
+        cursor = db.cursor()
+
+        sql = "INSERT INTO users(username, email, user_password, email_verified) VALUES (%s, %s, %s, %s)"
+        cursor.execute(sql, (self.username, self.email, self.password, True))
+
+        db.commit()
+        cursor.close()
     
     @classmethod 
     def explore(cls, limit, search, cursor_timestamp, current_user_id) :
