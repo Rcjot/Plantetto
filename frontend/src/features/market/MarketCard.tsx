@@ -46,28 +46,28 @@ export default function MarketCard({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="bg-base-100">
                             <DropdownMenuItem
-                                className="hover:!bg-neutral-300 hover:!text-neutral-800 transition-colors duration-200"
+                                className="hover:!bg-success hover:!text-white transition-colors duration-200 cursor-pointer"
                                 onClick={onEdit}
                             >
                                 Edit
                             </DropdownMenuItem>
                             {status === "active" ? (
                                 <DropdownMenuItem
-                                    className="hover:!bg-success hover:!text-white transition-colors duration-200"
+                                    className="hover:!bg-success hover:!text-white transition-colors duration-200 cursor-pointer"
                                     onClick={onMarkAsSold}
                                 >
                                     Mark as Sold
                                 </DropdownMenuItem>
                             ) : (
                                 <DropdownMenuItem
-                                    className="hover:!bg-success hover:!text-white transition-colors duration-200"
+                                    className="hover:!bg-success hover:!text-white transition-colors duration-200 cursor-pointer"
                                     onClick={onMarkAsActive}
                                 >
                                     Mark as Active
                                 </DropdownMenuItem>
                             )}
                             <DropdownMenuItem
-                                className="hover:!bg-yellow-500 hover:!text-white transition-colors duration-200"
+                                className="hover:!bg-red-500 hover:!text-white transition-colors duration-200 cursor-pointer"
                                 onClick={onDelete}
                             >
                                 Delete
