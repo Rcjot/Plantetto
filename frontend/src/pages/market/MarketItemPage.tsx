@@ -1,14 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import {
-    ChevronLeft,
-    MessageCircle,
-    MoreHorizontal,
-    Edit,
-    Trash2,
-    Tag,
-    CheckCircle,
-} from "lucide-react";
+import { ChevronLeft, MessageCircle, MoreHorizontal, Edit } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import profileApi from "@/api/profileApi";
 import plantsApi from "@/api/plantsApi";
