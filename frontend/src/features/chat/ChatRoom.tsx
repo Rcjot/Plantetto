@@ -21,7 +21,9 @@ function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
             : null;
     const { messagesObj, appendMessage, fetchMessages, hasMore, loading } =
         useChat(currentRoomObjUuid);
-    const [message, setMessage] = useState<string>("");
+    const [message, setMessage] = useState<string>(
+        currentRoomObj.defaultMessage
+    );
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -55,6 +57,7 @@ function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
         socket.on(listenRoom, handler);
 
         return () => {
+            console.log("unmounted");
             socket.off(listenRoom, handler);
         };
     }, [auth, appendMessage, currentRoomObjUuid]);

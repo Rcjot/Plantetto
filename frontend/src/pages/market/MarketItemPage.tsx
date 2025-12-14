@@ -107,8 +107,8 @@ export default function MarketItemPage() {
 
     const handleChatWithSeller = () => {
         if (!seller) return;
-        const event = new CustomEvent("openChat", {
-            detail: { user: seller },
+        const event = new CustomEvent("openChatMarket", {
+            detail: { user: seller, item: item },
         });
         window.dispatchEvent(event);
     };
