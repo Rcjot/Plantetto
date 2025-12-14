@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ChevronLeft, MessageCircle, MoreHorizontal, Edit } from "lucide-react";
+import {
+    ChevronLeft,
+    MessageCircle,
+    MoreHorizontal,
+    Edit,
+    Bookmark,
+} from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import profileApi from "@/api/profileApi";
 import plantsApi from "@/api/plantsApi";
@@ -20,6 +26,7 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import bookmarksApi from "@/api/bookmarksApi";
 
 export default function MarketItemPage() {
     const navigate = useNavigate();
@@ -36,6 +43,7 @@ export default function MarketItemPage() {
     const [markAsSoldDialogOpen, setMarkAsSoldDialogOpen] = useState(false);
     const [markAsActiveDialogOpen, setMarkAsActiveDialogOpen] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
 
     const isOwner = seller?.id === auth.user?.id;
     const onMarketPage = window.location.pathname.startsWith("/market");
@@ -97,6 +105,12 @@ export default function MarketItemPage() {
         fetchMarketItem();
     }, [fetchMarketItem]);
 
+    useEffect(() => {
+        if (item) {
+            setIsBookmarked(item?.bookmarked);
+        }
+    }, [item]);
+
     const handleChatWithSeller = () => {
         if (!seller) return;
         const event = new CustomEvent("openChatMarket", {
@@ -139,6 +153,16 @@ export default function MarketItemPage() {
         setActionLoading(false);
         setMarkAsActiveDialogOpen(false);
     };
+
+    async function toggleBookmarkMarketItem() {
+        if (!item) return;
+        const { ok, action } = await bookmarksApi.toggleBookmarkMarketItem(
+            item?.uuid
+        );
+        if (ok) {
+            setIsBookmarked(action === "bookmark");
+        }
+    }
 
     if (loading) {
         return (
@@ -235,9 +259,25 @@ export default function MarketItemPage() {
 
                         <div className="flex flex-col gap-4">
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-bold text-base-content">
-                                    {item.plant.nickname}
-                                </h1>
+                                <div className="flex justify-between">
+                                    <h1 className="text-2xl md:text-3xl font-bold text-base-content">
+                                        {item.plant.nickname}
+                                    </h1>
+                                    {!isOwner && (
+                                        <button
+                                            className="cursor-pointer hover:bg-transparent hover:shadow-none"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleBookmarkMarketItem();
+                                            }}
+                                        >
+                                            <Bookmark
+                                                className={`hover:scale-115  hover:text-neutral transition-colors ${isBookmarked && "fill-success"} `}
+                                            />
+                                        </button>
+                                    )}
+                                </div>
+
                                 <div
                                     className={`badge mt-2 ${
                                         item.status === "active"

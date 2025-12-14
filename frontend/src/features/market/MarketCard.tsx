@@ -1,12 +1,18 @@
-import { MoreHorizontal } from "lucide-react";
+import { Bookmark, MoreHorizontal } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import bookmarksApi from "@/api/bookmarksApi";
+import type { UserType } from "../auth/authTypes";
+import { useAuthContext } from "../auth/AuthContext";
 
 interface MarketCardProps {
+    owner: UserType;
+    uuid?: string;
     image: string;
     title: string;
     price: string;
@@ -17,9 +23,12 @@ interface MarketCardProps {
     onMarkAsSold?: () => void;
     onMarkAsActive?: () => void;
     status?: "active" | "sold";
+    bookmarked?: boolean;
 }
 
 export default function MarketCard({
+    owner,
+    uuid,
     image,
     title,
     price,
@@ -30,7 +39,21 @@ export default function MarketCard({
     onMarkAsSold,
     onMarkAsActive,
     status = "active",
+    bookmarked,
 }: MarketCardProps) {
+    const [isBookmarked, setIsBookmarked] = useState(bookmarked);
+    const { auth } = useAuthContext()!;
+
+    async function toggleBookmarkMarketItem() {
+        const { ok, action } =
+            await bookmarksApi.toggleBookmarkMarketItem(uuid);
+        if (ok) {
+            setIsBookmarked(action === "bookmark");
+        }
+    }
+
+    const isOwner = owner.id === auth.user?.id;
+
     return (
         <div className="max-w-xs w-full cursor-pointer group relative">
             {showActions && (
@@ -102,6 +125,19 @@ export default function MarketCard({
                             ₱{price}
                         </div>
                     </div>
+                    {!isOwner && (
+                        <button
+                            className="absolute bottom-5 right-5 cursor-pointer hover:bg-transparent hover:shadow-none"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleBookmarkMarketItem();
+                            }}
+                        >
+                            <Bookmark
+                                className={`hover:scale-115  hover:text-neutral transition-colors ${isBookmarked && "fill-success"} `}
+                            />
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

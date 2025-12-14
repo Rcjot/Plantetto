@@ -46,9 +46,22 @@ async function toggleBookmarkGuide(guideUuid: string) {
     }
 }
 
+async function toggleBookmarkMarketItem(marketItemUuid: string) {
+    try {
+        const { data } = await axios.post(
+            `/market/${marketItemUuid}/bookmarks/`
+        );
+        return { ok: true, action: data["action"] };
+    } catch (error) {
+        console.error(error);
+        return { ok: false };
+    }
+}
+
 export default {
     fetchBookmarkedPosts,
     fetchBookmarkedGuides,
     toggleBookmarkPost,
     toggleBookmarkGuide,
+    toggleBookmarkMarketItem,
 };

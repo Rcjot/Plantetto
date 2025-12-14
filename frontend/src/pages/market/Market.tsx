@@ -86,6 +86,7 @@ function Market() {
         setSearchQuery(searchInput);
         setPage(1);
     };
+    console.log(marketItems);
 
     return (
         <div className="bg-base-200 pr-1">
@@ -154,16 +155,21 @@ function Market() {
                     </p>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {marketItems.map((item) => (
-                            <MarketCard
-                                key={item.uuid}
-                                image={item.plant.picture_url}
-                                title={item.plant.nickname}
-                                price={item.price}
-                                status={item.status}
-                                onClick={() => handleItemClick(item)}
-                            />
-                        ))}
+                        {marketItems.map((item) => {
+                            return (
+                                <MarketCard
+                                    owner={item.owner}
+                                    key={item.uuid}
+                                    bookmarked={item.bookmarked}
+                                    uuid={item.uuid}
+                                    image={item.plant.picture_url}
+                                    title={item.plant.nickname}
+                                    price={item.price}
+                                    status={item.status}
+                                    onClick={() => handleItemClick(item)}
+                                />
+                            );
+                        })}
                     </div>
                 )}
 
