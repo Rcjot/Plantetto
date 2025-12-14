@@ -7,7 +7,7 @@ import type { MarketItemType } from "@/features/market/marketTypes";
 export interface RoomObjType {
     recipient: UserType | null;
     room: ConversationRoomType | null | string;
-    defaultMessage: string;
+    defaultMessage: string | null;
 }
 function useChatState(
     setIsListState: React.Dispatch<React.SetStateAction<boolean>>
@@ -17,9 +17,10 @@ function useChatState(
     const [currentRoomObj, setCurrentRoomObj] = useState<RoomObjType>({
         recipient: null,
         room: "",
-        defaultMessage: "",
+        defaultMessage: null,
         // loading initial state
     });
+    const [defaultMessage, setDefaultMessage] = useState<string>("");
     // conversationRoom will base on currentRecipient
 
     useEffect(() => {
@@ -33,7 +34,7 @@ function useChatState(
             setCurrentRoomObj({
                 recipient: user,
                 room: conversationRoomRes,
-                defaultMessage: "",
+                defaultMessage: null,
             });
             setIsListState(false);
         };
@@ -65,6 +66,7 @@ function useChatState(
                 room: conversationRoomRes,
                 defaultMessage: message,
             });
+            setDefaultMessage(message);
             setIsListState(false);
         };
 
@@ -111,6 +113,8 @@ function useChatState(
         setCurrentRoomObj,
         dropdownOpen,
         setDropdownOpen,
+        defaultMessage,
+        setDefaultMessage,
     };
 }
 
