@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+// Add Link to the imports
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { ChevronLeft, MessageCircle } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import profileApi from "@/api/profileApi";
@@ -242,17 +243,29 @@ export default function MarketItemPage() {
                                 {seller ? (
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                         <div className="flex items-center gap-3 flex-1">
-                                            <ProfilePicture
-                                                src={seller.pfp_url}
-                                            />
-                                            <div>
-                                                <p className="font-semibold">
-                                                    {seller.display_name ||
-                                                        seller.username}
-                                                </p>
-                                                <p className="text-sm text-base-content/70">
-                                                    @{seller.username}
-                                                </p>
+                                            <Link to={`/${seller.username}`}>
+                                                <ProfilePicture
+                                                    src={seller.pfp_url}
+                                                />
+                                            </Link>
+                                            <div className="flex flex-col">
+                                                <Link
+                                                    to={`/${seller.username}`}
+                                                    className="hover:underline"
+                                                >
+                                                    <p className="font-semibold">
+                                                        {seller.display_name ||
+                                                            seller.username}
+                                                    </p>
+                                                </Link>
+                                                <Link
+                                                    to={`/${seller.username}`}
+                                                    className="hover:underline"
+                                                >
+                                                    <p className="text-sm text-base-content/70">
+                                                        @{seller.username}
+                                                    </p>
+                                                </Link>
                                             </div>
                                         </div>
                                         <div className="flex gap-2 w-full sm:w-auto">
@@ -272,16 +285,6 @@ export default function MarketItemPage() {
                                                     </span>
                                                 </button>
                                             )}
-                                            <button
-                                                className="btn btn-ghost btn-sm flex-1 sm:flex-initial"
-                                                onClick={() =>
-                                                    navigate(
-                                                        `/${seller.username}`
-                                                    )
-                                                }
-                                            >
-                                                View Profile
-                                            </button>
                                         </div>
                                     </div>
                                 ) : (
