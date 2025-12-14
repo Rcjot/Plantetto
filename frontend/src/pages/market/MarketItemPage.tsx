@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ChevronLeft, MessageCircle, MoreHorizontal } from "lucide-react";
+import {
+    ChevronLeft,
+    MessageCircle,
+    MoreHorizontal,
+    Edit,
+    Trash2,
+    Tag,
+    CheckCircle,
+} from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import profileApi from "@/api/profileApi";
 import plantsApi from "@/api/plantsApi";
@@ -17,6 +25,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
@@ -109,7 +118,7 @@ export default function MarketItemPage() {
         setActionLoading(true);
         const res = await marketApi.deleteMarketItem(item.uuid);
         if (res.ok) {
-            navigate("/mylistings");
+            navigate("/marketplace");
         } else {
             console.error(res.errors);
         }
@@ -319,89 +328,108 @@ export default function MarketItemPage() {
                                         </div>
 
                                         <div className="flex gap-2 w-full sm:w-auto items-center">
-                                            {isOwner && onMyListingsPage ? (
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger
-                                                        asChild
-                                                    >
-                                                        <Button
-                                                            variant="ghost"
-                                                            className="h-8 w-8 p-0 border-0 hover:!bg-success hover:border-1"
+                                            {isOwner ? (
+                                                onMyListingsPage ? (
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger
+                                                            asChild
                                                         >
-                                                            <span className="sr-only">
-                                                                Open menu
-                                                            </span>
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent
-                                                        align="end"
-                                                        className="bg-base-100"
-                                                    >
-                                                        <DropdownMenuItem
-                                                            onClick={() =>
-                                                                setIsEditModalOpen(
-                                                                    true
-                                                                )
-                                                            }
-                                                            className="hover:!bg-success transition-colors duration-200 cursor-pointer"
+                                                            <Button
+                                                                variant="ghost"
+                                                                className="h-8 w-8 p-0 border-0 hover:!bg-success hover:border-1"
+                                                            >
+                                                                <span className="sr-only">
+                                                                    Open menu
+                                                                </span>
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent
+                                                            align="end"
+                                                            className="bg-base-100"
                                                         >
-                                                            Edit Listing
-                                                        </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() =>
+                                                                    setIsEditModalOpen(
+                                                                        true
+                                                                    )
+                                                                }
+                                                                className="hover:!bg-success transition-colors duration-200 cursor-pointer"
+                                                            >
+                                                                Edit Listing
+                                                            </DropdownMenuItem>
 
-                                                        {item.status ===
-                                                        "active" ? (
+                                                            {item.status ===
+                                                            "active" ? (
+                                                                <DropdownMenuItem
+                                                                    onClick={() =>
+                                                                        setMarkAsSoldDialogOpen(
+                                                                            true
+                                                                        )
+                                                                    }
+                                                                    className="hover:!bg-success transition-colors duration-200 cursor-pointer"
+                                                                >
+                                                                    Mark as Sold
+                                                                </DropdownMenuItem>
+                                                            ) : (
+                                                                <DropdownMenuItem
+                                                                    onClick={() =>
+                                                                        setMarkAsActiveDialogOpen(
+                                                                            true
+                                                                        )
+                                                                    }
+                                                                    className="hover:!bg-success transition-colors duration-200 cursor-pointer"
+                                                                >
+                                                                    Mark as
+                                                                    Active
+                                                                </DropdownMenuItem>
+                                                            )}
+
+                                                            <DropdownMenuSeparator className="bg-base-300" />
+
                                                             <DropdownMenuItem
                                                                 onClick={() =>
-                                                                    setMarkAsSoldDialogOpen(
+                                                                    setDeleteDialogOpen(
                                                                         true
                                                                     )
                                                                 }
-                                                                className="hover:!bg-success transition-colors duration-200 cursor-pointer"
+                                                                className="hover:!bg-red-500 hover:!text-white transition-colors duration-200 cursor-pointer"
                                                             >
-                                                                Mark as Sold
+                                                                Delete Listing
                                                             </DropdownMenuItem>
-                                                        ) : (
-                                                            <DropdownMenuItem
-                                                                onClick={() =>
-                                                                    setMarkAsActiveDialogOpen(
-                                                                        true
-                                                                    )
-                                                                }
-                                                                className="hover:!bg-success transition-colors duration-200 cursor-pointer"
-                                                            >
-                                                                Mark as Active
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                        <DropdownMenuItem
-                                                            onClick={() =>
-                                                                setDeleteDialogOpen(
-                                                                    true
-                                                                )
-                                                            }
-                                                            className="hover:!bg-red-500 hover:!text-white transition-colors duration-200 cursor-pointer"
-                                                        >
-                                                            Delete Listing
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            ) : (
-                                                !isOwner && (
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                ) : (
                                                     <button
                                                         className="btn btn-primary btn-sm gap-2 flex-1 sm:flex-initial"
-                                                        onClick={
-                                                            handleChatWithSeller
-                                                        }
+                                                        onClick={() => {
+                                                            window.location.href = `/mylistings/${item.uuid}`;
+                                                        }}
                                                     >
-                                                        <MessageCircle className="w-4 h-4" />
+                                                        <Edit className="w-4 h-4" />
                                                         <span className="hidden sm:inline">
-                                                            Chat with Seller
+                                                            Edit this listing
                                                         </span>
                                                         <span className="sm:hidden">
-                                                            Chat
+                                                            Edit
                                                         </span>
                                                     </button>
                                                 )
+                                            ) : (
+                                                <button
+                                                    className="btn btn-primary btn-sm gap-2 flex-1 sm:flex-initial"
+                                                    onClick={
+                                                        handleChatWithSeller
+                                                    }
+                                                >
+                                                    <MessageCircle className="w-4 h-4" />
+                                                    <span className="hidden sm:inline">
+                                                        Chat with Seller
+                                                    </span>
+                                                    <span className="sm:hidden">
+                                                        Chat
+                                                    </span>
+                                                </button>
                                             )}
                                         </div>
                                     </div>
