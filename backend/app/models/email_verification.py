@@ -284,3 +284,164 @@ class EmailVerifications :
             return result['has_available']
         except :
             return False
+    # -----------------------------------
+    # signup 
+
+    @classmethod
+    def check_code_signup_email_not_on_cooldown(cls, email, cooldown_minutes) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = f"""
+        SELECT
+        (NOW() >  created_at + INTERVAL '{cooldown_minutes} minutes') AS is_available
+        FROM 
+        signup_email_verifications
+        WHERE email = %s
+        """
+
+        cursor.execute(sql, (email,))
+        result = cursor.fetchone()
+
+
+        db.commit()
+        cursor.close()
+
+        if result is None :
+            return True
+
+        return result['is_available']
+
+    @classmethod 
+    def check_code_signup_email_available(cls, email) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = f"""
+        DELETE
+        FROM 
+        signup_email_verifications
+        WHERE 
+        expires_at <= NOW()
+        """
+        cursor.execute(sql, (email,))
+        # clean up expired codes
+
+        sql = f"""
+        SELECT EXISTS (
+            SELECT 1
+            FROM 
+            signup_email_verifications
+            WHERE email = %s
+            AND expires_at > NOW()
+        ) AS has_available
+        """
+
+        cursor.execute(sql, (email,))
+        result = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+
+        return result['has_available']
+      
+    @classmethod
+    def update_code_with_email(cls, email) :
+        secret_code = f"{secrets.randbelow(10**6):06d}"
+        expires_in_minutes = 5
+
+
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = f"""
+        UPDATE signup_email_verifications
+        SET 
+        code = %s,
+        expires_at = NOW() + INTERVAL '{expires_in_minutes} minutes',
+        created_at = NOW()
+        WHERE email = %s
+        """
+
+        cursor.execute(sql, (secret_code, email))
+
+        db.commit()
+        cursor.close()
+
+        token = {
+            "secret_code" : secret_code,
+            "expires_in_minutes" : expires_in_minutes 
+        }
+
+        return token
+
+
+    @classmethod 
+    def generate_code_signup_email(cls, email, username, password) :
+        secret_code = f"{secrets.randbelow(10**6):06d}"
+        expires_in_minutes = 5
+
+
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = f"""
+        INSERT INTO signup_email_verifications
+        (email, username, user_password, code, expires_at)
+        VALUES (%s, %s, %s, %s, NOW() + INTERVAL '{expires_in_minutes} minutes')
+        ON CONFLICT DO NOTHING
+        """
+
+        password_hash = hashlib.md5(password.encode()).hexdigest()
+
+        cursor.execute(sql, (email, username, password_hash, secret_code))
+
+        db.commit()
+        cursor.close()
+
+        token = {
+            "secret_code" : secret_code,
+            "expires_in_minutes" : expires_in_minutes 
+        }
+
+        return token
+
+
+    @classmethod
+    def verify_signup_email_and_create_user(cls, code, email) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = """
+        DELETE FROM signup_email_verifications
+        WHERE email = %s
+        AND code = %s
+        AND expires_at > NOW()
+        RETURNING username, email, user_password
+        """
+
+        cursor.execute(sql, (email, code))
+
+        data = cursor.fetchone()
+        if data :
+            new_user = Users(username=data['username'], 
+                        email=data['email'], 
+                        password=data['user_password'])
+            new_user.add_verified_with_hashed_password()
+
+            sql = """
+            DELETE FROM signup_email_verifications
+            WHERE email = %s
+            """
+            # delete all rows referencing this email
+            cursor.execute(sql, (email,))
+
+        db.commit()
+        cursor.close()
+
+
+        if data is None :
+            return False
+        else :
+            return True

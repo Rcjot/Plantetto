@@ -98,7 +98,7 @@ function PostHeader({
                         </HoverCard>
                     )}
                 </div>
-                <h1 className="wrap-anywhere">
+                <h1 className="wrap-anywhere whitespace-pre-line">
                     {displayText}
                     {isTruncated && (
                         <button

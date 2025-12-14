@@ -224,7 +224,8 @@ def delete_post(post_uuid):
         if to_delete_post_with_media and len(to_delete_post_with_media.get("media", [])) > 0:
             try:
                 cloudinary.delete_post(post_uuid)
-            except: 
+            except Exception as e: 
+                print(e)
                 return jsonify(success=False, message="delete post failed!"), 500
         return jsonify(success=True, message="delete post successful")        
     else:
