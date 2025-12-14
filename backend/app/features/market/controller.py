@@ -16,8 +16,9 @@ def get_market() :
     limit = request.args.get("limit", default = 12, type=int)
 
     offset = (page - 1) * limit
+    current_user_id = current_user.get_id()
 
-    result = MarketItems.get_market(search, status, sort, plant_type_id, limit, offset)
+    result = MarketItems.get_market(search, status, sort, plant_type_id, limit, offset, current_user_id)
     market = result["guides"]
     total_count = result["meta_data"]["total_count"]
     result_count = result["meta_data"]["result_count"]
@@ -101,7 +102,7 @@ def patch_status(market_item_uuid) :
     return jsonify(success=False, message="update item failed"), 404
 
 @market_bp.route("/<uuid:market_item_uuid>", methods=["DELETE"])
-def delete_guide(market_item_uuid) :
+def delete_market_item(market_item_uuid) :
     market_item_uuid = str(market_item_uuid)
     to_delete_guide = MarketItems.delete_item(market_item_uuid, current_user.get_id())
     if (to_delete_guide):
@@ -114,13 +115,15 @@ def get_market_item(market_item_uuid):
     market_item_uuid = str(market_item_uuid)
     
     try:
-        result = MarketItems.get_market_item(market_item_uuid)
+        current_user_id = current_user.get_id()
+        result = MarketItems.get_market_item(market_item_uuid, current_user_id)
         
         if result is None:
             return jsonify(success=False, message="market item dont exist"), 404
         
         return jsonify(success=True, market_item=result)
     except Exception as e:
+        print(e)
         return jsonify(success=False, message="server error"), 500
     
 @market_bp.route("/<uuid:market_item_uuid>/related")

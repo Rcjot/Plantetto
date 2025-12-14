@@ -1,9 +1,10 @@
-from . import bookmark_post_bp, bookmark_guide_bp, bookmark_list_bp
+from . import bookmark_post_bp, bookmark_guide_bp,bookmark_market_item_bp, bookmark_list_bp
 from flask import jsonify, request
 from flask_login import login_required, current_user
 from ...models.bookmarks import Bookmarks
 from ...models.post import Posts
 from ...models.guide import Guides
+from ...models.market import MarketItems
 
 @bookmark_post_bp.route("/", methods=["POST"])
 @login_required
@@ -28,6 +29,19 @@ def toggle_bookmark_guide(guide_uuid) :
         return jsonify(success=True, message=f"successfully {message} guide", action=message)
     else :
         return jsonify(success=False, message=f"resource not found", action=None), 404
+
+@bookmark_market_item_bp.route("/", methods=["POST"])
+@login_required
+def toggle_bookmark_market_item(market_item_uuid) :
+    market_item_uuid = str(market_item_uuid)
+    market_item_res = MarketItems.get_market_item_id(market_item_uuid)
+    if market_item_res :
+        current_user_id = current_user.get_id()
+        message = Bookmarks.toggle_bookmark_market_item(current_user_id, market_item_res['id'])
+        return jsonify(success=True, message=f"successfully {message} guide", action=message)
+    else :
+        return jsonify(success=False, message=f"resource not found", action=None), 404
+    
 
 @bookmark_list_bp.route("/posts", methods=["GET"])
 @login_required
