@@ -52,7 +52,9 @@ class Plants() :
                 'pfp_url', users.pfp_url,
                 'username', users.username,
                 'display_name', users.display_name
-            ) AS owner
+            ) AS owner,
+            (mi.plant_id IS NOT NULL AND mi.status = 'active') AS for_sale
+
         """
 
         meta_data_query = """
@@ -64,6 +66,7 @@ class Plants() :
         FROM plants
         JOIN users ON plants.user_id = users.id
         JOIN plant_types ON plants.plant_type_id = plant_types.id
+        LEFT JOIN market_items mi ON mi.plant_id = plants.id
         WHERE users.username = %s
         AND plants.nickname ILIKE %s
         """
