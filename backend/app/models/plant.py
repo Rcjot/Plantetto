@@ -53,7 +53,8 @@ class Plants() :
                 'username', users.username,
                 'display_name', users.display_name
             ) AS owner,
-            (mi.plant_id IS NOT NULL AND mi.status = 'active') AS for_sale
+            (mi.plant_id IS NOT NULL AND mi.status = 'active') AS for_sale,
+            mi.uuid AS market_item_uuid
 
         """
 

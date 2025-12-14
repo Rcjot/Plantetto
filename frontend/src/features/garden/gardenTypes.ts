@@ -8,6 +8,7 @@ export interface PlantType {
     picture_url: string;
     plant_type: string;
     for_sale: boolean;
+    market_item_uuid: string;
 }
 
 export interface PlanttypeType {
