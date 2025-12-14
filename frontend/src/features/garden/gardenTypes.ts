@@ -7,6 +7,7 @@ export interface PlantType {
     owner: UserType;
     picture_url: string;
     plant_type: string;
+    for_sale: boolean;
 }
 
 export interface PlanttypeType {
