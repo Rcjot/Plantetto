@@ -5,7 +5,7 @@ import ChangeEmailModal from "@/components/ui/ChangeEmailModal";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MailCheck } from "lucide-react";
-import { Mail } from "lucide-react";
+// import { Mail } from "lucide-react";
 import { Shield } from "lucide-react";
 import VerifyEmailModal from "@/components/ui/VerifyEmailModal";
 import { useAuthContext } from "@/features/auth/AuthContext";
@@ -33,12 +33,12 @@ function SettingsAccount() {
                 </h2>
 
                 <div className="flex flex-col gap-1 max-w-lg">
-                    <SettingItem
+                    {/* <SettingItem
                         label="Change your email address"
                         onClick={() => setModal("email")}
                     >
                         <Mail />
-                    </SettingItem>
+                    </SettingItem> */}
                     <SettingItem
                         label="Change your password"
                         onClick={() => setModal("password")}

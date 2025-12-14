@@ -89,6 +89,7 @@ def delete_plantpic(plant_uuid) :
 
 def delete_post(folder) :
     cloudinary.api.delete_resources_by_prefix(f"posts/{folder}")
+    cloudinary.api.delete_resources_by_prefix(f"posts/{folder}", resource_type="video", type="upload" )
     cloudinary.api.delete_folder(f"posts/{folder}")
     return True
 

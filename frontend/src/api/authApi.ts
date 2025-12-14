@@ -25,13 +25,53 @@ async function fetchMe() {
 async function signupUser(signupFormData: SignupFields) {
     try {
         const { data } = await axios.post("/signup", signupFormData);
-        return { ok: true, data };
+
+        const hasAvailableCode: boolean = data["has_available_code"];
+
+        return { ok: true, hasAvailableCode: hasAvailableCode };
     } catch (error) {
         console.error(error);
         if (isAxiosError(error) && error.response) {
-            return { ok: false, errors: error.response.data.error };
+            return {
+                ok: false,
+                hasAvailableCode: null,
+                errors: error.response.data.error,
+            };
         }
-        return { ok: false, errors: { root: "some error occurred" } };
+        return {
+            ok: false,
+            hasAvailableCode: null,
+            errors: { root: "some error occurred" },
+        };
+    }
+}
+
+async function verifyEmailSignup(code: string, email: string) {
+    try {
+        await axios.post("/verify_signup", {
+            code: code,
+            email: email,
+        });
+
+        return { ok: true };
+    } catch {
+        return {
+            ok: false,
+        };
+    }
+}
+
+async function resendVerificationCode(email: string) {
+    try {
+        await axios.post("/resend_code", {
+            email: email,
+        });
+
+        return { ok: true };
+    } catch {
+        return {
+            ok: false,
+        };
     }
 }
 
@@ -68,4 +108,11 @@ async function logoutUser() {
     }
 }
 
-export default { fetchMe, signupUser, signinUser, logoutUser };
+export default {
+    fetchMe,
+    signupUser,
+    verifyEmailSignup,
+    resendVerificationCode,
+    signinUser,
+    logoutUser,
+};
