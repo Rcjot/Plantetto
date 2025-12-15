@@ -18,7 +18,6 @@ function PostDialog2({ postUuid }: { postUuid: string | null }) {
     const [, setSearchParams] = useSearchParams();
     const [post, setPost] = useState<PostType | null>(null);
     const hasMedia = post && post.media && post.media.length > 0;
-
     useEffect(() => {
         if (postUuid) {
             const fetchPost = async () => {
