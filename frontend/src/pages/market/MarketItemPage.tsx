@@ -342,9 +342,12 @@ export default function MarketItemPage() {
                                 <p className="text-sm text-gray-600 font-medium">
                                     Plant Type
                                 </p>
-                                <p className="text-base md:text-lg">
+                                <Link
+                                    to={`/explore?type=${item.plant.plant_type}`}
+                                    className="text-base md:text-lg hover:underline"
+                                >
                                     {item.plant.plant_type}
-                                </p>
+                                </Link>
                             </div>
 
                             <div className="text-3xl md:text-4xl font-bold text-success">
