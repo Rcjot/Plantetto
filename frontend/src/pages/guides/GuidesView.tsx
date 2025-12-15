@@ -96,6 +96,8 @@ function GuidesView() {
             </div>
         );
 
+    console.log(guide);
+
     return (
         <div className="flex flex-col items-center justify-center gap-10 p-3 sm:p-10 ">
             <Link
@@ -146,15 +148,16 @@ function GuidesView() {
                             </Link>
                         </div>
                     </div>
-
-                    <p className="text-center">
-                        published on{" "}
-                        {dayjs(guide.created_at).format("MMMM D, YYYY")}
+                    <p className="text-center text-xs">
+                        <span className="font-bold">Published:</span>{" "}
+                        {dayjs(guide.published_date).format("MMMM D, YYYY")} at{" "}
+                        {dayjs(guide.published_date).format("h:mm A")}
                     </p>
-                    {guide.created_at !== guide.last_edit_date && (
-                        <p className="text-center">
-                            updated on{" "}
-                            {dayjs(guide.last_edit_date).format("MMMM D, YYYY")}
+                    {guide.published_date < guide.last_edit_date && (
+                        <p className="text-center text-xs">
+                            <span className="font-bold">Last edited:</span>{" "}
+                            {dayjs(guide.last_edit_date).format("MMMM D, YYYY")}{" "}
+                            at {dayjs(guide.last_edit_date).format("h:mm A")}
                         </p>
                     )}
                 </div>
