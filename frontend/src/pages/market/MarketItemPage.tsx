@@ -279,7 +279,9 @@ export default function MarketItemPage() {
                         className="flex items-center gap-2 text-base-content hover:text-primary transition-colors"
                     >
                         <ChevronLeft className="w-5 h-5" />
-                        <span className="font-medium">Go Back</span>
+                        <span className="font-medium">
+                            {`Go Back to ${getBackPath() == "/market" ? "Marketplace" : "Listing"}`}
+                        </span>
                     </button>
                 </div>
             </div>
