@@ -70,7 +70,7 @@ function getRoutes() {
                                     element: <UsersPostFeedSection />,
                                 },
                                 {
-                                    path: "posts",
+                                    path: "sprouts",
                                     element: <UsersPostFeedSection />,
                                 },
                                 {

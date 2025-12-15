@@ -59,7 +59,7 @@ function NotifToast({ notification }: NotificationBlockProps) {
                             {notification_type === "like_guide"
                                 ? "guide"
                                 : notification_type === "like_post"
-                                  ? "post"
+                                  ? "sprout"
                                   : "comment"}
                         </p>
                     </div>
@@ -98,7 +98,7 @@ function NotifToast({ notification }: NotificationBlockProps) {
                                   : notification_type === "diary"
                                     ? "added a new diary entry"
                                     : notification_type === "comment_post"
-                                      ? "commented on your post"
+                                      ? "commented on your sprout"
                                       : "commented on your guide"}
                         </p>
                     </div>
