@@ -436,3 +436,45 @@ class MarketItems() :
         cursor.close()
 
         return market_item
+    
+    @classmethod
+    def get_bookmarked_items(cls, user_id, limit, offset):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = """
+        SELECT 
+            mi.uuid,
+            mi.description,
+            mi.price,
+            mi.status,
+            JSON_BUILD_OBJECT(
+                'plant_uuid', p.uuid,
+                'nickname', p.nickname,
+                'description', p.plant_description,
+                'picture_url', p.picture_url,
+                'created_at', p.created_at,
+                'plant_type', plant_types.plant_name
+            ) as plant,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS owner,
+            true AS bookmarked
+        FROM bookmarks_market bm
+        JOIN market_items mi ON bm.market_item_id = mi.id
+        JOIN users ON mi.user_id = users.id
+        JOIN plants p ON mi.plant_id = p.id
+        JOIN plant_types ON p.plant_type_id = plant_types.id
+        WHERE bm.user_id = %s
+        ORDER BY bm.created_at DESC
+        LIMIT %s OFFSET %s
+        """
+
+        cursor.execute(query, (user_id, limit, offset))
+        items = cursor.fetchall()
+        cursor.close()
+
+        return items

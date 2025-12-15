@@ -6,6 +6,7 @@ import {
     MoreHorizontal,
     Edit,
     Bookmark,
+    ShieldAlert,
 } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import profileApi from "@/api/profileApi";
@@ -168,6 +169,50 @@ export default function MarketItemPage() {
         return (
             <div className="flex justify-center items-center h-screen">
                 <img src={loading_gif} alt="Loading..." className="h-16 w-16" />
+            </div>
+        );
+    }
+
+    const shouldDenyAccess = onMyListingsPage && item && seller && !isOwner;
+
+    if (shouldDenyAccess) {
+        return (
+            <div className="bg-base-200 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 py-6">
+                    <button
+                        onClick={() => navigate("/mylistings")}
+                        className="flex items-center gap-2 text-base-content hover:text-primary transition-colors mb-4"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                        <span className="font-medium">Back to My Listings</span>
+                    </button>
+                    <div className="bg-base-100 rounded-lg p-12 text-center flex flex-col items-center gap-4 border border-gray-200 shadow-sm mt-10">
+                        <div className="w-20 h-20 bg-base-200 rounded-full flex items-center justify-center mb-2">
+                            <ShieldAlert className="w-10 h-10 text-gray-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-base-content">
+                            You do not have this listing
+                        </h2>
+                        <p className="text-neutral-500 max-w-md">
+                            This listing does not belong to your account. You
+                            can only manage listings that you have created.
+                        </p>
+                        <div className="flex gap-3 mt-4">
+                            <button
+                                className="btn btn-outline"
+                                onClick={() => navigate("/market/" + item_uuid)}
+                            >
+                                View in Market
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => navigate("/mylistings")}
+                            >
+                                Go to My Listings
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

@@ -75,3 +75,16 @@ def get_bookmarked_guides():
     guides = Guides.get_bookmarked_guide(current_user_id, limit, offset)
 
     return jsonify(guides=guides)
+
+@bookmark_list_bp.route("/market", methods=["GET"])
+@login_required
+def get_bookmarked_market_items():
+    limit = request.args.get("limit", default=12, type=int)
+    page = request.args.get("page", default=1, type=int)
+    offset = (page - 1) * limit
+
+    current_user_id = current_user.get_id()
+    
+    items = MarketItems.get_bookmarked_items(current_user_id, limit, offset)
+
+    return jsonify(items=items)

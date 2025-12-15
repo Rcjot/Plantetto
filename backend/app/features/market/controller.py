@@ -132,7 +132,8 @@ def get_related_items(market_item_uuid):
     limit = 5
     
     try:
-        current_item = MarketItems.get_market_item(market_item_uuid)
+        current_user_id = current_user.get_id()
+        current_item = MarketItems.get_market_item(market_item_uuid, current_user_id)
         
         if not current_item:
             return jsonify(success=False, message="Item not found"), 404
