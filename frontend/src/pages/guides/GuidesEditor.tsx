@@ -1,7 +1,7 @@
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 import useFetchGuide from "@/features/guides/hooks/useFetchGuide";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import plantsApi from "@/api/plantsApi";
 import type { PlanttypeType } from "@/features/garden/gardenTypes";
 import {
@@ -14,10 +14,14 @@ import {
 import { Label } from "@/components/ui/label";
 import guidesApi from "@/api/guidesApi";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ShieldAlert } from "lucide-react";
+import { useAuthContext } from "@/features/auth/AuthContext";
 function GuidesEditor() {
     const { uuid } = useParams()!;
-    const guide = useFetchGuide(uuid);
+    const { guide, loading } = useFetchGuide(uuid);
+    const { auth } = useAuthContext()!;
+
+    const navigate = useNavigate();
 
     const [title, setTitle] = useState<string>("");
     const [plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
@@ -79,8 +83,87 @@ function GuidesEditor() {
         }
     }
 
-    if (!guide) return <div>loading..</div>;
+    if (loading) return <div>loading..</div>;
 
+    if (!guide)
+        return (
+            <div className="bg-base-200 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 py-6">
+                    <button
+                        onClick={() => navigate("/guides")}
+                        className="flex items-center gap-2 text-base-content hover:text-primary transition-colors mb-4"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                        <span className="font-medium">
+                            Back to Community Guides
+                        </span>
+                    </button>
+                    <div className="bg-base-100 rounded-lg p-12 text-center flex flex-col items-center gap-4 border border-gray-200 shadow-sm mt-10">
+                        <div className="w-20 h-20 bg-base-200 rounded-full flex items-center justify-center mb-2">
+                            <ShieldAlert className="w-10 h-10 text-gray-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-base-content">
+                            You do not have this Guide!
+                        </h2>
+                        <p className="text-neutral-500 max-w-md">
+                            Explore more guides in the Community Guides page or
+                            create one by going to your guides board!
+                        </p>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => navigate("/guides/board")}
+                        >
+                            Go to My Board
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+
+    if (auth.user?.id != guide?.author.id)
+        return (
+            <div className="bg-base-200 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 py-6">
+                    <button
+                        onClick={() => navigate("/guides")}
+                        className="flex items-center gap-2 text-base-content hover:text-primary transition-colors mb-4"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                        <span className="font-medium">
+                            Back to Community Guides
+                        </span>
+                    </button>
+                    <div className="bg-base-100 rounded-lg p-12 text-center flex flex-col items-center gap-4 border border-gray-200 shadow-sm mt-10">
+                        <div className="w-20 h-20 bg-base-200 rounded-full flex items-center justify-center mb-2">
+                            <ShieldAlert className="w-10 h-10 text-gray-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-base-content">
+                            You do not have this Guide!
+                        </h2>
+                        <p className="text-neutral-500 max-w-md">
+                            This Guide does not belong to your account. You can
+                            only edit guides that you have created.
+                        </p>
+                        <div className="flex gap-3 mt-4">
+                            <button
+                                className="btn btn-outline"
+                                onClick={() =>
+                                    navigate("/guides/" + guide?.uuid)
+                                }
+                            >
+                                View Guide
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => navigate("/guides/board")}
+                            >
+                                Go to My Board
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     return (
         <div className="flex flex-col items-center justify-center p-3 sm:p-10">
             <Link to={"/guides/board"} className="self-start w-fit">
