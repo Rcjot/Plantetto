@@ -62,7 +62,7 @@ function useNotification() {
         }) => {
             nextCursor.current = null;
             fetchNotifications(true);
-            console.log(newNotif, "newnotif");
+            // console.log(newNotif, "newnotif");
             const notifType = newNotif["notif_type"];
 
             if (

@@ -24,7 +24,7 @@ async function getNotification(entityUuid: string, notifType: string) {
             `/notifications/${entityUuid}?notif_type=${notifType}`
         );
         const notification: NotificationType = data["notification"];
-        console.log(notification, entityUuid);
+        // console.log(notification, entityUuid);
         return {
             ok: true,
             notification: notification,

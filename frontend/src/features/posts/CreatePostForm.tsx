@@ -98,7 +98,6 @@ function CreatePostForm({
         setCaption("");
         setPlantTags([]);
         setOpen(false);
-        console.log(newPost);
         appendPost(newPost);
     }
 
