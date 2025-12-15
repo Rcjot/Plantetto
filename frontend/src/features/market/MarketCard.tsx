@@ -12,7 +12,7 @@ import { useAuthContext } from "../auth/AuthContext";
 
 interface MarketCardProps {
     owner: UserType;
-    uuid?: string;
+    uuid: string;
     image: string;
     title: string;
     price: string;
