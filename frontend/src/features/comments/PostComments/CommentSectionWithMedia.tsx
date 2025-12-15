@@ -20,6 +20,7 @@ export function CommentSectionWithMedia({ postUuid }: CommentSectionProps) {
         handleDeleteComment,
         fetchComments,
         hasMore,
+        sectionRef,
     } = useComments(postUuid);
     const authContext = useAuthContext();
 
@@ -54,7 +55,10 @@ export function CommentSectionWithMedia({ postUuid }: CommentSectionProps) {
                 </p>
             </div>
 
-            <div className="flex-grow min-h-0 overflow-y-auto p-2 space-y-4">
+            <div
+                ref={sectionRef}
+                className="flex-grow min-h-0 overflow-y-auto p-2 space-y-4"
+            >
                 {error && (
                     <div className="alert alert-error text-sm p-2 rounded-md flex items-center gap-2">
                         <AlertCircle className="w-4 h-4" />

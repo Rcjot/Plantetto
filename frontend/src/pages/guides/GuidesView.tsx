@@ -96,8 +96,6 @@ function GuidesView() {
             </div>
         );
 
-    console.log(guide);
-
     return (
         <div className="flex flex-col items-center justify-center gap-10 p-3 sm:p-10 ">
             <Link

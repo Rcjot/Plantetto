@@ -20,7 +20,6 @@ export function GuideCommentSection({ guideUuid }: GuideCommentSectionProps) {
         setIsLoading(true);
         setError(null);
         try {
-            console.log("Fetching comments for guide:", guideUuid);
             const result =
                 await commentsGuidesApi.getCommentsUnderGuide(guideUuid);
 
@@ -86,12 +85,6 @@ export function GuideCommentSection({ guideUuid }: GuideCommentSectionProps) {
     const handleDeleteSuccess = () => {
         fetchComments();
     };
-
-    console.log("Render state:", {
-        isLoading,
-        error,
-        commentsCount: comments.length,
-    });
 
     if (isLoading) {
         return (
