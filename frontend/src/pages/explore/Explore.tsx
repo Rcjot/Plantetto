@@ -16,9 +16,9 @@ function Explore() {
     const initialURLSearch = params.get("search") ?? "";
 
     const [posts, setPosts] = useState<PostType[]>([]);
-    const [_plantTypes, setPlantTypes] = useState<PlanttypeType[]>([]);
+    const [, setPlantTypes] = useState<PlanttypeType[]>([]);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const [, setSearchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const [search, setSearch] = useState(initialURLSearch);
     const [submittedSearch, setSubmittedSearch] = useState(initialURLSearch);
@@ -74,7 +74,19 @@ function Explore() {
     };
 
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+    }, [searchParams]);
+
+    useEffect(() => {
         async function loadPlantTypes() {
+            if (searchParams.get("type")) {
+                setSelectedTag(searchParams.get("type"));
+                setSearch("");
+                setSubmittedSearch("");
+                setIsSearching(false);
+                return;
+            }
+
             const res = await plantsApi.fetchPlantTypes();
             if (!res.ok || !res.plant_types || res.plant_types.length === 0)
                 return;
@@ -94,7 +106,7 @@ function Explore() {
         }
 
         loadPlantTypes();
-    }, []);
+    }, [searchParams]);
 
     useEffect(() => {
         if (!selectedTag) return;
@@ -117,7 +129,7 @@ function Explore() {
         const trimmed = search.trim();
 
         //navigate(`/explore?search=${encodeURIComponent(trimmed)}`);
-
+        setSearchParams("");
         setSubmittedSearch(trimmed);
         setIsSearching(trimmed !== "");
     };
@@ -142,11 +154,16 @@ function Explore() {
     }, [loading, hasMore, nextCursor, selectedTag, isSearching]);
 
     const openPost = (post: PostType) => {
-        setSearchParams({ post: post.post_uuid }, { replace: true });
+        const params = new URLSearchParams(searchParams);
+        params.set("post", post.post_uuid);
+        setSearchParams(params, { replace: true });
     };
 
     return (
-        <div className="flex flex-col gap-6 p-4 sm:p-10 bg-base-100 min-h-screen">
+        <div
+            key={selectedTag}
+            className="flex flex-col gap-6 p-4 sm:p-10 bg-base-100 min-h-screen"
+        >
             <div className="w-full max-w-2xl mx-auto">
                 <form onSubmit={handleSearch} className="relative">
                     <input

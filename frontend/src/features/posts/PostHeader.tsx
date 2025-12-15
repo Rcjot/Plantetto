@@ -85,12 +85,13 @@ function PostHeader({
                                 <div className="flex flex-wrap gap-3">
                                     {planttags.map((p) => {
                                         return (
-                                            <div
+                                            <Link
+                                                to={`/explore?type=${p.plant_type}`}
                                                 key={p.id}
                                                 className="badge badge-soft badge-primary"
                                             >
                                                 <p>{p.nickname}</p>
-                                            </div>
+                                            </Link>
                                         );
                                     })}
                                 </div>

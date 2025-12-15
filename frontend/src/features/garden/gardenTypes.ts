@@ -20,4 +20,5 @@ export interface PlantOptionType {
     id: string;
     uuid: string;
     nickname: string;
+    plant_type: string;
 }

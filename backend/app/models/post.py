@@ -164,12 +164,14 @@ class Posts():
                             JSON_BUILD_OBJECT(
                                 'id', p.id,
                                 'uuid', p.uuid,
-                                'nickname', p.nickname
+                                'nickname', p.nickname,
+                                'plant_type', ptt.plant_name
                             ) 
                         ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                     ) AS planttags
                 FROM plant_tags pt
                 LEFT JOIN plants p ON p.id = pt.plant_id
+                JOIN plant_types ptt ON p.plant_type_id = ptt.id
                 JOIN posts psb ON pt.post_id = psb.id
                 WHERE psb.id = sp.id
                 GROUP BY pt.post_id), '[]'
@@ -267,12 +269,14 @@ class Posts():
                             JSON_BUILD_OBJECT(
                                 'id', p.id,
                                 'uuid', p.uuid,
-                                'nickname', p.nickname
+                                'nickname', p.nickname,
+                                'plant_type', ptt.plant_name
                             ) 
                         ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                     ) AS planttags
                 FROM plant_tags pt
                 LEFT JOIN plants p ON p.id = pt.plant_id
+                JOIN plant_types ptt ON p.plant_type_id = ptt.id
                 JOIN posts psb ON pt.post_id = psb.id
                 WHERE psb.id = posts.id
                 GROUP BY pt.post_id), '[]'
@@ -363,12 +367,14 @@ class Posts():
                                     JSON_BUILD_OBJECT(
                                         'id', p.id,
                                         'uuid', p.uuid,
-                                        'nickname', p.nickname
+                                        'nickname', p.nickname,
+                                        'plant_type', ptt.plant_name
                                     ) 
                                 ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                             ) AS planttags
                         FROM plant_tags pt
                         LEFT JOIN plants p ON p.id = pt.plant_id
+                        JOIN plant_types ptt ON p.plant_type_id = ptt.id
                         JOIN posts psb ON pt.post_id = psb.id
                         WHERE psb.id = posts.id
                         GROUP BY pt.post_id), '[]'
@@ -485,13 +491,23 @@ class Posts():
                     ) FILTER (WHERE media.id IS NOT NULL), '[]'
                 ) AS media,
                 COALESCE(
-                    JSON_AGG(
-                        JSON_BUILD_OBJECT(
-                            'id', p.id,
-                            'uuid', p.uuid,
-                            'nickname', p.nickname
-                        )
-                    ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                    (SELECT
+                        COALESCE (
+                            JSON_AGG(
+                                JSON_BUILD_OBJECT(
+                                    'id', p.id,
+                                    'uuid', p.uuid,
+                                    'nickname', p.nickname,
+                                    'plant_type', ptt.plant_name
+                                ) 
+                            ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                        ) AS planttags
+                    FROM plant_tags pt
+                    LEFT JOIN plants p ON p.id = pt.plant_id
+                    JOIN plant_types ptt ON p.plant_type_id = ptt.id
+                    JOIN posts psb ON pt.post_id = psb.id
+                    WHERE psb.id = posts.id
+                    GROUP BY pt.post_id), '[]'
                 ) AS planttags,
                 max_ratio.width AS highlight_width,
                 max_ratio.height AS highlight_height,
