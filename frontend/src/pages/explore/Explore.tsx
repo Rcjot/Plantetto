@@ -74,8 +74,10 @@ function Explore() {
     };
 
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: "instant" });
-    }, [searchParams]);
+        if (location.state) {
+            window.scrollTo({ top: 0, behavior: "instant" });
+        }
+    }, [location]);
 
     useEffect(() => {
         async function loadPlantTypes() {

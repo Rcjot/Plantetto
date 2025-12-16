@@ -1,7 +1,7 @@
 import type { UserType } from "@/features/auth/authTypes";
 import { useEffect, useState } from "react";
 import ProfilePicture from "@/components/ProfilePicture";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import timeAgo from "@/lib/timeAgo";
 import type { PlantOptionType } from "../garden/gardenTypes";
 import {
@@ -26,6 +26,8 @@ function PostHeader({
     );
     const [expanded, setExpanded] = useState(false);
     const maxLength = 90;
+
+    const navigate = useNavigate();
 
     const isTruncated = postCaption.length > maxLength;
     const displayText = expanded
@@ -85,10 +87,19 @@ function PostHeader({
                                 <div className="flex flex-wrap gap-3">
                                     {planttags.map((p) => {
                                         return (
-                                            <Link
-                                                to={`/explore?type=${p.plant_type}`}
+                                            <button
+                                                onClick={() => {
+                                                    navigate(
+                                                        `/explore?type=${p.plant_type}`,
+                                                        {
+                                                            state: {
+                                                                scrollTop: true,
+                                                            },
+                                                        }
+                                                    );
+                                                }}
                                                 key={p.id}
-                                                className="badge badge-soft badge-primary"
+                                                className="badge badge-soft badge-primary cursor-pointer"
                                             >
                                                 <div
                                                     className="tooltip"
@@ -96,7 +107,7 @@ function PostHeader({
                                                 >
                                                     <p>{p.nickname}</p>
                                                 </div>
-                                            </Link>
+                                            </button>
                                         );
                                     })}
                                 </div>
