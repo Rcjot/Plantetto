@@ -36,7 +36,7 @@ function CreatePostDialog({
             <DialogContent className="sm:max-w-[550px] max-h-[95vh] overflow-y-auto bg-base-100">
                 <DialogHeader>
                     <DialogTitle className="text-center">
-                        Create new post
+                        Create new sprout
                     </DialogTitle>
                     <DialogDescription className="text-center">
                         Sprout a new post, greenify the feed!

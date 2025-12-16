@@ -1,10 +1,12 @@
 // features/comments/CommentCard.tsx
-import { useState, useRef } from "react"; // ADD useRef import
+import { useState, useRef, useEffect } from "react"; // ADD useRef import
 import { Ellipsis, Trash2, Pencil, X, Check, ThumbsUp } from "lucide-react";
 import type { CommentType } from "../commentTypes";
 import type { UserType } from "@/features/auth/authTypes";
 import defaultpfp from "@/assets/defaultpfp.png";
 import likesApi from "@/api/likesApi";
+import timeAgo from "@/lib/timeAgo";
+import { Link } from "react-router-dom";
 
 interface CommentCardProps {
     comment: CommentType;
@@ -29,19 +31,22 @@ export function CommentCard2({
     const [isLiked, setIsLiked] = useState(comment.liked);
     const [likeCount, setLikeCount] = useState(comment.like_count);
 
+    const [formattedDate, setFormattedDate] = useState<string>(() =>
+        timeAgo(comment.created_at)
+    );
+
     // ADD: Reference to the modal for DaisyUI
     const deleteModalRef = useRef<HTMLDialogElement>(null);
 
     const isOwner = currentUser?.id === comment.author.id;
 
-    const formattedDate = new Date(comment.created_at).toLocaleDateString(
-        undefined,
-        {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        }
-    );
+    useEffect(() => {
+        const interval = setInterval(
+            () => setFormattedDate(timeAgo(comment.created_at)),
+            6000
+        );
+        return () => clearInterval(interval);
+    }, [comment.created_at]);
 
     const handleSaveEdit = async () => {
         if (editContent.trim() === comment.content) {
@@ -90,21 +95,27 @@ export function CommentCard2({
                 {/* Header Section */}
                 <div className="flex flex-row gap-2 items-center relative">
                     {/* Avatar */}
-                    <div className="avatar w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                    <Link
+                        to={`/${comment.author.username}`}
+                        className="avatar w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
+                    >
                         <img
                             src={comment.author.pfp_url || defaultpfp}
                             onError={(e) => (e.currentTarget.src = defaultpfp)}
                             className="object-cover w-full h-full"
                             alt="avatar"
                         />
-                    </div>
+                    </Link>
 
                     {/* Username & Date */}
                     <div className="flex-grow">
-                        <span className="font-semibold text-sm mr-2">
+                        <Link
+                            to={`/${comment.author.username}`}
+                            className="font-semibold text-sm mr-2 hover:underline"
+                        >
                             {comment.author.display_name ??
                                 comment.author.username}
-                        </span>
+                        </Link>
                         <span className="text-xs text-gray-500">
                             • {formattedDate}
                             {comment.last_edit_date != comment.created_at &&

@@ -201,6 +201,19 @@ def create_post():
 
         except Exception as e:
             print(e)
+            # delete newly created post when something went wrong, we cancel it 
+            # idk if this is good practice, prolly not ...
+
+            to_delete_post_with_media = Posts.get_post(new_post_uuid, current_user_id)
+            to_delete_post = Posts.delete(new_post_uuid, current_user_id)    
+            
+            if to_delete_post:
+                if to_delete_post_with_media and len(to_delete_post_with_media.get("media", [])) > 0:
+                    try:
+                        cloudinary.delete_post(new_post_uuid)
+                    except Exception as e: 
+                        print(e)
+
             error["root"] = ["something went wrong creating a post"]
             return jsonify(success=False, error=error), 500
     

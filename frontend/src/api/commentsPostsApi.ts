@@ -7,8 +7,6 @@ async function getCommentsUnderPost(
     nextCursor: null | string
 ) {
     try {
-        console.log(nextCursor);
-
         const { data } = await axios.get(
             `/posts/${post_uuid}/comments?cursor=${nextCursor}`
         );

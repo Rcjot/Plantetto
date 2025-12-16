@@ -16,7 +16,7 @@ import {
 import GardenFormEdit from "./GardenFormEdit";
 import type { PlantType } from "@/features/garden/gardenTypes";
 import GardenDelete from "./GardenDelete";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAuthContext } from "../auth/AuthContext";
 
 interface GardenCardDetailsProps {
@@ -142,9 +142,12 @@ export default function GardenCard_Details({
                                     <p className="text-gray-500 font-medium">
                                         Plant Type
                                     </p>
-                                    <p className="text-lg font-semibold break-words">
+                                    <Link
+                                        to={`/explore?type=${plant.plant_type}`}
+                                        className="text-lg font-semibold break-words hover:underline"
+                                    >
                                         {plant.plant_type}
-                                    </p>
+                                    </Link>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 font-medium">

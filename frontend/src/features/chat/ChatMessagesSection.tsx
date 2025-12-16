@@ -194,7 +194,12 @@ function ChatMessagesSection({
                 </div>
             ) : (
                 <div className="self-center text-center">
-                    wishing <br /> for a fruitful <br /> conversation
+                    <h1 className="text-center text-sm italic text-netural">
+                        wishing <br /> for a fruitful <br /> conversation{" "}
+                    </h1>
+                    <p className="text-center text-xs text-gray-500">
+                        let's make this a safe space for everyone
+                    </p>
                 </div>
             )}
             {rendered}

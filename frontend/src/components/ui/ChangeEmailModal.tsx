@@ -29,7 +29,6 @@ const ChangeEmailModal: React.FC<Props> = ({ title, onClose }) => {
         setLoading(true);
         const res = await usersApi.changeEmail(newEmail);
         if (!res.ok) {
-            console.log(res.errors);
             const constructedErrors = {
                 newEmail:
                     res.errors.newEmail.length > 0
@@ -59,7 +58,6 @@ const ChangeEmailModal: React.FC<Props> = ({ title, onClose }) => {
         e.preventDefault();
         setVerifying(true);
         const { ok } = await usersApi.submitCodeForEmailChange(code);
-        console.log(auth.user?.email_verified);
 
         if (!ok) {
             setCodeError("invalid code or expired");

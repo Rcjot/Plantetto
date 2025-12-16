@@ -91,7 +91,9 @@ function NotificationBlock({
                             has liked your{" "}
                             {notification_type === "like_guide"
                                 ? "guide"
-                                : "post"}
+                                : notification_type === "like_post"
+                                  ? "sprout"
+                                  : "comment"}
                         </p>
                     </div>
                     <div className="ml-auto">

@@ -13,6 +13,7 @@ function useComments(postUuid: string) {
 
     const nextCursor = useRef<string | null>(null);
     const initialFetch = useRef(false);
+    const sectionRef = useRef<HTMLDivElement>(null);
 
     const fetchComments = useCallback(
         async (reset = false) => {
@@ -73,6 +74,7 @@ function useComments(postUuid: string) {
 
             if (result.ok) {
                 await fetchComments(true);
+                sectionRef.current?.scrollTo({ top: 0, behavior: "smooth" });
                 return true;
             }
             return false;
@@ -142,6 +144,7 @@ function useComments(postUuid: string) {
         handleDeleteComment,
         fetchComments,
         hasMore,
+        sectionRef,
     };
 }
 

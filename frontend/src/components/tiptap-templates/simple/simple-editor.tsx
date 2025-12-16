@@ -285,7 +285,6 @@ export function SimpleEditor({
     const [saving, setSaving] = useState(false);
 
     async function handleSubmit() {
-        console.log(editor?.getHTML());
         if (passedGuide && editor != null) {
             setSaving(true);
             const res = await guidesApi.patchContentGuide(

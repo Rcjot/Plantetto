@@ -266,8 +266,8 @@ function Profile() {
                                                     }}
                                                 >
                                                     {notifStatus.notify_post
-                                                        ? "unnotify me for new posts"
-                                                        : "notify me for new posts"}
+                                                        ? "unnotify me for new sprouts"
+                                                        : "notify me for new sprouts"}
                                                 </button>
                                             </li>
                                             <li>
@@ -311,12 +311,12 @@ function Profile() {
                     <div className="bg-primary text-neutral-100 rounded-lg overflow-hidden">
                         <div className="grid grid-cols-3">
                             <NavLink
-                                to={`/${user.username}/posts`}
+                                to={`/${user.username}/sprouts`}
                                 className={({ isActive }) =>
                                     `${isActive && "bg-neutral/30"} py-3 text-center font-semibold transition-colors hover:bg-neutral/30`
                                 }
                             >
-                                Posts
+                                Sprouts
                             </NavLink>
                             <NavLink
                                 to={`/${user.username}/plants`}

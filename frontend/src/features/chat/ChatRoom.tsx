@@ -7,6 +7,7 @@ import useChat from "./hooks/useChat";
 import ChatMessagesSection from "./ChatMessagesSection";
 import type { MessageSocketType } from "./chatTypes";
 import type { RoomObjType } from "./hooks/useChatState";
+import budIcon from "@/assets/icons/bud.svg";
 
 interface ChatRoomProps {
     toggleListState: () => void;
@@ -128,9 +129,19 @@ function ChatRoom({
                         {typeof conversationRoom === "string" ? (
                             <div>loading...</div>
                         ) : !conversationRoom ? (
-                            <h1 className="text-center mt-3">
-                                spark a conversation
-                            </h1>
+                            <div className="flex flex-col justify-start mt-10 h-[30dvh]">
+                                <img
+                                    src={budIcon}
+                                    alt="budIcon"
+                                    className="h-15 self-center gap-0"
+                                />
+                                <h1 className="text-center text-sm italic text-netural">
+                                    bud a conversation!
+                                </h1>
+                                <p className="text-center text-xs text-gray-500">
+                                    let's make this a safe space for everyone
+                                </p>
+                            </div>
                         ) : (
                             <ChatMessagesSection
                                 room={conversationRoom}
@@ -152,7 +163,7 @@ function ChatRoom({
                             onChange={(e) => setMessage(e.target.value)}
                             required
                         />
-                        <button className="opacity-80">
+                        <button className="opacity-80 cursor-pointer">
                             <SendIcon size={30} />
                         </button>
                     </form>

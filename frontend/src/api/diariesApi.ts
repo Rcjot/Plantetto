@@ -96,7 +96,6 @@ async function fetchDiariesOfPlantOnDate(
         const { data } = await axios.get(
             `/users/${username}/diaries/plants/${plantUuid}${date ? `?date=${date}` : ""}`
         );
-        console.log(data);
         const plantDiaries: DiaryCircleType = data["diaries"];
         return { ok: true, plantDiaries: plantDiaries };
     } catch {
@@ -112,7 +111,6 @@ async function fetchDatesWithEntriesOfPlants(
         const { data } = await axios.get(
             `/users/${username}/diaries/plants/${plantUuid}/dates`
         );
-        console.log(data);
         const datesWithEntries: { date: string }[] = data["dates"];
         return { ok: true, datesWithEntries: datesWithEntries };
     } catch {

@@ -1,4 +1,4 @@
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useFetchGuide from "@/features/guides/hooks/useFetchGuide";
 import { EditorContent } from "@tiptap/react";
 
@@ -13,7 +13,7 @@ import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { Selection } from "@tiptap/extensions";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ShieldAlert } from "lucide-react";
 
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
@@ -39,8 +39,9 @@ import { GuideCommentSection } from "@/features/comments/GuideComments/GuideComm
 
 function GuidesView() {
     const { uuid } = useParams();
-    const guide = useFetchGuide(uuid);
+    const { loading, guide } = useFetchGuide(uuid);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const editor = new Editor({
         extensions: [
@@ -65,8 +66,35 @@ function GuidesView() {
         content: guide?.content ?? content,
         editable: false,
     });
+    if (loading) return <div>loading..</div>;
 
-    if (!guide) return <div>loading..</div>;
+    if (!guide)
+        return (
+            <div className="bg-base-200 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 py-6">
+                    <button
+                        onClick={() => navigate("/guides")}
+                        className="flex items-center gap-2 text-base-content hover:text-primary transition-colors mb-4"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                        <span className="font-medium">
+                            Back to Community Guides
+                        </span>
+                    </button>
+                    <div className="bg-base-100 rounded-lg p-12 text-center flex flex-col items-center gap-4 border border-gray-200 shadow-sm mt-10">
+                        <div className="w-20 h-20 bg-base-200 rounded-full flex items-center justify-center mb-2">
+                            <ShieldAlert className="w-10 h-10 text-gray-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-base-content">
+                            This Guide does not exist
+                        </h2>
+                        <p className="text-neutral-500 max-w-md">
+                            Explore more guides in the Community Guides page!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
 
     return (
         <div className="flex flex-col items-center justify-center gap-10 p-3 sm:p-10 ">
@@ -118,15 +146,16 @@ function GuidesView() {
                             </Link>
                         </div>
                     </div>
-
-                    <p className="text-center">
-                        published on{" "}
-                        {dayjs(guide.created_at).format("MMMM D, YYYY")}
+                    <p className="text-center text-xs">
+                        <span className="font-bold">Published:</span>{" "}
+                        {dayjs(guide.published_date).format("MMMM D, YYYY")} at{" "}
+                        {dayjs(guide.published_date).format("h:mm A")}
                     </p>
-                    {guide.created_at !== guide.last_edit_date && (
-                        <p className="text-center">
-                            updated on{" "}
-                            {dayjs(guide.last_edit_date).format("MMMM D, YYYY")}
+                    {guide.published_date < guide.last_edit_date && (
+                        <p className="text-center text-xs">
+                            <span className="font-bold">Last edited:</span>{" "}
+                            {dayjs(guide.last_edit_date).format("MMMM D, YYYY")}{" "}
+                            at {dayjs(guide.last_edit_date).format("h:mm A")}
                         </p>
                     )}
                 </div>

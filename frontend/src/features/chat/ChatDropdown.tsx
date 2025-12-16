@@ -38,7 +38,7 @@ function ChatDropdown() {
                     role="button"
                     src={chat_icon}
                     alt="Chat"
-                    className="w-6 h-6 sm:w-11 sm:h-11 cursor-pointer"
+                    className="w-11 h-11 cursor-pointer"
                 />
             </div>
         ) : (
@@ -46,7 +46,7 @@ function ChatDropdown() {
                 <img
                     src={chat_notify}
                     alt="unread chat"
-                    className="w-6 h-6 sm:w-11 sm:h-11 cursor-pointer"
+                    className="w-11 h-11 cursor-pointer"
                 />
                 <p className="absolute top-0.5 right-[4.6px] text-xs text-base-100 font-bold ">
                     {unreadCount < 10 ? (

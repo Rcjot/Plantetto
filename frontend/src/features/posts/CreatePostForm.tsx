@@ -98,7 +98,6 @@ function CreatePostForm({
         setCaption("");
         setPlantTags([]);
         setOpen(false);
-        console.log(newPost);
         appendPost(newPost);
     }
 
@@ -159,7 +158,7 @@ function CreatePostForm({
                         }}
                     >
                         <h1 className="hover:bg-base-300 p-1 rounded-full px-3 w-fit cursor-pointer">
-                            Add to your post
+                            Add to your sprout
                         </h1>
                     </button>
                     <button
@@ -182,7 +181,7 @@ function CreatePostForm({
                     className="btn btn-primary w-fit px-10 self-center"
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? "Posting..." : "Post"}
+                    {isSubmitting ? "Sprouting..." : "Sprout"}
                 </button>
             </form>
         </>

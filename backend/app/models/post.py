@@ -80,8 +80,16 @@ class Posts():
         """
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        
-        sql = """
+
+        is_not_users_posts = ""
+        params =[]
+
+        if (user_id is None) :
+            is_not_users_posts = "AND p.user_id != %s" 
+            params = [current_user_id]
+
+
+        sql = f"""
         WITH cutoff_time AS (
             SELECT NOW() - INTERVAL '24 hours' AS recent_cutoff
         ),
@@ -95,7 +103,7 @@ class Posts():
                 p.user_id,
                 CASE
                     -- Recent posts from YOU or followed users get highest priority
-                    WHEN (p.user_id = %s OR f.following_id IS NOT NULL)
+                    WHEN (f.following_id IS NOT NULL)
                         AND p.created_at >= (SELECT recent_cutoff FROM cutoff_time)
                     THEN 3
                     -- Recent posts from non-followed users
@@ -117,6 +125,7 @@ class Posts():
                     ))
                     OR (p.visibility = 'for_me' AND p.user_id = %s)
                 )
+                {is_not_users_posts}
         ),
         max_ratio_media AS (
             SELECT DISTINCT ON (post_id)
@@ -155,12 +164,14 @@ class Posts():
                             JSON_BUILD_OBJECT(
                                 'id', p.id,
                                 'uuid', p.uuid,
-                                'nickname', p.nickname
+                                'nickname', p.nickname,
+                                'plant_type', ptt.plant_name
                             ) 
                         ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                     ) AS planttags
                 FROM plant_tags pt
                 LEFT JOIN plants p ON p.id = pt.plant_id
+                JOIN plant_types ptt ON p.plant_type_id = ptt.id
                 JOIN posts psb ON pt.post_id = psb.id
                 WHERE psb.id = sp.id
                 GROUP BY pt.post_id), '[]'
@@ -189,7 +200,7 @@ class Posts():
         WHERE 1=1
         """
         
-        params = [current_user_id, current_user_id, current_user_id, current_user_id, current_user_id, current_user_id]
+        params += [ current_user_id, current_user_id, current_user_id, current_user_id, current_user_id]
         
         # add cursor filtering
         if cursor_score is not None and cursor_timestamp is not None:
@@ -258,12 +269,14 @@ class Posts():
                             JSON_BUILD_OBJECT(
                                 'id', p.id,
                                 'uuid', p.uuid,
-                                'nickname', p.nickname
+                                'nickname', p.nickname,
+                                'plant_type', ptt.plant_name
                             ) 
                         ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                     ) AS planttags
                 FROM plant_tags pt
                 LEFT JOIN plants p ON p.id = pt.plant_id
+                JOIN plant_types ptt ON p.plant_type_id = ptt.id
                 JOIN posts psb ON pt.post_id = psb.id
                 WHERE psb.id = posts.id
                 GROUP BY pt.post_id), '[]'
@@ -354,12 +367,14 @@ class Posts():
                                     JSON_BUILD_OBJECT(
                                         'id', p.id,
                                         'uuid', p.uuid,
-                                        'nickname', p.nickname
+                                        'nickname', p.nickname,
+                                        'plant_type', ptt.plant_name
                                     ) 
                                 ) FILTER (WHERE pt.id IS NOT NULL), '[]'
                             ) AS planttags
                         FROM plant_tags pt
                         LEFT JOIN plants p ON p.id = pt.plant_id
+                        JOIN plant_types ptt ON p.plant_type_id = ptt.id
                         JOIN posts psb ON pt.post_id = psb.id
                         WHERE psb.id = posts.id
                         GROUP BY pt.post_id), '[]'
@@ -476,13 +491,23 @@ class Posts():
                     ) FILTER (WHERE media.id IS NOT NULL), '[]'
                 ) AS media,
                 COALESCE(
-                    JSON_AGG(
-                        JSON_BUILD_OBJECT(
-                            'id', p.id,
-                            'uuid', p.uuid,
-                            'nickname', p.nickname
-                        )
-                    ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                    (SELECT
+                        COALESCE (
+                            JSON_AGG(
+                                JSON_BUILD_OBJECT(
+                                    'id', p.id,
+                                    'uuid', p.uuid,
+                                    'nickname', p.nickname,
+                                    'plant_type', ptt.plant_name
+                                ) 
+                            ) FILTER (WHERE pt.id IS NOT NULL), '[]'
+                        ) AS planttags
+                    FROM plant_tags pt
+                    LEFT JOIN plants p ON p.id = pt.plant_id
+                    JOIN plant_types ptt ON p.plant_type_id = ptt.id
+                    JOIN posts psb ON pt.post_id = psb.id
+                    WHERE psb.id = posts.id
+                    GROUP BY pt.post_id), '[]'
                 ) AS planttags,
                 max_ratio.width AS highlight_width,
                 max_ratio.height AS highlight_height,

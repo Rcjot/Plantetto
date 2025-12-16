@@ -86,7 +86,6 @@ function Market() {
         setSearchQuery(searchInput);
         setPage(1);
     };
-    console.log(marketItems);
 
     return (
         <div className="bg-base-200 pr-1">
