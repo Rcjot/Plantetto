@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import market from "@/assets/icons/marketplace.svg";
 
 interface GardenCardProps {
-    forSale: boolean;
-    itemUuid: string;
+    forSale?: boolean;
     image: string;
+    itemUuid?: string;
     title: string;
     onClick?: () => void;
 }
