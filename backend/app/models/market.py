@@ -52,7 +52,13 @@ class MarketItems() :
                 'picture_url', p.picture_url,
                 'created_at', p.created_at,
                 'plant_type', plant_types.plant_name
-            ) as plant
+            ) as plant,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS owner
         """
         meta_data_query = """
         SELECT COUNT(*) OVER() AS result_count,
@@ -108,7 +114,7 @@ class MarketItems() :
         })
     
     @classmethod
-    def get_market(cls, search, status, sort, plant_type_id, limit, offset) :
+    def get_market(cls, search, status, sort, plant_type_id, limit, offset, current_user_id) :
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -125,7 +131,18 @@ class MarketItems() :
                 'picture_url', p.picture_url,
                 'created_at', p.created_at,
                 'plant_type', plant_types.plant_name
-            ) as plant
+            ) as plant,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS owner,
+        EXISTS (
+            SELECT b_mi.created_at FROM bookmarks_market b_mi
+            WHERE b_mi.market_item_id = mi.id
+            AND b_mi.user_id = %s
+        ) AS bookmarked
         """
         meta_data_query = """
         SELECT COUNT(*) OVER() AS result_count,
@@ -161,7 +178,7 @@ class MarketItems() :
 
             
 
-        cursor.execute(listing_query + sql, params)
+        cursor.execute(listing_query + sql, [current_user_id] + params)
         guides = cursor.fetchall()
         cursor.execute(meta_data_query + sql, params)
         meta_data = cursor.fetchone()
@@ -260,7 +277,7 @@ class MarketItems() :
         return result
 
     @classmethod
-    def get_market_item(cls, market_item_uuid):
+    def get_market_item(cls, market_item_uuid, current_user_id):
         """Get a single market item by UUID with full details"""
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -278,14 +295,26 @@ class MarketItems() :
                 'picture_url', p.picture_url,
                 'created_at', p.created_at,
                 'plant_type', plant_types.plant_name
-            ) as plant
+            ) as plant,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS owner,
+        EXISTS (
+            SELECT b_mi.created_at FROM bookmarks_market b_mi
+            WHERE b_mi.market_item_id = mi.id
+            AND b_mi.user_id = %s
+        ) AS bookmarked
         FROM market_items mi
+        JOIN users ON mi.user_id = users.id
         JOIN plants p ON mi.plant_id = p.id
         JOIN plant_types ON p.plant_type_id = plant_types.id
         WHERE mi.uuid = %s
         """
 
-        cursor.execute(sql, (market_item_uuid,))
+        cursor.execute(sql, (current_user_id, market_item_uuid,))
         result = cursor.fetchone()
 
         cursor.close()
@@ -394,3 +423,58 @@ class MarketItems() :
         cursor.close()
         
         return plants
+    
+
+    @classmethod
+    def get_market_item_id(cls, market_item_uuid) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = "SELECT id FROM market_items WHERE uuid = %s"
+        cursor.execute(sql, (market_item_uuid,))
+        market_item = cursor.fetchone()
+
+        cursor.close()
+
+        return market_item
+    
+    @classmethod
+    def get_bookmarked_items(cls, user_id, limit, offset):
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = """
+        SELECT 
+            mi.uuid,
+            mi.description,
+            mi.price,
+            mi.status,
+            JSON_BUILD_OBJECT(
+                'plant_uuid', p.uuid,
+                'nickname', p.nickname,
+                'description', p.plant_description,
+                'picture_url', p.picture_url,
+                'created_at', p.created_at,
+                'plant_type', plant_types.plant_name
+            ) as plant,
+            JSON_BUILD_OBJECT(
+                'id', users.uuid,
+                'pfp_url', users.pfp_url,
+                'username', users.username,
+                'display_name', users.display_name
+            ) AS owner,
+            true AS bookmarked
+        FROM bookmarks_market bm
+        JOIN market_items mi ON bm.market_item_id = mi.id
+        JOIN users ON mi.user_id = users.id
+        JOIN plants p ON mi.plant_id = p.id
+        JOIN plant_types ON p.plant_type_id = plant_types.id
+        WHERE bm.user_id = %s
+        ORDER BY bm.created_at DESC
+        LIMIT %s OFFSET %s
+        """
+
+        cursor.execute(query, (user_id, limit, offset))
+        items = cursor.fetchall()
+        cursor.close()
+
+        return items

@@ -242,6 +242,8 @@ function MyListings() {
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {listings.map((item) => (
                             <MarketCard
+                                uuid={item.uuid}
+                                owner={item.owner}
                                 key={item.uuid}
                                 image={item.plant.picture_url}
                                 title={item.plant.nickname}

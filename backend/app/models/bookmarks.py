@@ -70,3 +70,33 @@ class Bookmarks:
         db.commit()
         cursor.close()
         return message
+    
+    @classmethod
+    def toggle_bookmark_market_item(cls, user_id, market_item_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        try_delete_sql = """
+        DELETE FROM bookmarks_market
+        WHERE user_id = %s
+        AND market_item_id = %s
+        RETURNING *
+        """
+        message = "unbookmark"
+
+        cursor.execute(try_delete_sql, (user_id, market_item_id))
+        result = cursor.fetchone()
+
+        if result is None : 
+            message = "bookmark"
+            sql = """
+            INSERT INTO bookmarks_market
+            (user_id, market_item_id)
+            VALUES (%s, %s)
+            ON CONFLICT DO NOTHING
+            """
+            cursor.execute(sql, (user_id, market_item_id))
+        
+        db.commit()
+        cursor.close()
+        return message

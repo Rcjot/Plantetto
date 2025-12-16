@@ -13,8 +13,14 @@ import useNotifyMessages from "./hooks/useNotifyMessages";
 
 function ChatDropdown() {
     const [isListState, setIsListState] = useState(true);
-    const { currentRoomObj, setCurrentRoomObj, dropdownOpen, setDropdownOpen } =
-        useChatState(setIsListState);
+    const {
+        currentRoomObj,
+        setCurrentRoomObj,
+        dropdownOpen,
+        setDropdownOpen,
+        defaultMessage,
+        setDefaultMessage,
+    } = useChatState(setIsListState);
 
     const { unreadCount, fetchUnreadCount } = useNotifyMessages({
         dropdownOpen: dropdownOpen,
@@ -71,7 +77,9 @@ function ChatDropdown() {
                     />
                 ) : (
                     <ChatRoom
-                        key={currentRoomObj.recipient?.id}
+                        defaultMessage={defaultMessage}
+                        setDefaultMessage={setDefaultMessage}
+                        key={`${currentRoomObj.recipient?.id}`}
                         currentRoomObj={currentRoomObj}
                         toggleListState={toggleListState}
                     />

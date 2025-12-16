@@ -1,11 +1,13 @@
 import { useState } from "react";
-// 1. Import Outlet
 import { Outlet } from "react-router-dom";
 import BookmarkedPostsFeed from "@/features/bookmarks/BookmarkedPostsFeed";
 import BookmarkedGuidesFeed from "@/features/bookmarks/BookmarkedGuidesFeed";
+import BookmarkedMarketFeed from "@/features/bookmarks/BookmarkedMarketFeed";
 
 function Bookmarks() {
-    const [activeTab, setActiveTab] = useState<"posts" | "guides">("posts");
+    const [activeTab, setActiveTab] = useState<"posts" | "guides" | "market">(
+        "posts"
+    );
 
     const containerClass = activeTab === "posts" ? "max-w-3xl" : "max-w-7xl";
 
@@ -41,17 +43,25 @@ function Bookmarks() {
                             >
                                 Guides
                             </button>
+                            <button
+                                onClick={() => setActiveTab("market")}
+                                className={`pb-3 text-lg font-medium transition-colors relative ${
+                                    activeTab === "market"
+                                        ? "text-primary border-b-2 border-primary"
+                                        : "text-gray-500 hover:text-base-content"
+                                }`}
+                            >
+                                Market
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Content */}
                 <div className="w-full min-h-[500px]">
-                    {activeTab === "posts" ? (
-                        <BookmarkedPostsFeed />
-                    ) : (
-                        <BookmarkedGuidesFeed />
-                    )}
+                    {activeTab === "posts" && <BookmarkedPostsFeed />}
+                    {activeTab === "guides" && <BookmarkedGuidesFeed />}
+                    {activeTab === "market" && <BookmarkedMarketFeed />}
                 </div>
 
                 <Outlet />

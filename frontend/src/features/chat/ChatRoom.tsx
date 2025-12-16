@@ -11,9 +11,16 @@ import type { RoomObjType } from "./hooks/useChatState";
 interface ChatRoomProps {
     toggleListState: () => void;
     currentRoomObj: RoomObjType;
+    defaultMessage: string;
+    setDefaultMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
-function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
+function ChatRoom({
+    toggleListState,
+    currentRoomObj,
+    defaultMessage,
+    setDefaultMessage,
+}: ChatRoomProps) {
     const { auth } = useAuthContext()!;
     const currentRoomObjUuid =
         currentRoomObj.room && typeof currentRoomObj.room !== "string"
@@ -21,7 +28,12 @@ function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
             : null;
     const { messagesObj, appendMessage, fetchMessages, hasMore, loading } =
         useChat(currentRoomObjUuid);
-    const [message, setMessage] = useState<string>("");
+    const [message, setMessage] = useState<string>(
+        currentRoomObj.defaultMessage ? defaultMessage : ""
+    );
+    // no idea why i decided it to be like this
+    // i guess to not invoke setCurrentRoomObj just to update defaultmessage?
+    // idk..
 
     function onSendSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -34,8 +46,14 @@ function ChatRoom({ toggleListState, currentRoomObj }: ChatRoomProps) {
                 currentRoomObjUuid
             );
             setMessage("");
+            setDefaultMessage("");
         }
     }
+
+    useEffect(() => {
+        setMessage(currentRoomObj.defaultMessage ? defaultMessage : "");
+    }, [defaultMessage, currentRoomObj]);
+
     useEffect(() => {
         if (!currentRoomObjUuid) return;
         const listenRoom = `new_message_${currentRoomObjUuid}`;

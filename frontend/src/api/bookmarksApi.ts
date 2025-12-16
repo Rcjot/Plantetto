@@ -1,5 +1,6 @@
 import type { PostType } from "@/features/posts/postTypes";
 import type { GuideType } from "@/features/guides/guideTypes";
+import type { MarketItemType } from "@/features/market/marketTypes";
 import axios from "@/lib/axios";
 
 async function fetchBookmarkedPosts(
@@ -46,9 +47,30 @@ async function toggleBookmarkGuide(guideUuid: string) {
     }
 }
 
+async function toggleBookmarkMarketItem(marketItemUuid: string) {
+    try {
+        const { data } = await axios.post(
+            `/market/${marketItemUuid}/bookmarks/`
+        );
+        return { ok: true, action: data["action"] };
+    } catch (error) {
+        console.error(error);
+        return { ok: false };
+    }
+}
+
+async function fetchBookmarkedMarketItems(page: number, limit: number = 12) {
+    const { data } = await axios.get(
+        `/bookmarks/market?page=${page}&limit=${limit}`
+    );
+    return { ok: true, items: data["items"] as MarketItemType[] };
+}
+
 export default {
     fetchBookmarkedPosts,
     fetchBookmarkedGuides,
     toggleBookmarkPost,
     toggleBookmarkGuide,
+    toggleBookmarkMarketItem,
+    fetchBookmarkedMarketItems,
 };

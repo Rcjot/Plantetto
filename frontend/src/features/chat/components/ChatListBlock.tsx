@@ -35,6 +35,7 @@ function ChatListBlock({
                 setCurrentRoomObj({
                     recipient: room.recipient,
                     room: room,
+                    defaultMessage: null,
                 });
                 // setConversationRoomUuid(room.uuid);
 

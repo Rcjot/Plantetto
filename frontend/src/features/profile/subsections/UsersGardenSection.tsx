@@ -153,6 +153,8 @@ function UsersGardenSection() {
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                         {plants.map((plant) => (
                             <GardenCard
+                                forSale={plant.for_sale}
+                                itemUuid={plant.market_item_uuid}
                                 key={plant.plant_uuid}
                                 image={plant.picture_url}
                                 title={plant.nickname}
