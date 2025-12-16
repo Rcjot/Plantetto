@@ -90,7 +90,12 @@ function PostHeader({
                                                 key={p.id}
                                                 className="badge badge-soft badge-primary"
                                             >
-                                                <p>{p.nickname}</p>
+                                                <div
+                                                    className="tooltip"
+                                                    data-tip={p.plant_type}
+                                                >
+                                                    <p>{p.nickname}</p>
+                                                </div>
                                             </Link>
                                         );
                                     })}
