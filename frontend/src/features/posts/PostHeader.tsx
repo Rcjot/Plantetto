@@ -80,7 +80,8 @@ function PostHeader({
                         <HoverCard>
                             <HoverCardTrigger>
                                 <p className="hover:underline">
-                                    with {planttags.length} plants
+                                    with {planttags.length}{" "}
+                                    {planttags.length == 1 ? "plant" : "plants"}
                                 </p>
                             </HoverCardTrigger>
                             <HoverCardContent className="bg-base-100 no-propagate">
