@@ -1,8 +1,11 @@
-const serverURL = import.meta.env.VITE_SERVER_URL;
+// const serverURL = import.meta.env.VITE_SERVER_URL;
 import type { UserType } from "@/features/auth/authTypes";
 import { io } from "socket.io-client";
 
-const socket = io(serverURL, { autoConnect: false });
+const socket = io({
+    autoConnect: false,
+    transports: ["websocket", "polling"],
+});
 
 export function joinRooms(username: string) {
     socket.emit("join_rooms", username);
@@ -19,6 +22,8 @@ export function sendMessage(
     message: string,
     room: string | null
 ) {
+    console.log("emitting");
+    console.log("socket is connected: ", socket.connected);
     socket.emit("chat_message", {
         sender: sender,
         sender_username: sender_username,

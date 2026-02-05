@@ -8,19 +8,22 @@ from .services import cleanup
 from flask_socketio import SocketIO, send
 
 login_manager = LoginManager()
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO(cors_allowed_origins="*",
+                    async_mode="gevent")
 
 def create_app() :
     app = Flask(__name__, 
                 instance_relative_config=True, 
-                static_folder="../../frontend/dist", 
-                static_url_path="/")
+                # static_folder="../../frontend/dist", 
+                # static_url_path="/"
+                )
     app.config.from_mapping(
         SECRET_KEY=SECRET_KEY,
         DATABASE_URL=DATABASE_URL
     )
 
     socketio.init_app(app)
+    print("ASYNC MODE", socketio.async_mode)
 
     from . import sockets
 
@@ -40,15 +43,19 @@ def create_app() :
     cleanup.cleanup_unused_guides_images(app)
     cleanup.init_app(app)
 
-    @app.route("/") 
-    def server():
-        return send_from_directory(app.static_folder, "index.html")
-        
-    @app.errorhandler(404)
-    def not_found(e) :
-        return send_from_directory(app.static_folder, "index.html")
-
+    # @app.route("/") 
+    # def server():
+    #     return send_from_directory(app.static_folder, "index.html")
+    #
+    # @app.errorhandler(404)
+    # def not_found(e) :
+    #     return send_from_directory(app.static_folder, "index.html")
+    #
     
+    @app.route("/")
+    def index() :
+        return  {"message": "Hello, API is working"}
+
     from .features.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix="/api")
 

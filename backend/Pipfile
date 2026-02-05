@@ -17,6 +17,7 @@ apscheduler = "*"
 tzdata = "*"
 flask-socketio = "*"
 resend = "*"
+gevent-websokce = "*"
 
 [dev-packages]
 

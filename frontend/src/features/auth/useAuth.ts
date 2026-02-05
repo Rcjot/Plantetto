@@ -24,6 +24,7 @@ function useAuth() {
         if (auth && auth.user != null) {
             socket.connect();
             const connectHandler = () => {
+                console.log("connected");
                 joinRoom(auth.user!.username, auth.user!.id);
                 joinRooms(auth.user!.username);
             };
