@@ -18,8 +18,8 @@ tzdata = "*"
 flask-socketio = "*"
 resend = "*"
 gevent-websocket = "*"
-opencv-python = "*"
 numpy = "*"
+opencv-python-headless = "*"
 
 [dev-packages]
 

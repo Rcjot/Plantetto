@@ -29,8 +29,6 @@ def detect_face(file) :
     #     cv2.rectangle(img, (x, y), (x+w, y+h), (0,255,0), 4)
 
 
-    # img_rgb = cv2.cvtColor(img, cv2.COLOR_BayerGR2RGB)
-
     # saved = cv2.imwrite("test_rgb.jpg", img)
     # print("saved:", saved)
 
