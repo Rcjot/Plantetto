@@ -2,7 +2,11 @@ import { useState } from "react";
 import SettingItem from "@/components/ui/SettingItem";
 import ChangePasswordModal from "@/components/ui/ChangePasswordModal";
 import ChangeEmailModal from "@/components/ui/ChangeEmailModal";
-import { ArrowLeft, FrownIcon, UserRoundCheck } from "lucide-react";
+import {
+    ArrowLeft,
+    ShieldCheckIcon,
+    ShieldQuestionMarkIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { MailCheck } from "lucide-react";
 // import { Mail } from "lucide-react";
@@ -65,7 +69,7 @@ function SettingsAccount() {
                             label="Verified to Sell"
                             onClick={() => {}}
                         >
-                            <UserRoundCheck />
+                            <ShieldCheckIcon />
                         </SettingItem>
                     ) : (
                         <SettingItem
@@ -74,7 +78,7 @@ function SettingsAccount() {
                                 setOpenCamera(true);
                             }}
                         >
-                            <FrownIcon />
+                            <ShieldQuestionMarkIcon />
                         </SettingItem>
                     )}
                 </div>

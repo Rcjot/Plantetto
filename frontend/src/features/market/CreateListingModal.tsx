@@ -126,7 +126,12 @@ export default function CreateListingModal({
 
     if (!auth.user?.seller_verified) {
         return (
-            <Link to="/settings/accountsinformation">verify first please!</Link>
+            <Link
+                to="/settings/accountsinformation"
+                className="btn btn-warning"
+            >
+                verify to sell
+            </Link>
         );
     }
 
