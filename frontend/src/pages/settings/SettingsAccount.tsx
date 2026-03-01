@@ -9,6 +9,7 @@ import { MailCheck } from "lucide-react";
 import { Shield } from "lucide-react";
 import VerifyEmailModal from "@/components/ui/VerifyEmailModal";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { CameraDialog } from "@/features/settings/Camera";
 
 function SettingsAccount() {
     const { auth } = useAuthContext()!;
@@ -57,6 +58,7 @@ function SettingsAccount() {
                             <MailCheck />
                         </SettingItem>
                     )}
+                    <CameraDialog />
                 </div>
 
                 {/* Modals */}
