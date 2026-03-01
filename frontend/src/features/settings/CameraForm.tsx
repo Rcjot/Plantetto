@@ -1,10 +1,25 @@
 import Webcam from "react-webcam";
+import { CameraIcon } from "lucide-react";
 import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import { useCallback, useRef, useState } from "react";
+import usersApi from "@/api/usersApi";
+import { toast } from "react-toastify";
+
+function base64ToBlob(base64: string) {
+    // remove "data:*/*;base64," prefix
+    const [metadata, data] = base64.split(",");
+    const contentType = metadata.match(/:(.*?);/)?.[1] || "image/jpeg";
+    const byteCharacters = atob(data);
+    const byteNumbers = new Array(byteCharacters.length)
+        .fill(0)
+        .map((_, i) => byteCharacters.charCodeAt(i));
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: contentType });
+}
 
 export default function CameraForm() {
     const [currentStep, setCurrentStep] = useState<number>(0);
@@ -17,13 +32,30 @@ export default function CameraForm() {
     const webcamRef = useRef<Webcam | null>(null);
 
     const capture = useCallback(() => {
-        console.log(webcamRef.current);
         if (webcamRef.current) {
             const imageSrc = webcamRef.current.getScreenshot();
-            setCurrentStep((p) => p + 1);
-            console.log(imageSrc);
+            if (imageSrc) {
+                submitCapture(imageSrc);
+            }
         }
     }, [webcamRef]);
+
+    const submitCapture = async (imageSrc: string) => {
+        const blob = base64ToBlob(imageSrc);
+        const file = new File([blob], "capture.jpg", { type: blob.type });
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const { ok, has_face } = await usersApi.detectFace(formData);
+        console.log(ok, has_face);
+        if (ok) {
+            if (has_face) {
+                setCurrentStep((p) => p + 1);
+            }
+        } else {
+            toast.warn("something went wrong");
+        }
+    };
 
     const isStepOne = currentStep >= 0;
     const isStepTwo = currentStep > 0;
@@ -33,7 +65,7 @@ export default function CameraForm() {
         <>
             <DialogHeader>
                 <DialogTitle>
-                    Please, take a photo of your ID using the camera.
+                    {`Please take a photo of your ${currentStep == 0 ? "ID" : "Face"} using the camera.`}
                 </DialogTitle>
                 <DialogDescription className="text-secondary">
                     be assured that the photo won't be saved in the system. :)
@@ -67,8 +99,12 @@ export default function CameraForm() {
                 width={600}
                 videoConstraints={videoConstraints}
             />
-            <button onClick={capture} className="btn btn-primary">
-                capture photo
+            <button
+                onClick={capture}
+                className="btn btn-primary w-fit self-center ml-auto mr-auto "
+            >
+                Take Photo
+                <CameraIcon />
             </button>
         </>
     );
