@@ -14,6 +14,8 @@ import math
 import json
 from ...services.resend import send_to_email
 from ...models.email_verification import EmailVerifications
+from app.models import user
+from ...services import opencvfid
 
 @user_bp.route("/upload", methods=["POST"])
 @login_required
@@ -418,6 +420,25 @@ def get_verification_code_status() :
     status = EmailVerifications.check_has_available_code(current_user.get_id(), verification_type)
 
     return jsonify(success=True, has_available=status)
+
+@user_bp.route("/verify_seller", methods=["POST"])
+def verify_seller() :
+    res = Users.verify_seller(current_user_id=current_user.id())
+    if not res :
+        return jsonify(success=False), 404
+
+    return jsonify(success=True, message="successfully verified"), 200
+
+@user_bp.route("/face_detect", methods=["POST"]) 
+def face_detect() :
+    file = request.files['image']
+
+    face = opencvfid.detect_face(file)
+    # face=False
+
+    return jsonify(success=True, has_face=face), 200
+
+
 
 @user_bp.route("/<username>/guides")
 @login_required

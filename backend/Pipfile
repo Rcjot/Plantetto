@@ -19,6 +19,7 @@ flask-socketio = "*"
 resend = "*"
 gevent-websocket = "*"
 opencv-python = "*"
+numpy = "*"
 
 [dev-packages]
 

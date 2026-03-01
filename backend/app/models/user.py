@@ -302,6 +302,7 @@ class Users(UserMixin) :
 
         return True
 
+# this is not used anymore i think
     @classmethod
     def change_email(cls, current_user_id, new_email) :
         db = get_db()
@@ -340,3 +341,27 @@ class Users(UserMixin) :
             return False
 
         return result['email_verified']
+
+    @classmethod
+    def verify_seller(cls, current_user_id) :
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql = """
+                UPDATE users
+                SET 
+                seller_verified = TRUE
+                WHERE id = %s
+                RETURNING *
+              """
+        
+        cursor.execute(sql, (current_user_id,))
+        result = cursor.fetchone()
+
+        db.commit()
+        cursor.close()
+
+        if not result :
+            return False
+
+        return True
+
