@@ -8,6 +8,7 @@ import {
 import { useCallback, useRef, useState } from "react";
 import usersApi from "@/api/usersApi";
 import { toast } from "react-toastify";
+import { useAuthContext } from "../auth/AuthContext";
 
 function base64ToBlob(base64: string) {
     // remove "data:*/*;base64," prefix
@@ -22,7 +23,9 @@ function base64ToBlob(base64: string) {
 }
 
 export default function CameraForm() {
+    const { fetchCredentials } = useAuthContext()!;
     const [currentStep, setCurrentStep] = useState<number>(0);
+    const [loading, setLoading] = useState(false);
     const videoConstraints = {
         widht: 1280,
         height: 720,
@@ -31,6 +34,56 @@ export default function CameraForm() {
 
     const webcamRef = useRef<Webcam | null>(null);
 
+    const submitCapture = useCallback(
+        async (imageSrc: string) => {
+            setLoading(true);
+            const blob = base64ToBlob(imageSrc);
+            const file = new File([blob], "capture.jpg", { type: blob.type });
+            const formData = new FormData();
+            formData.append("image", file);
+
+            const { ok, has_face } = await usersApi.detectFace(formData);
+            console.log(ok, has_face);
+            if (ok) {
+                if (has_face) {
+                    const message =
+                        currentStep === 0
+                            ? "ID detected :D"
+                            : "Face detected :D";
+                    toast.success(message, { position: "bottom-center" });
+
+                    console.log(currentStep);
+                    if (currentStep === 1) {
+                        // success here
+                        const { ok } = await usersApi.verifyToSellUser();
+                        if (ok) {
+                            toast.success("you are now verified to sell! :D", {
+                                position: "bottom-center",
+                            });
+
+                            setCurrentStep((p) => p + 1);
+
+                            fetchCredentials();
+                            return;
+                        }
+                    }
+
+                    setCurrentStep((p) => p + 1);
+                } else {
+                    const message =
+                        currentStep === 0
+                            ? "Couldn't detect an ID, please try again."
+                            : "Couldn't detect a Face, please try again.";
+                    toast.warning(message, { position: "bottom-center" });
+                }
+            } else {
+                toast.error("something went wrong");
+            }
+            setLoading(false);
+        },
+        [currentStep, fetchCredentials]
+    );
+
     const capture = useCallback(() => {
         if (webcamRef.current) {
             const imageSrc = webcamRef.current.getScreenshot();
@@ -38,24 +91,7 @@ export default function CameraForm() {
                 submitCapture(imageSrc);
             }
         }
-    }, [webcamRef]);
-
-    const submitCapture = async (imageSrc: string) => {
-        const blob = base64ToBlob(imageSrc);
-        const file = new File([blob], "capture.jpg", { type: blob.type });
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const { ok, has_face } = await usersApi.detectFace(formData);
-        console.log(ok, has_face);
-        if (ok) {
-            if (has_face) {
-                setCurrentStep((p) => p + 1);
-            }
-        } else {
-            toast.warn("something went wrong");
-        }
-    };
+    }, [webcamRef, submitCapture]);
 
     const isStepOne = currentStep >= 0;
     const isStepTwo = currentStep > 0;
@@ -99,13 +135,19 @@ export default function CameraForm() {
                 width={600}
                 videoConstraints={videoConstraints}
             />
-            <button
-                onClick={capture}
-                className="btn btn-primary w-fit self-center ml-auto mr-auto "
-            >
-                Take Photo
-                <CameraIcon />
-            </button>
+            {!isDone ? (
+                <button
+                    onClick={capture}
+                    className="btn btn-primary w-fit self-center ml-auto mr-auto "
+                >
+                    {loading ? "analyzing..." : "Take Photo"}
+                    <CameraIcon />
+                </button>
+            ) : (
+                <div className=" w-fit self-center ml-auto mr-auto">
+                    You're all set (:
+                </div>
+            )}
         </>
     );
 }

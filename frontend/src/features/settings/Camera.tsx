@@ -1,14 +1,15 @@
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import CameraForm from "./CameraForm";
-import { useState } from "react";
 
-export function CameraDialog() {
-    const [open, setOpen] = useState(false);
+export function CameraDialog({
+    open,
+    setOpenCamera,
+}: {
+    open: boolean;
+    setOpenCamera: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <button>No Close Button</button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={setOpenCamera}>
             <DialogContent showCloseButton={false} className="bg-white">
                 {open && <CameraForm />}
             </DialogContent>

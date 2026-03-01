@@ -111,12 +111,26 @@ async function detectFace(form: FormData) {
     }
 }
 
+async function verifyToSellUser() {
+    try {
+        const { data } = await axios.patch("/users/verify_seller");
+        return { ok: true, data };
+    } catch (error) {
+        console.error(error);
+        if (isAxiosError(error) && error.response) {
+            return { ok: false, errors: error.response.data.error };
+        }
+        return { ok: false, errors: { root: "some error occurred" } };
+    }
+}
+
 export default {
     changePassword,
     changeEmail,
     sendVerificationCode,
     detectFace,
     verifyEmail,
+    verifyToSellUser,
     getVerifCodeStatus,
     submitCodeForPasswordChange,
     submitCodeForEmailChange,
