@@ -421,15 +421,17 @@ def get_verification_code_status() :
 
     return jsonify(success=True, has_available=status)
 
-@user_bp.route("/verify_seller", methods=["POST"])
+@user_bp.route("/verify_seller", methods=["PATCH"])
+@login_required
 def verify_seller() :
-    res = Users.verify_seller(current_user_id=current_user.id())
+    res = Users.verify_seller(current_user_id=current_user.get_id())
     if not res :
         return jsonify(success=False), 404
 
     return jsonify(success=True, message="successfully verified"), 200
 
 @user_bp.route("/face_detect", methods=["POST"]) 
+@login_required
 def face_detect() :
     file = request.files['image']
 
