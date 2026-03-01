@@ -40,6 +40,10 @@ def get_market() :
 @market_bp.route("/", methods=["POST"])
 @login_required
 def add_market_item() :
+    current_user_json = current_user.get_json()
+    if (not current_user_json['seller_verified']) :
+        return jsonify(message="unauthorized"), 403
+
     form = MarketItemForm()
     current_user_id = current_user.get_id()
     form.current_user_id = current_user_id
