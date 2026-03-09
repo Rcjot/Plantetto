@@ -103,8 +103,8 @@ export default function Navbar() {
                     <div className="dropdown dropdown-end">
                         <div
                             tabIndex={0}
-                            role="button"
                             className="cursor-pointer"
+                            role="button"
                         >
                             {auth?.user ? (
                                 <ProfilePicture size="small" />
