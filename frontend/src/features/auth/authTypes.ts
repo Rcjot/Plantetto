@@ -3,6 +3,7 @@ export interface UserType {
     username: string;
     email: string;
     email_verified: boolean;
+    seller_verified: boolean;
     pfp_url: string;
     display_name: string | null;
 }
@@ -22,3 +23,4 @@ export interface AuthContextType {
     logout: () => Promise<void>;
     fetchCredentials: () => Promise<void>;
 }
+

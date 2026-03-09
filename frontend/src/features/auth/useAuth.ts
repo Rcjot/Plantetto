@@ -12,6 +12,7 @@ function useAuth() {
     const fetchCredentials = useCallback(async () => {
         const { ok, auth } = await authApi.fetchMe();
         if (ok) {
+            console.log(auth);
             setAuth(auth);
         }
     }, []);

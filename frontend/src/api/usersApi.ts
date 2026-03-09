@@ -97,12 +97,42 @@ async function submitCodeForEmailChange(code: string) {
     }
 }
 
+async function detectFace(form: FormData) {
+    try {
+        const { data } = await axios.post("/users/face_detect", form);
+        const has_face: boolean = data["has_face"];
+        return { ok: true, has_face };
+    } catch (error) {
+        console.error(error);
+        if (isAxiosError(error) && error.response) {
+            return { ok: false, errors: error.response.data.error };
+        }
+        return { ok: false, errors: { root: "some error occurred" } };
+    }
+}
+
+async function verifyToSellUser() {
+    try {
+        const { data } = await axios.patch("/users/verify_seller");
+        return { ok: true, data };
+    } catch (error) {
+        console.error(error);
+        if (isAxiosError(error) && error.response) {
+            return { ok: false, errors: error.response.data.error };
+        }
+        return { ok: false, errors: { root: "some error occurred" } };
+    }
+}
+
 export default {
     changePassword,
     changeEmail,
     sendVerificationCode,
+    detectFace,
     verifyEmail,
+    verifyToSellUser,
     getVerifCodeStatus,
     submitCodeForPasswordChange,
     submitCodeForEmailChange,
 };
+

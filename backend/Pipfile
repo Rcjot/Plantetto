@@ -17,7 +17,9 @@ apscheduler = "*"
 tzdata = "*"
 flask-socketio = "*"
 resend = "*"
-gevent-websokce = "*"
+gevent-websocket = "*"
+numpy = "*"
+opencv-python-headless = "*"
 
 [dev-packages]
 

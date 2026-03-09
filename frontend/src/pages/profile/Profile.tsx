@@ -10,7 +10,7 @@ import { FollowersDialog } from "@/features/follow/FollowersDialog";
 import { FollowingDialog } from "@/features/follow/FollowingDialog";
 import chat_icon from "@/assets/icons/chat.svg";
 import { followNotify } from "@/lib/socket";
-import { BellRingIcon } from "lucide-react";
+import { BellRingIcon, ShieldCheckIcon } from "lucide-react";
 import { joinRoom } from "@/lib/socket";
 import ProfileDiaryCarouselSection from "@/features/profile/profilediaries/ProfileDiaryCarouselSection";
 
@@ -154,9 +154,19 @@ function Profile() {
                             </div>
 
                             <div>
-                                <h1 className="text-2xl font-bold text-base-content">
-                                    {user.display_name || user.username}
-                                </h1>
+                                <div className="flex items-center gap-2">
+                                    <h1 className="text-2xl font-bold text-base-content">
+                                        {user.display_name || user.username}
+                                    </h1>
+                                    {user.seller_verified && (
+                                        <div
+                                            className="tooltip"
+                                            data-tip="verified to sell"
+                                        >
+                                            <ShieldCheckIcon className="text-secondary" />
+                                        </div>
+                                    )}
+                                </div>
                                 <p className="text-base-content/70">
                                     @{user.username}
                                 </p>

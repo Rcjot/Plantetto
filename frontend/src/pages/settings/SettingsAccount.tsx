@@ -2,19 +2,26 @@ import { useState } from "react";
 import SettingItem from "@/components/ui/SettingItem";
 import ChangePasswordModal from "@/components/ui/ChangePasswordModal";
 import ChangeEmailModal from "@/components/ui/ChangeEmailModal";
-import { ArrowLeft } from "lucide-react";
+import {
+    ArrowLeft,
+    ShieldCheckIcon,
+    ShieldQuestionMarkIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { MailCheck } from "lucide-react";
 // import { Mail } from "lucide-react";
 import { Shield } from "lucide-react";
 import VerifyEmailModal from "@/components/ui/VerifyEmailModal";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { CameraDialog } from "@/features/settings/Camera";
 
 function SettingsAccount() {
     const { auth } = useAuthContext()!;
     const [modal, setModal] = useState<"email" | "password" | "verify" | null>(
         null
     );
+
+    const [openCamera, setOpenCamera] = useState(false);
     return (
         <div className="flex flex-col gap-20 p-3 sm:p-10">
             <div className="flex gap-2">
@@ -53,12 +60,35 @@ function SettingsAccount() {
                             <MailCheck />
                         </SettingItem>
                     ) : (
-                        <SettingItem label="Verified" onClick={() => {}}>
+                        <SettingItem label="Email Verified" onClick={() => {}}>
                             <MailCheck />
+                        </SettingItem>
+                    )}
+                    {auth.user?.seller_verified ? (
+                        <SettingItem
+                            label="Verified to Sell"
+                            onClick={() => {}}
+                        >
+                            <ShieldCheckIcon />
+                        </SettingItem>
+                    ) : (
+                        <SettingItem
+                            label="Verify to Sell"
+                            onClick={() => {
+                                setOpenCamera(true);
+                            }}
+                        >
+                            <ShieldQuestionMarkIcon />
                         </SettingItem>
                     )}
                 </div>
 
+                {!auth.user?.seller_verified && (
+                    <CameraDialog
+                        open={openCamera}
+                        setOpenCamera={setOpenCamera}
+                    />
+                )}
                 {/* Modals */}
                 {modal === "password" && (
                     <ChangePasswordModal

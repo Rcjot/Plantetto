@@ -3,3 +3,7 @@
 __pycache__/
 *.pyc
 init_schemas/
+input_img.jpg
+input_img_no.jpg
+test_rgb.jpg
+id.jpg

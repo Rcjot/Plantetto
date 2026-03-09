@@ -22,6 +22,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import marketApi from "@/api/marketApi";
 import plantsApi from "@/api/plantsApi";
 import type { PlantOptionType } from "@/features/garden/gardenTypes";
+import { Link } from "react-router-dom";
 
 export default function CreateListingModal({
     onSuccess,
@@ -122,6 +123,17 @@ export default function CreateListingModal({
 
         setIsSubmitting(false);
     };
+
+    if (!auth.user?.seller_verified) {
+        return (
+            <Link
+                to="/settings/accountsinformation"
+                className="btn btn-warning"
+            >
+                verify to sell
+            </Link>
+        );
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
